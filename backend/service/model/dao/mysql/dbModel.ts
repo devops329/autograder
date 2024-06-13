@@ -1,0 +1,20 @@
+export const tableCreateStatements = [
+  `CREATE TABLE IF NOT EXISTS User (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  netid VARCHAR(255) NOT NULL,
+  apiKey VARCHAR(255) NOT NULL,
+  isAdmin BOOLEAN NOT NULL DEFAULT false
+  )`,
+
+  `
+  CREATE TABLE IF NOT EXISTS Submission (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  time DATETIME NOT NULL,
+  userId INT NOT NULL,
+  phase VARCHAR(255) NOT NULL,
+  score INT NOT NULL,
+  FOREIGN KEY (userId) REFERENCES User(id)
+  )
+  `,
+];
