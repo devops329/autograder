@@ -19,6 +19,7 @@ printf "\n----> Deploying React bundle $service to $hostname with $key\n"
 printf "\n----> Build the distribution package\n"
 rm -rf build
 mkdir build
+
 cd backend
 npm run build # build the back end service
 cp -r dist/* ../build # move the back end service to the target distribution
