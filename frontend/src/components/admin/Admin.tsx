@@ -5,6 +5,7 @@ import { UserInfo } from '../userInfo/UserInfo';
 import { AdminPresenter, AdminView } from '../../presenter/AdminPresenter';
 import { Submission } from '../../model/domain/Submission';
 import { Submissions } from '../submissions/Submissions';
+import './Admin.css';
 
 export function Admin() {
   const [netId, setNetId] = useState<string>('');
@@ -29,8 +30,8 @@ export function Admin() {
   };
 
   return (
-    <>
-      <Form onSubmit={handleSubmit}>
+    <div className="admin">
+      <Form className="form" onSubmit={handleSubmit}>
         <Form.Group className="text-center" controlId="netId">
           <Form.Label>Net ID</Form.Label>
           <Form.Control type="text" placeholder="Enter student net ID" value={netId} onChange={handleNetIdChange} />
@@ -43,6 +44,6 @@ export function Admin() {
       </Form>
       {student && <UserInfo user={student} isAdminPage={true} />}
       {submissions && <Submissions submissions={submissions} isAdminPage={true} />}
-    </>
+    </div>
   );
 }

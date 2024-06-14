@@ -1,20 +1,30 @@
 export const tableCreateStatements = [
-  `CREATE TABLE IF NOT EXISTS User (
+  `CREATE TABLE IF NOT EXISTS user (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   netid VARCHAR(255) NOT NULL,
   apiKey VARCHAR(255) NOT NULL,
+  website VARCHAR(255) NOT NULL,
+  github VARCHAR(255) NOT NULL,
   isAdmin BOOLEAN NOT NULL DEFAULT false
   )`,
 
   `
-  CREATE TABLE IF NOT EXISTS Submission (
+  CREATE TABLE IF NOT EXISTS submission (
   id INT AUTO_INCREMENT PRIMARY KEY,
   time DATETIME NOT NULL,
   userId INT NOT NULL,
   phase VARCHAR(255) NOT NULL,
   score INT NOT NULL,
-  FOREIGN KEY (userId) REFERENCES User(id)
+  FOREIGN KEY (userId) REFERENCES user(id)
+  )
+  `,
+
+  `
+  CREATE TABLE IF NOT EXISTS token (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    authtoken VARCHAR(255) NOT NULL,
+    netid VARCHAR(255) NOT NULL
   )
   `,
 ];

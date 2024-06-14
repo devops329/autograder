@@ -59,19 +59,29 @@ export class DB {
   async putUser(user: User) {
     const connection = await this.getConnection();
     try {
-      if (!(await this.getUserId(user.netId))) {
-        console.log('Inserting user:', user);
-        await connection.query(`INSERT INTO User (name, netid, apiKey, isAdmin) VALUES ('${user.name}', '${user.netId}', '${user.apiKey}', ${user.isAdmin})`);
-      }
+      console.log('Inserting user:', user);
+      await connection.query(
+        `INSERT INTO user (name, netid, apiKey, website, github, isAdmin) VALUES ('${user.name}', '${user.netId}', '${user.apiKey}', '${user.website}', '${user.github}', ${user.isAdmin})`
+      );
     } catch (err: any) {
       console.error('Error putting user:', err.message);
+    }
+  }
+
+  async updateUserWebsiteAndGithub(netId: string, website: string, github: string) {
+    const connection = await this.getConnection();
+    try {
+      console.log('Updating user:', netId);
+      await connection.query(`UPDATE user SET website = '${website}', github = '${github}' WHERE netid = '${netId}'`);
+    } catch (err: any) {
+      console.error('Error updating user:', err.message);
     }
   }
 
   async getUserId(netId: string) {
     const connection = await this.getConnection();
     try {
-      const [rows] = await connection.query(`SELECT id FROM User WHERE netid = '${netId}'`);
+      const [rows] = await connection.query(`SELECT id FROM user WHERE netid = '${netId}'`);
       return ((rows as any)[0] as any).id || 0;
     } catch (err: any) {
       console.error('Error getting user ID:', err.message);
@@ -82,9 +92,9 @@ export class DB {
   async getUser(netId: string) {
     const connection = await this.getConnection();
     try {
-      const [rows] = await connection.query(`SELECT * FROM User WHERE netid = '${netId}'`);
+      const [rows] = await connection.query(`SELECT * FROM user WHERE netid = '${netId}'`);
       const row = (rows as any[])[0];
-      return new User(row.id, row.name, row.netid, row.apiKey);
+      return new User(row.id, row.name, row.netid, row.apiKey, row.website, row.github, row.isAdmin);
     } catch (err: any) {
       console.error('Error getting user:', err.message);
       return null;
@@ -97,7 +107,7 @@ export class DB {
       try {
         const userId = await this.getUserId(netId);
         console.log('Inserting submission:', submission);
-        await connection.query(`INSERT INTO Submission (time, userId, phase, score) VALUES ('${submission.date}', ${userId}, '${submission.phase}', ${submission.score})`);
+        await connection.query(`INSERT INTO submission (time, userId, phase, score) VALUES ('${submission.date}', ${userId}, '${submission.phase}', ${submission.score})`);
       } catch (err: any) {
         console.error('Error putting submission:', err.message);
       }
@@ -109,13 +119,55 @@ export class DB {
     try {
       const userId = await this.getUserId(netId);
       console.log('Getting submissions for user:', userId);
-      const [rows] = await connection.query(`SELECT * FROM Submission WHERE userId = ${userId}`);
+      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ${userId}`);
       return (rows as any[]).map((row) => {
         return new Submission(row.time, row.phase, row.score);
       });
     } catch (err: any) {
       console.error('Error getting submissions:', err.message);
       return [];
+    }
+  }
+
+  async getNetIdByToken(token: string) {
+    const connection = await this.getConnection();
+    try {
+      const [rows] = await connection.query(`SELECT netid FROM token WHERE authtoken = '${token}'`);
+      return ((rows as any)[0] as any).netid || '';
+    } catch (err: any) {
+      console.error('Error getting netid by token:', err.message);
+      return '';
+    }
+  }
+
+  async getToken(netId: string) {
+    const connection = await this.getConnection();
+    try {
+      const [rows] = await connection.query(`SELECT authtoken FROM token WHERE netid = '${netId}'`);
+      return ((rows as any)[0] as any).authToken || '';
+    } catch (err: any) {
+      console.error('Error getting token:', err.message);
+      return '';
+    }
+  }
+
+  async putToken(token: string, netId: string) {
+    const connection = await this.getConnection();
+    try {
+      console.log('Inserting token:', token);
+      await connection.query(`INSERT INTO token (authtoken, netid) VALUES ('${token}', '${netId}')`);
+    } catch (err: any) {
+      console.error('Error putting token:', err.message);
+    }
+  }
+
+  async deleteToken(token: string) {
+    const connection = await this.getConnection();
+    try {
+      console.log('Deleting token:', token);
+      await connection.query(`DELETE FROM token WHERE authtoken = '${token}'`);
+    } catch (err: any) {
+      console.error('Error deleting token:', err.message);
     }
   }
 }

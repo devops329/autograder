@@ -17,17 +17,20 @@ export class AuthenticatePresenter {
   async login() {
     // const originalUrl = window.location.href;
     // window.location.href = `/api/login?redirectUrl=${originalUrl}`;
-    const [user, submissions] = await this.userService.login();
+    const [user, submissions, firstTime] = await this.userService.login();
     console.log('Logged in as', user);
     this.view.setLoggedInUser(user);
     localStorage.setItem('user', JSON.stringify(user));
     this.view.setSubmissions(submissions);
     localStorage.setItem('submissions', JSON.stringify(submissions));
+    if (firstTime) {
+      window.location.href = '/profile';
+    }
   }
 
   async logout() {
-    await this.userService.logout();
-    console.log('Logged out');
+    const response = await this.userService.logout();
+    console.log(response);
     this.view.setLoggedInUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('submissions');
