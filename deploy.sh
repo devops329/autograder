@@ -21,11 +21,13 @@ rm -rf build
 mkdir build
 
 cd backend
+rm -rf dist
 npm run build # build the back end service
 cp -r dist/* ../build # move the back end service to the target distribution
 cp package.json ../build
 
 cd ../frontend
+rm -rf dist
 npm run build # build the React front end
 cp -rf dist ../build/public # move the React front end to the target distribution
 cd ../

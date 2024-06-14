@@ -1,9 +1,10 @@
 import { Grader } from '../../graders/Grader';
-import { DefaultGrader } from '../../graders/default';
-import { DeliverableOneGrader } from '../../graders/deliverableOne';
+import { DefaultGrader } from '../../graders/Default';
+import { DeliverableOneGrader } from '../../graders/DeliverableOne';
 import { Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
 import { Submission } from '../domain/Submission';
+import { DeliverableTwoGrader } from '../../graders/DeliverableTwo';
 
 export class GradeService {
   private dao: DB;
@@ -21,6 +22,9 @@ export class GradeService {
     switch (assignmentPhase) {
       case 1:
         grader = new DeliverableOneGrader();
+        break;
+      case 2:
+        grader = new DeliverableTwoGrader();
         break;
       default:
         grader = new DefaultGrader();
