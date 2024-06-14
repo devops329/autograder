@@ -1,3 +1,3 @@
 export interface Grader {
-  grade(): Promise<number>;
+  grade(netid: string): Promise<number>;
 }

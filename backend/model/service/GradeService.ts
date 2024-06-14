@@ -14,7 +14,7 @@ export class GradeService {
     this.canvas = canvas;
   }
 
-  async grade(assignmentPhase: number, netId: string) {
+  async grade(assignmentPhase: number, netid: string) {
     let score = 0;
     let grader: Grader;
     let assignmentId = 940837;
@@ -26,18 +26,18 @@ export class GradeService {
         grader = new DefaultGrader();
         break;
     }
-    score = await grader.grade();
+    score = await grader.grade(netid);
     // FIXME: remove hardcoded assignmentId
     let studentId = 135540;
     try {
-      studentId = await this.canvas.getStudentId(netId);
+      studentId = await this.canvas.getStudentId(netid);
     } catch (e) {
       console.error(e);
     }
     await this.canvas.updateGrade(assignmentId, studentId, score);
 
-    await this.putSubmissionIntoDB(assignmentPhase, netId, score);
-    const submissions = this.getSubmissions(netId);
+    await this.putSubmissionIntoDB(assignmentPhase, netid, score);
+    const submissions = this.getSubmissions(netid);
     return submissions;
   }
 

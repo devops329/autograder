@@ -1,9 +1,17 @@
+import { DB } from '../model/dao/mysql/Database';
 import { Grader } from './Grader';
 import dns from 'dns';
 
 export class DeliverableOneGrader implements Grader {
-  async grade(): Promise<number> {
-    const hostname = 'pages-pizza.byucsstudent.click';
+  async grade(netid: string): Promise<number> {
+    const db = new DB();
+    const hostname = (await db.getUser(netid))?.website;
+
+    if (!hostname) {
+      console.error('No hostname found for user:', netid);
+      return 0;
+    }
+
     let pageExists = false;
     let pageDeployedWithGithub = false;
 

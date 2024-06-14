@@ -24,7 +24,7 @@ function App() {
             <Route path="/grader" element={<Grader setSubmissions={setSubmissions} />} />
             <Route path="/profile" element={<UserInfo user={loggedInUser} setUser={setLoggedInUser} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
-            {loggedInUser.isAdmin && <Route path="/admin" element={<Admin />} />}
+            {loggedInUser.isAdmin && <Route path="/admin" element={<Admin setUser={setLoggedInUser} />} />}
             <Route path="*" element={<Grader setSubmissions={setSubmissions} />} />
           </Routes>
         ) : (

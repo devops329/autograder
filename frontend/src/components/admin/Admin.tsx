@@ -7,7 +7,11 @@ import { Submission } from '../../model/domain/Submission';
 import { Submissions } from '../submissions/Submissions';
 import './Admin.css';
 
-export function Admin() {
+interface Props {
+  setUser: (user: User) => void;
+}
+
+export function Admin(props: Props) {
   const [netId, setNetId] = useState<string>('');
   const [student, setStudent] = useState<User | null>();
   const [submissions, setSubmissions] = useState<Submission[] | null>();
@@ -42,7 +46,7 @@ export function Admin() {
           </Button>
         </div>
       </Form>
-      {student && <UserInfo user={student} isAdminPage={true} />}
+      {student && <UserInfo user={student} isAdminPage={true} setUser={props.setUser} />}
       {submissions && <Submissions submissions={submissions} isAdminPage={true} />}
     </div>
   );
