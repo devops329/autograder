@@ -1,39 +1,35 @@
 export class Submission {
-	private _date: string;
-	private _phase: string;
-	private _score: number;
+  private _date: string;
+  private _phase: string;
+  private _score: number;
 
-	constructor(date: string, phase: string, score: number) {
-		this._date = date;
-		this._phase = phase;
-		this._score = score;
-	}
+  constructor(date: string, phase: string, score: number) {
+    this._date = date;
+    this._phase = phase;
+    this._score = score;
+  }
 
-	get date(): string {
-		return this._date;
-	}
+  get date(): string {
+    return this._date;
+  }
 
-	get phase(): string {
-		return this._phase;
-	}
+  get phase(): string {
+    return this._phase;
+  }
 
-	get score(): number {
-		return this._score;
-	}
+  get score(): number {
+    return this._score;
+  }
 
-	static fromJson(json: JSON): Submission {
-		interface SubmissionJson {
-			_date: string;
-			_phase: string;
-			_score: number;
-		}
+  static fromJson(json: JSON): Submission {
+    interface SubmissionJson {
+      _date: string;
+      _phase: string;
+      _score: number;
+    }
 
-		const jsonObject: SubmissionJson = json as unknown as SubmissionJson;
+    const jsonObject: SubmissionJson = json as unknown as SubmissionJson;
 
-		return new Submission(
-			jsonObject._date,
-			jsonObject._phase,
-			jsonObject._score
-		);
-	}
+    return new Submission(jsonObject._date, jsonObject._phase, jsonObject._score);
+  }
 }

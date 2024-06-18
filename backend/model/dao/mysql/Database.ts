@@ -61,18 +61,18 @@ export class DB {
     try {
       console.log('Inserting user:', user);
       await connection.query(
-        `INSERT INTO user (name, netid, apiKey, website, github, isAdmin) VALUES ('${user.name}', '${user.netId}', '${user.apiKey}', '${user.website}', '${user.github}', ${user.isAdmin})`
+        `INSERT INTO user (name, netid, apiKey, website, github, email, isAdmin) VALUES ('${user.name}', '${user.netId}', '${user.apiKey}', '${user.website}', '${user.github}', '${user.email}', ${user.isAdmin})`
       );
     } catch (err: any) {
       console.error('Error putting user:', err.message);
     }
   }
 
-  async updateUserWebsiteAndGithub(netId: string, website: string, github: string) {
+  async updateUserInfo(netId: string, website: string, github: string, email: string) {
     const connection = await this.getConnection();
     try {
       console.log('Updating user:', netId);
-      await connection.query(`UPDATE user SET website = '${website}', github = '${github}' WHERE netid = '${netId}'`);
+      await connection.query(`UPDATE user SET website = '${website}', github = '${github}', email = '${email}' WHERE netid = '${netId}'`);
     } catch (err: any) {
       console.error('Error updating user:', err.message);
     }
@@ -94,7 +94,7 @@ export class DB {
     try {
       const [rows] = await connection.query(`SELECT * FROM user WHERE netid = '${netId}'`);
       const row = (rows as any[])[0];
-      return new User(row.id, row.name, row.netid, row.apiKey, row.website, row.github, row.isAdmin);
+      return new User(row.id, row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
     } catch (err: any) {
       console.error('Error getting user:', err.message);
       return null;
@@ -168,6 +168,51 @@ export class DB {
       await connection.query(`DELETE FROM token WHERE authtoken = '${token}'`);
     } catch (err: any) {
       console.error('Error deleting token:', err.message);
+    }
+  }
+
+  async putPentest(netId: string) {
+    const connection = await this.getConnection();
+    try {
+      console.log('Inserting pentest:', netId);
+      await connection.query(`INSERT INTO pentest (netid) VALUES ('${netId}')`);
+    } catch (err: any) {
+      console.error('Error putting pentest:', err.message);
+    }
+  }
+
+  async getPentest(netId: string) {
+    const connection = await this.getConnection();
+    try {
+      const [rows] = await connection.query(`SELECT * FROM pentest WHERE netid = '${netId}'`);
+      const row = (rows as any[])[0];
+      return { netId: row.netid, partnerId: row.partnerid };
+    } catch (err: any) {
+      console.error('Error getting pentest:', err.message);
+      return null;
+    }
+  }
+
+  async getPentestPartners(netId: string) {
+    const connection = await this.getConnection();
+    try {
+      const [rows] = await connection.query(`SELECT * FROM pentest WHERE partnerid = '' AND netid != '${netId}'`);
+      return (rows as any[]).map((row) => {
+        return { netId: row.netid, partnerId: row.partnerid };
+      });
+    } catch (err: any) {
+      console.error('Error getting pentest without partner:', err.message);
+      return [];
+    }
+  }
+
+  async updatePentestPartner(netId: string, partnerId: string) {
+    const connection = await this.getConnection();
+    try {
+      console.log('Updating pentest partner:', netId);
+      await connection.query(`UPDATE pentest SET partnerid = '${partnerId}' WHERE netid = '${netId}'`);
+    } catch (err: any) {
+      console.error('Error updating pentest partner:', err.message);
     }
   }
 }

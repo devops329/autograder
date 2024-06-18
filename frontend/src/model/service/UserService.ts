@@ -5,7 +5,7 @@ import { User } from '../domain/User';
 export class UserService {
   private serverFacade = new ServerFacade();
 
-  async login(): Promise<[User, Submission[], boolean]> {
+  async login(): Promise<[User, Submission[]]> {
     return this.serverFacade.login();
   }
 
@@ -13,11 +13,11 @@ export class UserService {
     return this.serverFacade.logout();
   }
 
-  async getUserInfo(netId: string): Promise<User> {
-    return this.serverFacade.getUserInfo(netId);
+  async getUserInfo(): Promise<[User, Submission[]]> {
+    return this.serverFacade.getUserInfo();
   }
 
-  async updateUserInfo(website: string, github: string): Promise<User> {
-    return this.serverFacade.updateUserInfo(website, github);
+  async updateUserInfo(website: string, github: string, email: string): Promise<User> {
+    return this.serverFacade.updateUserInfo(website, github, email);
   }
 }

@@ -6,6 +6,7 @@ export const tableCreateStatements = [
   apiKey VARCHAR(255) NOT NULL,
   website VARCHAR(255) NOT NULL,
   github VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
   isAdmin BOOLEAN NOT NULL DEFAULT false
   )`,
 
@@ -25,6 +26,14 @@ export const tableCreateStatements = [
     id INT AUTO_INCREMENT PRIMARY KEY,
     authtoken VARCHAR(255) NOT NULL,
     netid VARCHAR(255) NOT NULL
+  )
+  `,
+
+  `
+  CREATE TABLE IF NOT EXISTS pentest (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    netid VARCHAR(255) NOT NULL,
+    partnerid VARCHAR(255) NOT NULL DEFAULT ''
   )
   `,
 ];

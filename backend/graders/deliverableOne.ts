@@ -1,14 +1,15 @@
 import { DB } from '../model/dao/mysql/Database';
+import { User } from '../model/domain/User';
 import { Grader } from './Grader';
 import dns from 'dns';
 
 export class DeliverableOneGrader implements Grader {
-  async grade(netid: string): Promise<number> {
+  async grade(user: User): Promise<number> {
     const db = new DB();
-    const hostname = (await db.getUser(netid))?.website;
+    const hostname = user.website;
 
     if (!hostname) {
-      console.error('No hostname found for user:', netid);
+      console.error('No hostname found for user:', user.netId);
       return 0;
     }
 

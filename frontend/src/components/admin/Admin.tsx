@@ -30,7 +30,6 @@ export function Admin(props: Props) {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     presenter.getStudentInfo(netId);
-    presenter.getSubmissions(netId);
   };
 
   return (

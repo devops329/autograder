@@ -12,6 +12,7 @@ interface Props {
 
 export function UserInfo(props: Props) {
   const [copied, setCopied] = useState(false);
+  const [email, setEmail] = useState(props.user.email);
   const [website, setWebsite] = useState(props.user.website);
   const [github, setGithub] = useState(props.user.github);
   const [updated, setUpdated] = useState(false);
@@ -31,6 +32,19 @@ export function UserInfo(props: Props) {
       {!props.isAdminPage && <h1>My Info</h1>}
       <h3>Name: {props.user.name}</h3>
       <h3>NetID: {props.user.netId}</h3>
+      <InputGroup className="mb-3">
+        <h3>Email:</h3>
+        <Form.Control
+          value={email}
+          onChange={(event) => {
+            setUpdated(false);
+            setEmail(event.target.value);
+          }}
+          placeholder={email === '' ? 'student@byu.edu' : email}
+          aria-label="Email"
+          aria-describedby="basic-addon1"
+        />
+      </InputGroup>
       <InputGroup className="mb-3">
         <h3>Website:</h3> <InputGroup.Text id="basic-addon1">https://</InputGroup.Text>
         <Form.Control
@@ -76,7 +90,7 @@ export function UserInfo(props: Props) {
       <Button
         variant={updated ? 'success' : 'primary'}
         onClick={() => {
-          presenter.updateUserInfo(website, github);
+          presenter.updateUserInfo(website, github, email);
         }}>
         {updated ? 'Updated!' : 'Update'}
       </Button>

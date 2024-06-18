@@ -14,7 +14,7 @@ const canvas = new Canvas();
 const pizzaFactory = new PizzaFactory();
 // Build services
 const gradeService = new GradeService(db, canvas);
-const userService = new UserService(db, pizzaFactory);
+const userService = new UserService(db, pizzaFactory, canvas);
 
 // Serve up the applications static content
 app.use(express.static('public'));
@@ -34,11 +34,12 @@ app.use(`/api`, apiRouter);
 
 const AUTH_COOKIE_NAME = 'token';
 
-apiRouter.post('/login', async function (req, res) {
-  const { user, token, firstTime } = await userService.login();
-  const submissions = await gradeService.getSubmissions('fakeNetId');
-  res.cookie(AUTH_COOKIE_NAME, token, { httpOnly: true, secure: true, sameSite: 'none' });
-  res.send(JSON.stringify({ user, submissions, firstTime }));
+apiRouter.get('/login', async function (req, res) {
+  const netid = 'sma243';
+  const token = await userService.login(netid);
+  res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
+  const redirectUrl = req.query.redirectUrl;
+  res.redirect(redirectUrl as string);
   // const redirectUrl = req.query.redirectUrl;
   // const casLoginUrl = 'https://cas.byu.edu/cas/login';
   // const serviceUrl = encodeURIComponent(`${config.app.hostname}/cas-callback?redirectUrl=${redirectUrl}`);
@@ -73,38 +74,59 @@ apiRouter.use(secureApiRouter);
 
 secureApiRouter.use(async (req, res, next) => {
   const authToken = req.cookies[AUTH_COOKIE_NAME];
-  const user = await db.getNetIdByToken(authToken);
-  if (user) {
+  const netId = await db.getNetIdByToken(authToken);
+  if (netId) {
     next();
   } else {
     res.status(401).send({ msg: 'Unauthorized' });
   }
 });
 
+secureApiRouter.post('/user', async function (req, res) {
+  const authToken = req.cookies[AUTH_COOKIE_NAME];
+  const netid = await db.getNetIdByToken(authToken);
+  const user = await userService.getUser(netid);
+  const submissions = (await gradeService.getSubmissions(user!.netId)).reverse();
+  res.send(JSON.stringify({ user, submissions }));
+});
+
 secureApiRouter.post('/update', async function (req, res) {
-  const user = await userService.updateUserWebsiteAndGithub('fakeNetId', req.body.website, req.body.github);
+  const user = await userService.updateUserInfo('fakeNetId', req.body.website, req.body.github, req.body.email);
   res.send(JSON.stringify(user));
 });
 
 secureApiRouter.post('/grade', async function (req, res) {
-  const submissions = await gradeService.grade(req.body.assignmentPhase, 'fakeNetId');
-  res.send(JSON.stringify(submissions));
-});
-
-secureApiRouter.post('/user', async function (req, res) {
-  const user = await userService.getUser(req.body.netId);
-  res.send(JSON.stringify(user));
-});
-
-secureApiRouter.post('/submissions', async function (req, res) {
-  const submissions = await gradeService.getSubmissions(req.body.netId);
-  res.send(JSON.stringify(submissions));
+  const netId = await db.getNetIdByToken(req.cookies[AUTH_COOKIE_NAME]);
+  const [score, submissions] = await gradeService.grade(req.body.assignmentPhase, netId);
+  res.send(JSON.stringify({ score, submissions }));
 });
 
 secureApiRouter.post('/logout', async function (req, res) {
   res.clearCookie(AUTH_COOKIE_NAME);
   db.deleteToken(req.cookies[AUTH_COOKIE_NAME]);
   res.send({ msg: 'Logged out' });
+});
+
+// Admin API routes
+
+const adminApiRouter = express.Router();
+secureApiRouter.use('/admin', adminApiRouter);
+
+adminApiRouter.use(async (req, res, next) => {
+  const authToken = req.cookies[AUTH_COOKIE_NAME];
+  const netid = await db.getNetIdByToken(authToken);
+  const user = await db.getUser(netid);
+  if (user?.isAdmin) {
+    next();
+  } else {
+    res.status(401).send({ msg: 'Unauthorized' });
+  }
+});
+
+adminApiRouter.post('/user', async function (req, res) {
+  const user = await userService.getUser(req.body.netId);
+  const submissions = (await gradeService.getSubmissions(req.body.netId)).reverse();
+  res.send(JSON.stringify({ user, submissions }));
 });
 
 // Return the application's default page if the path is unknown

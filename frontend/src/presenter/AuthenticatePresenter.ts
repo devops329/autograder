@@ -15,17 +15,18 @@ export class AuthenticatePresenter {
   }
 
   async login() {
-    // const originalUrl = window.location.href;
-    // window.location.href = `/api/login?redirectUrl=${originalUrl}`;
-    const [user, submissions, firstTime] = await this.userService.login();
-    console.log('Logged in as', user);
+    const originalUrl = window.location.href;
+    const baseUrl = originalUrl.substring(0, originalUrl.lastIndexOf('/'));
+    const redirectUrl = `${baseUrl}/login`;
+    window.location.href = `/api/login?redirectUrl=${redirectUrl}`;
+  }
+
+  async getUserInfo() {
+    const [user, submissions] = await this.userService.getUserInfo();
     this.view.setLoggedInUser(user);
-    localStorage.setItem('user', JSON.stringify(user));
     this.view.setSubmissions(submissions);
+    localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('submissions', JSON.stringify(submissions));
-    if (firstTime) {
-      window.location.href = '/profile';
-    }
   }
 
   async logout() {

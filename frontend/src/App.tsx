@@ -8,6 +8,7 @@ import { Submissions } from './components/submissions/Submissions';
 import { Admin } from './components/admin/Admin';
 import { User } from './model/domain/User';
 import { Submission } from './model/domain/Submission';
+import { Login } from './components/login/Login';
 
 function App() {
   const [loggedInUser, setLoggedInUser] = useState<User | null>(localStorage.getItem('user') ? User.fromJson(JSON.parse(localStorage.getItem('user')!)) : null);
@@ -19,6 +20,9 @@ function App() {
     <>
       <BrowserRouter>
         <NavBar loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} setSubmissions={setSubmissions} />
+        <Routes>
+          <Route path="/login" element={<Login setLoggedInUser={setLoggedInUser} setSubmissions={setSubmissions} />} />
+        </Routes>
         {loggedInUser ? (
           <Routes>
             <Route path="/grader" element={<Grader setSubmissions={setSubmissions} />} />

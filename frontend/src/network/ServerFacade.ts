@@ -5,12 +5,11 @@ import { ClientCommunicator } from './ClientCommunicator';
 export class ServerFacade {
   private clientCommunicator = new ClientCommunicator();
 
-  async login(): Promise<[User, Submission[], boolean]> {
+  async login(): Promise<[User, Submission[]]> {
     const endpoint = 'login';
-    const response: { user: JSON; submissions: JSON[]; firstTime: boolean } = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as {
+    const response: { user: JSON; submissions: JSON[] } = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as {
       user: JSON;
       submissions: JSON[];
-      firstTime: boolean;
     };
 
     const user = User.fromJson(response.user);
@@ -19,7 +18,7 @@ export class ServerFacade {
       submissions.push(Submission.fromJson(submission));
     }
 
-    return [user, submissions, response.firstTime];
+    return [user, submissions];
   }
 
   async logout(): Promise<string> {
@@ -28,35 +27,46 @@ export class ServerFacade {
     return response.msg;
   }
 
-  async grade(assignmentPhase: number): Promise<Submission[]> {
+  async grade(assignmentPhase: number): Promise<[string, Submission[]]> {
     const endpoint = 'grade';
-    const response: JSON[] = (await this.clientCommunicator.doPost({ assignmentPhase: assignmentPhase }, endpoint)) as unknown as JSON[];
+    const response: { score: string; submissions: JSON[] } = (await this.clientCommunicator.doPost({ assignmentPhase: assignmentPhase }, endpoint)) as unknown as {
+      score: string;
+      submissions: JSON[];
+    };
     const submissions: Submission[] = [];
-    for (const submission of response) {
+    for (const submission of response.submissions) {
       submissions.push(Submission.fromJson(submission));
     }
-    return submissions;
+    return [response.score, submissions];
   }
 
-  async getUserInfo(netId: string): Promise<User> {
+  async getUserInfo(): Promise<[User, Submission[]]> {
     const endpoint = 'user';
-    const response: JSON = (await this.clientCommunicator.doPost({ netId }, endpoint)) as unknown as JSON;
-    return User.fromJson(response);
-  }
-
-  async updateUserInfo(website: string, github: string): Promise<User> {
-    const endpoint = 'update';
-    const response: JSON = (await this.clientCommunicator.doPost({ website, github }, endpoint)) as unknown as JSON;
-    return User.fromJson(response);
-  }
-
-  async getSubmissions(netId: string): Promise<Submission[]> {
-    const endpoint = 'submissions';
-    const response: JSON[] = (await this.clientCommunicator.doPost({ netId }, endpoint)) as unknown as JSON[];
+    const response: { user: JSON; submissions: JSON[] } = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as { user: JSON; submissions: JSON[] };
+    const user = User.fromJson(response.user);
     const submissions: Submission[] = [];
-    for (const submission of response) {
+    for (const submission of response.submissions) {
       submissions.push(Submission.fromJson(submission));
     }
-    return submissions;
+    return [user, submissions];
+  }
+
+  async updateUserInfo(website: string, github: string, email: string): Promise<User> {
+    const endpoint = 'update';
+    const response: JSON = (await this.clientCommunicator.doPost({ website, github, email }, endpoint)) as unknown as JSON;
+    return User.fromJson(response);
+  }
+
+  async getStudentInfo(netId: string): Promise<[User, Submission[]]> {
+    const endpoint = 'admin/user';
+    const response: { user: JSON; submissions: JSON[] } = (await this.clientCommunicator.doPost({ netId }, endpoint)) as unknown as { user: JSON; submissions: JSON[] };
+    console.log('admin', response);
+    const user = User.fromJson(response.user);
+    console.log(user);
+    const submissions: Submission[] = [];
+    for (const submission of response.submissions) {
+      submissions.push(Submission.fromJson(submission));
+    }
+    return [user, submissions];
   }
 }

@@ -6,14 +6,16 @@ export class User {
   private _website: string;
   private _github: string;
   private _isAdmin: boolean;
+  private _email: string;
 
-  constructor(id: number, name: string, netId: string, apiKey: string, website: string, github: string, isAdmin: boolean = false) {
+  constructor(id: number, name: string, netId: string, apiKey: string, website: string, github: string, email: string, isAdmin: boolean = false) {
     this._id = id;
     this._netId = netId;
     this._name = name;
     this._apiKey = apiKey;
     this._website = website;
     this._github = github;
+    this._email = email;
     this._isAdmin = isAdmin;
   }
 
@@ -45,6 +47,14 @@ export class User {
     return this._github;
   }
 
+  get email(): string {
+    return this._email;
+  }
+
+  set email(email: string) {
+    this._email = email;
+  }
+
   static fromJson(json: JSON): User {
     interface UserJson {
       _id: number;
@@ -53,10 +63,10 @@ export class User {
       _apiKey: string;
       _website: string;
       _github: string;
+      _email: string;
       _isAdmin?: boolean;
     }
     const jsonObject: UserJson = json as unknown as UserJson;
-
-    return new User(jsonObject._id, jsonObject._name, jsonObject._netId, jsonObject._apiKey, jsonObject._website, jsonObject._github, jsonObject._isAdmin);
+    return new User(jsonObject._id, jsonObject._name, jsonObject._netId, jsonObject._apiKey, jsonObject._website, jsonObject._github, jsonObject._email, jsonObject._isAdmin);
   }
 }

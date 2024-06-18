@@ -2,7 +2,23 @@ import { config } from '../../../config';
 
 export class Canvas {
   async getStudentId(netid: string): Promise<number> {
-    const url = config.canvas.base_url + '/users?search_term=' + netid;
+    const data = await this.getStudentInfo(netid);
+    const id = data.id;
+    return id;
+  }
+
+  // async getStudentEmail(netId: string): Promise<string> {
+  //   const data = await this.getStudentInfo(netId);
+  //   try {
+  //     const email = data.email;
+  //     return email;
+  //   } finally {
+  //     return '';
+  //   }
+  // }
+
+  async getStudentInfo(netId: string): Promise<any> {
+    const url = config.canvas.base_url + '/users?search_term=' + netId;
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -12,10 +28,9 @@ export class Canvas {
     });
     const data = await response.json();
     if (data.length === 0) {
-      throw new Error('Student not found');
+      console.error('Student not found');
     }
-    const id = data[0].id;
-    return id;
+    return data[0];
   }
 
   async updateGrade(assignmentId: number, studentId: number, score: number): Promise<void> {
@@ -35,7 +50,7 @@ export class Canvas {
       body: JSON.stringify(data),
     }).then((response) => {
       if (!response.ok) {
-        throw new Error('Failed to update grade');
+        console.error('Failed to update grade');
       }
     });
   }

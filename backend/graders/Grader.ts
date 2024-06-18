@@ -1,3 +1,5 @@
+import { User } from '../model/domain/User';
+
 export interface Grader {
-  grade(netid: string): Promise<number>;
+  grade(user: User): Promise<number | string>;
 }

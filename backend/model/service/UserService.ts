@@ -1,3 +1,4 @@
+import { Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
 import { PizzaFactory } from '../dao/pizzaFactory/PizzaFactory';
 import { User } from '../domain/User';
@@ -6,14 +7,15 @@ import { v4 as uuidv4 } from 'uuid';
 export class UserService {
   private dao: DB;
   private pizzaFactory: PizzaFactory;
+  private canvas: Canvas;
 
-  constructor(dao: DB, pizzaFactory: PizzaFactory) {
+  constructor(dao: DB, pizzaFactory: PizzaFactory, canvas: Canvas) {
     this.dao = dao;
     this.pizzaFactory = pizzaFactory;
+    this.canvas = canvas;
   }
 
-  async login() {
-    const netid = 'fakeNetId';
+  async login(netid: string) {
     let token = await this.dao.getToken(netid);
     if (!token) {
       token = uuidv4();
@@ -25,12 +27,22 @@ export class UserService {
     let user = await this.dao.getUser(netid);
     if (user) {
       console.log('User already exists');
-      return { user, token, firstTime: false };
+      return token;
     } else {
       const apiKey = await this.pizzaFactory.getApiKey(netid, 'Fake User');
-      user = new User(1, 'Fake User', netid, apiKey, '', '', true);
+      const studentInfo = await this.canvas.getStudentInfo(netid);
+      console.log('Student info:', studentInfo);
+      let name = '';
+      let email = '';
+      try {
+        email = studentInfo.email;
+        name = studentInfo.short_name;
+      } catch (e) {
+        name = 'Fake User';
+      }
+      user = new User(1, name, netid, apiKey, '', '', email, true);
       await this.dao.putUser(user);
-      return { user, token, firstTime: true };
+      return token;
     }
   }
 
@@ -42,8 +54,8 @@ export class UserService {
     return await this.dao.getUser(netId);
   }
 
-  async updateUserWebsiteAndGithub(netId: string, website: string, github: string) {
-    await this.dao.updateUserWebsiteAndGithub(netId, website, github);
+  async updateUserInfo(netId: string, website: string, github: string, email: string) {
+    await this.dao.updateUserInfo(netId, website, github, email);
     return await this.getUser(netId);
   }
 }

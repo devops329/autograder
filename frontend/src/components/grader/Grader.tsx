@@ -11,7 +11,7 @@ interface Props {
 export function Grader(props: Props) {
   const [selectedAssignment, setSelectedAssignment] = useState<number | null>(null);
   const [grading, setGrading] = useState<boolean>(false);
-  const [grade, setGrade] = useState<number | null>(null);
+  const [grade, setGrade] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const listener: GradeView = {
@@ -63,7 +63,11 @@ export function Grader(props: Props) {
           <span className="visually-hidden">Loading...</span>
         </Spinner>
       )}
-      {grade && <p>Grade: {grade}</p>}
+      {grade && (
+        <p>
+          {selectedAssignment === 12 ? 'Partner: ' : 'Score: '} {grade}
+        </p>
+      )}
       {error && <p>Error: {error}</p>}
     </>
   );

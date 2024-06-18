@@ -5,6 +5,8 @@ import { Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
 import { Submission } from '../domain/Submission';
 import { DeliverableTwoGrader } from '../../graders/DeliverableTwo';
+import { DeliverableElevenGrader } from '../../graders/DeliverableEleven';
+import { DeliverableTwelveGrader } from '../../graders/DeliverableTwelve';
 
 export class GradeService {
   private dao: DB;
@@ -19,18 +21,29 @@ export class GradeService {
     let score = 0;
     let grader: Grader;
     let assignmentId = 940837;
+    const user = await this.dao.getUser(netid);
+
     switch (assignmentPhase) {
       case 1:
         grader = new DeliverableOneGrader();
         break;
       case 2:
         grader = new DeliverableTwoGrader();
+        assignmentId = 945388;
         break;
+      case 11:
+        grader = new DeliverableElevenGrader();
+        break;
+      case 12:
+        grader = new DeliverableTwelveGrader();
+        const partner = await grader.grade(user!);
+        const submissions = await this.getSubmissions(netid);
+        return [partner, submissions];
       default:
         grader = new DefaultGrader();
         break;
     }
-    score = await grader.grade(netid);
+    score = (await grader.grade(user!)) as number;
     // FIXME: remove hardcoded assignmentId
     let studentId = 135540;
     try {
@@ -41,8 +54,8 @@ export class GradeService {
     await this.canvas.updateGrade(assignmentId, studentId, score);
 
     await this.putSubmissionIntoDB(assignmentPhase, netid, score);
-    const submissions = this.getSubmissions(netid);
-    return submissions;
+    const submissions = await this.getSubmissions(netid);
+    return [score, submissions];
   }
 
   async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number) {
