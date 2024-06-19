@@ -35,7 +35,7 @@ export function NavBar(props: Props) {
           {props.loggedInUser ? (
             <>
               {props.loggedInUser.isAdmin && (
-                <InputGroup style={{ width: '12rem', margin: '1rem' }}>
+                <InputGroup style={{ width: '12rem', margin: '1rem 1rem 1rem 0' }}>
                   <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                   <Form.Control
                     value={netIdToImpersonate}

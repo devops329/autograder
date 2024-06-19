@@ -8,6 +8,7 @@ interface Props {
   user: User;
   setUser: (user: User) => void;
   isAdminPage?: boolean;
+  impersonated: boolean;
 }
 
 export function UserInfo(props: Props) {
@@ -90,7 +91,7 @@ export function UserInfo(props: Props) {
       <Button
         variant={updated ? 'success' : 'primary'}
         onClick={() => {
-          presenter.updateUserInfo(props.user.netId, website, github, email);
+          presenter.updateUserInfo(props.user.netId, website, github, email, props.impersonated);
         }}>
         {updated ? 'Updated!' : 'Update'}
       </Button>

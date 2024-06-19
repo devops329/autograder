@@ -14,10 +14,11 @@ export class UserInfoPresenter {
     this.view = view;
   }
 
-  async updateUserInfo(netId: string, website: string, github: string, email: string) {
+  async updateUserInfo(netId: string, website: string, github: string, email: string, impersonated?: boolean) {
     const user = await this.userService.updateUserInfo(netId, website, github, email);
     if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
+      const key = impersonated ? 'impersonatedUser' : 'user';
+      localStorage.setItem(key, JSON.stringify(user));
       this.view.setUser(user);
       this.view.setUpdated(true);
     }

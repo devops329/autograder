@@ -44,6 +44,7 @@ export class AuthenticatePresenter {
     this.view.setSubmissions(submissions);
     localStorage.setItem('impersonatedUser', JSON.stringify(user));
     localStorage.setItem('submissions', JSON.stringify(submissions));
+    window.location.reload();
   }
 
   async stopImpersonating(netId: string) {

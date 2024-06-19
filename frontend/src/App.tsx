@@ -37,7 +37,7 @@ function App() {
         {loggedInUser ? (
           <Routes>
             <Route path="/grader" element={<Grader user={impersonatedUser ?? loggedInUser} setSubmissions={setSubmissions} />} />
-            <Route path="/profile" element={<UserInfo user={impersonatedUser ?? loggedInUser} setUser={setLoggedInUser} />} />
+            <Route path="/profile" element={<UserInfo impersonated={!!impersonatedUser} user={impersonatedUser ?? loggedInUser} setUser={setLoggedInUser} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
             <Route path="*" element={<Grader user={impersonatedUser ?? loggedInUser} setSubmissions={setSubmissions} />} />
           </Routes>
