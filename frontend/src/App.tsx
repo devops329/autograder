@@ -5,7 +5,6 @@ import { NavBar } from './components/navbar/NavBar';
 import { useEffect, useState } from 'react';
 import { UserInfo } from './components/userInfo/UserInfo';
 import { Submissions } from './components/submissions/Submissions';
-import { Admin } from './components/admin/Admin';
 import { User } from './model/domain/User';
 import { Submission } from './model/domain/Submission';
 import { Login } from './components/login/Login';
@@ -40,7 +39,6 @@ function App() {
             <Route path="/grader" element={<Grader user={impersonatedUser ?? loggedInUser} setSubmissions={setSubmissions} />} />
             <Route path="/profile" element={<UserInfo user={impersonatedUser ?? loggedInUser} setUser={setLoggedInUser} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
-            {loggedInUser.isAdmin && <Route path="/admin" element={<Admin setUser={setLoggedInUser} />} />}
             <Route path="*" element={<Grader user={impersonatedUser ?? loggedInUser} setSubmissions={setSubmissions} />} />
           </Routes>
         ) : (
