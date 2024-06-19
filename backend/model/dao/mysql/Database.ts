@@ -65,6 +65,8 @@ export class DB {
       );
     } catch (err: any) {
       console.error('Error putting user:', err.message);
+    } finally {
+      connection.end();
     }
   }
 
@@ -75,6 +77,8 @@ export class DB {
       await connection.query(`UPDATE user SET website = '${website}', github = '${github}', email = '${email}' WHERE netid = '${netId}'`);
     } catch (err: any) {
       console.error('Error updating user:', err.message);
+    } finally {
+      connection.end();
     }
   }
 
@@ -86,6 +90,8 @@ export class DB {
     } catch (err: any) {
       console.error('Error getting user ID:', err.message);
       return 0;
+    } finally {
+      connection.end();
     }
   }
 
@@ -98,19 +104,21 @@ export class DB {
     } catch (err: any) {
       console.error('Error getting user:', err.message);
       return null;
+    } finally {
+      connection.end();
     }
   }
 
   async putSubmission(submission: Submission, netId: string) {
     const connection = await this.getConnection();
-    {
-      try {
-        const userId = await this.getUserId(netId);
-        console.log('Inserting submission:', submission);
-        await connection.query(`INSERT INTO submission (time, userId, phase, score) VALUES ('${submission.date}', ${userId}, '${submission.phase}', ${submission.score})`);
-      } catch (err: any) {
-        console.error('Error putting submission:', err.message);
-      }
+    try {
+      const userId = await this.getUserId(netId);
+      console.log('Inserting submission:', submission);
+      await connection.query(`INSERT INTO submission (time, userId, phase, score) VALUES ('${submission.date}', ${userId}, '${submission.phase}', ${submission.score})`);
+    } catch (err: any) {
+      console.error('Error putting submission:', err.message);
+    } finally {
+      connection.end();
     }
   }
 
@@ -126,6 +134,8 @@ export class DB {
     } catch (err: any) {
       console.error('Error getting submissions:', err.message);
       return [];
+    } finally {
+      connection.end();
     }
   }
 
@@ -137,6 +147,8 @@ export class DB {
     } catch (err: any) {
       console.error('Error getting netid by token:', err.message);
       return '';
+    } finally {
+      connection.end();
     }
   }
 
@@ -148,6 +160,8 @@ export class DB {
     } catch (err: any) {
       console.error('Error getting token:', err.message);
       return '';
+    } finally {
+      connection.end();
     }
   }
 
@@ -158,6 +172,8 @@ export class DB {
       await connection.query(`INSERT INTO token (authtoken, netid) VALUES ('${token}', '${netId}')`);
     } catch (err: any) {
       console.error('Error putting token:', err.message);
+    } finally {
+      connection.end();
     }
   }
 
@@ -168,6 +184,8 @@ export class DB {
       await connection.query(`DELETE FROM token WHERE authtoken = '${token}'`);
     } catch (err: any) {
       console.error('Error deleting token:', err.message);
+    } finally {
+      connection.end();
     }
   }
 
@@ -178,6 +196,8 @@ export class DB {
       await connection.query(`INSERT INTO pentest (netid) VALUES ('${netId}')`);
     } catch (err: any) {
       console.error('Error putting pentest:', err.message);
+    } finally {
+      connection.end();
     }
   }
 
@@ -190,6 +210,8 @@ export class DB {
     } catch (err: any) {
       console.error('Error getting pentest:', err.message);
       return null;
+    } finally {
+      connection.end();
     }
   }
 
@@ -203,6 +225,8 @@ export class DB {
     } catch (err: any) {
       console.error('Error getting pentest without partner:', err.message);
       return [];
+    } finally {
+      connection.end();
     }
   }
 
@@ -213,6 +237,8 @@ export class DB {
       await connection.query(`UPDATE pentest SET partnerid = '${partnerId}' WHERE netid = '${netId}'`);
     } catch (err: any) {
       console.error('Error updating pentest partner:', err.message);
+    } finally {
+      connection.end();
     }
   }
 }
