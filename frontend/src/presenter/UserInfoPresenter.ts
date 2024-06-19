@@ -14,8 +14,8 @@ export class UserInfoPresenter {
     this.view = view;
   }
 
-  async updateUserInfo(website: string, github: string, email: string) {
-    const user = await this.userService.updateUserInfo(website, github, email);
+  async updateUserInfo(netId: string, website: string, github: string, email: string) {
+    const user = await this.userService.updateUserInfo(netId, website, github, email);
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
       this.view.setUser(user);

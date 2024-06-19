@@ -27,9 +27,9 @@ export class ServerFacade {
     return response.msg;
   }
 
-  async grade(assignmentPhase: number): Promise<[string, Submission[]]> {
+  async grade(netId: string, assignmentPhase: number): Promise<[string, Submission[]]> {
     const endpoint = 'grade';
-    const response: { score: string; submissions: JSON[] } = (await this.clientCommunicator.doPost({ assignmentPhase: assignmentPhase }, endpoint)) as unknown as {
+    const response: { score: string; submissions: JSON[] } = (await this.clientCommunicator.doPost({ assignmentPhase, netId }, endpoint)) as unknown as {
       score: string;
       submissions: JSON[];
     };
@@ -40,9 +40,9 @@ export class ServerFacade {
     return [response.score, submissions];
   }
 
-  async getUserInfo(): Promise<[User, Submission[]]> {
+  async getUserInfo(netId?: string): Promise<[User, Submission[]]> {
     const endpoint = 'user';
-    const response: { user: JSON; submissions: JSON[] } = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as { user: JSON; submissions: JSON[] };
+    const response: { user: JSON; submissions: JSON[] } = (await this.clientCommunicator.doPost({ netId }, endpoint)) as unknown as { user: JSON; submissions: JSON[] };
     const user = User.fromJson(response.user);
     const submissions: Submission[] = [];
     for (const submission of response.submissions) {
@@ -51,9 +51,9 @@ export class ServerFacade {
     return [user, submissions];
   }
 
-  async updateUserInfo(website: string, github: string, email: string): Promise<User> {
+  async updateUserInfo(netId: string, website: string, github: string, email: string): Promise<User> {
     const endpoint = 'update';
-    const response: JSON = (await this.clientCommunicator.doPost({ website, github, email }, endpoint)) as unknown as JSON;
+    const response: JSON = (await this.clientCommunicator.doPost({ website, github, email, netId }, endpoint)) as unknown as JSON;
     return User.fromJson(response);
   }
 

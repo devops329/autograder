@@ -16,6 +16,7 @@ function App() {
   const [submissions, setSubmissions] = useState<Submission[]>(
     localStorage.getItem('submissions') ? JSON.parse(localStorage.getItem('submissions')!).map((item: JSON) => Submission.fromJson(item)) : []
   );
+  const [impersonatedUser, setImpersonatedUser] = useState<User | null>(localStorage.getItem('impersonatedUser') ? User.fromJson(JSON.parse(localStorage.getItem('impersonatedUser')!)) : null);
 
   useEffect(() => {
     if (!Cookies.get('token') && loggedInUser) {
@@ -30,17 +31,17 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <NavBar loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} setSubmissions={setSubmissions} />
+        <NavBar impersonatedUser={impersonatedUser} setImpersonatedUser={setImpersonatedUser} loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} setSubmissions={setSubmissions} />
         <Routes>
           <Route path="/login" element={<Login setLoggedInUser={setLoggedInUser} setSubmissions={setSubmissions} />} />
         </Routes>
         {loggedInUser ? (
           <Routes>
-            <Route path="/grader" element={<Grader setSubmissions={setSubmissions} />} />
-            <Route path="/profile" element={<UserInfo user={loggedInUser} setUser={setLoggedInUser} />} />
+            <Route path="/grader" element={<Grader user={impersonatedUser ?? loggedInUser} setSubmissions={setSubmissions} />} />
+            <Route path="/profile" element={<UserInfo user={impersonatedUser ?? loggedInUser} setUser={setLoggedInUser} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
             {loggedInUser.isAdmin && <Route path="/admin" element={<Admin setUser={setLoggedInUser} />} />}
-            <Route path="*" element={<Grader setSubmissions={setSubmissions} />} />
+            <Route path="*" element={<Grader user={impersonatedUser ?? loggedInUser} setSubmissions={setSubmissions} />} />
           </Routes>
         ) : (
           <h1>Please log in to access the autograder.</h1>

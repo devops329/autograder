@@ -3,8 +3,10 @@ import { Dropdown, DropdownButton, Spinner } from 'react-bootstrap';
 import { useState } from 'react';
 import { GradePresenter, GradeView } from '../../presenter/GradePresenter';
 import { Submission } from '../../model/domain/Submission';
+import { User } from '../../model/domain/User';
 
 interface Props {
+  user: User;
   setSubmissions: (submissions: Submission[]) => void;
 }
 
@@ -23,7 +25,7 @@ export function Grader(props: Props) {
 
   async function doGrade(assignment: number) {
     setGrading(true);
-    await presenter.doGrade(assignment);
+    await presenter.doGrade(props.user.netId, assignment);
     setGrading(false);
   }
 

@@ -13,11 +13,11 @@ export class UserService {
     return this.serverFacade.logout();
   }
 
-  async getUserInfo(): Promise<[User, Submission[]]> {
-    return this.serverFacade.getUserInfo();
+  async getUserInfo(netId?: string): Promise<[User, Submission[]]> {
+    return this.serverFacade.getUserInfo(netId);
   }
 
-  async updateUserInfo(website: string, github: string, email: string): Promise<User> {
-    return this.serverFacade.updateUserInfo(website, github, email);
+  async updateUserInfo(netId: string, website: string, github: string, email: string): Promise<User> {
+    return this.serverFacade.updateUserInfo(netId, website, github, email);
   }
 }

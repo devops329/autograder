@@ -8,8 +8,8 @@ export class GradeService {
   }
 
   private serverFacade: ServerFacade = new ServerFacade();
-  async grade(assignmentPhase: number) {
-    const submissions = await this.serverFacade.grade(assignmentPhase);
+  async grade(netId: string, assignmentPhase: number) {
+    const submissions = await this.serverFacade.grade(netId, assignmentPhase);
     return submissions;
   }
 }

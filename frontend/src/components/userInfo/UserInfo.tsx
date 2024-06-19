@@ -90,7 +90,7 @@ export function UserInfo(props: Props) {
       <Button
         variant={updated ? 'success' : 'primary'}
         onClick={() => {
-          presenter.updateUserInfo(website, github, email);
+          presenter.updateUserInfo(props.user.netId, website, github, email);
         }}>
         {updated ? 'Updated!' : 'Update'}
       </Button>

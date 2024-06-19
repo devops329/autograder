@@ -5,6 +5,7 @@ import { UserService } from '../model/service/UserService';
 export interface AuthenticateView {
   setLoggedInUser(user: User | null): void;
   setSubmissions(submissions: Submission[]): void;
+  setImpersonatedUser(user: User): void;
 }
 export class AuthenticatePresenter {
   private userService: UserService;
@@ -35,5 +36,21 @@ export class AuthenticatePresenter {
     this.view.setLoggedInUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('submissions');
+  }
+
+  async impersonate(netId: string) {
+    const [user, submissions] = await this.userService.getUserInfo(netId);
+    this.view.setImpersonatedUser(user);
+    this.view.setSubmissions(submissions);
+    localStorage.setItem('impersonatedUser', JSON.stringify(user));
+    localStorage.setItem('submissions', JSON.stringify(submissions));
+  }
+
+  async stopImpersonating(netId: string) {
+    const [user, submissions] = await this.userService.getUserInfo(netId);
+    this.view.setLoggedInUser(user);
+    this.view.setSubmissions(submissions);
+    localStorage.removeItem('impersonatedUser');
+    window.location.reload();
   }
 }

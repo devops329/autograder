@@ -14,11 +14,11 @@ export class GradePresenter {
     this.view = view;
     this.gradeService = new GradeService();
   }
-  async doGrade(assignmentPhase: number) {
+  async doGrade(netId: string, assignmentPhase: number) {
     let score = '';
     let submissions: Submission[] = [];
     try {
-      [score, submissions] = await this.gradeService.grade(assignmentPhase);
+      [score, submissions] = await this.gradeService.grade(netId, assignmentPhase);
     } catch (e) {
       this.view.setError((e as Error).message);
     }

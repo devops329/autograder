@@ -19,4 +19,8 @@ export class AdminPresenter {
     this.view.setStudent(student);
     this.view.setSubmissions(submissions);
   }
+
+  async impersonate(netid: string) {
+    console.log('Impersonating', netid);
+  }
 }

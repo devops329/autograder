@@ -72,31 +72,41 @@ app.get('/cas-callback', async (req, res) => {
 const secureApiRouter = express.Router();
 apiRouter.use(secureApiRouter);
 
+// If netid matches the token, or user is admin, proceed
 secureApiRouter.use(async (req, res, next) => {
   const authToken = req.cookies[AUTH_COOKIE_NAME];
-  const netId = await db.getNetIdByToken(authToken);
-  if (netId) {
+  const netIdFromRequest = req.body.netId;
+  const netIdFromToken = await db.getNetIdByToken(authToken);
+  const user = await db.getUser(netIdFromToken);
+  if (user!.isAdmin || netIdFromRequest === netIdFromToken) {
     next();
   } else {
     res.status(401).send({ msg: 'Unauthorized' });
   }
 });
 
+// Get logged in user's information
 secureApiRouter.post('/user', async function (req, res) {
-  const authToken = req.cookies[AUTH_COOKIE_NAME];
-  const netid = await db.getNetIdByToken(authToken);
-  const user = await userService.getUser(netid);
-  const submissions = (await gradeService.getSubmissions(user!.netId)).reverse();
+  let netId = req.body.netId ?? (await db.getNetIdByToken(req.cookies[AUTH_COOKIE_NAME]));
+  const user = await userService.getUser(netId);
+  if (!user) {
+    res.status(404).send({ msg: 'User not found' });
+    return;
+  }
+  const submissions = (await gradeService.getSubmissions(user.netId)).reverse();
   res.send(JSON.stringify({ user, submissions }));
 });
 
+// Update user information
 secureApiRouter.post('/update', async function (req, res) {
-  const user = await userService.updateUserInfo('fakeNetId', req.body.website, req.body.github, req.body.email);
+  const netId = req.body.netId;
+  const user = await userService.updateUserInfo(netId, req.body.website, req.body.github, req.body.email);
   res.send(JSON.stringify(user));
 });
 
+// Grade an assignment
 secureApiRouter.post('/grade', async function (req, res) {
-  const netId = await db.getNetIdByToken(req.cookies[AUTH_COOKIE_NAME]);
+  const netId = req.body.netId;
   const [score, submissions] = await gradeService.grade(req.body.assignmentPhase, netId);
   res.send(JSON.stringify({ score, submissions }));
 });
