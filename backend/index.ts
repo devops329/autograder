@@ -117,28 +117,6 @@ secureApiRouter.post('/logout', async function (req, res) {
   res.send({ msg: 'Logged out' });
 });
 
-// Admin API routes
-
-const adminApiRouter = express.Router();
-secureApiRouter.use('/admin', adminApiRouter);
-
-adminApiRouter.use(async (req, res, next) => {
-  const authToken = req.cookies[AUTH_COOKIE_NAME];
-  const netid = await db.getNetIdByToken(authToken);
-  const user = await db.getUser(netid);
-  if (user?.isAdmin) {
-    next();
-  } else {
-    res.status(401).send({ msg: 'Unauthorized' });
-  }
-});
-
-adminApiRouter.post('/user', async function (req, res) {
-  const user = await userService.getUser(req.body.netId);
-  const submissions = (await gradeService.getSubmissions(req.body.netId)).reverse();
-  res.send(JSON.stringify({ user, submissions }));
-});
-
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
   console.log(_req.url);

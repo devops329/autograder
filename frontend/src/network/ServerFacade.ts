@@ -56,17 +56,4 @@ export class ServerFacade {
     const response: JSON = (await this.clientCommunicator.doPost({ website, github, email, netId }, endpoint)) as unknown as JSON;
     return User.fromJson(response);
   }
-
-  async getStudentInfo(netId: string): Promise<[User, Submission[]]> {
-    const endpoint = 'admin/user';
-    const response: { user: JSON; submissions: JSON[] } = (await this.clientCommunicator.doPost({ netId }, endpoint)) as unknown as { user: JSON; submissions: JSON[] };
-    console.log('admin', response);
-    const user = User.fromJson(response.user);
-    console.log(user);
-    const submissions: Submission[] = [];
-    for (const submission of response.submissions) {
-      submissions.push(Submission.fromJson(submission));
-    }
-    return [user, submissions];
-  }
 }
