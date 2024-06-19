@@ -5,8 +5,8 @@ import { Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
 import { Submission } from '../domain/Submission';
 import { DeliverableTwoGrader } from '../../graders/DeliverableTwo';
+import { DeliverableTenPartOneGrader } from '../../graders/DeliverableTenPartOne';
 import { DeliverableElevenGrader } from '../../graders/DeliverableEleven';
-import { DeliverableTwelveGrader } from '../../graders/DeliverableTwelve';
 
 export class GradeService {
   private dao: DB;
@@ -31,11 +31,11 @@ export class GradeService {
         grader = new DeliverableTwoGrader();
         assignmentId = 945388;
         break;
+      case 10:
+        grader = new DeliverableTenPartOneGrader();
+        break;
       case 11:
         grader = new DeliverableElevenGrader();
-        break;
-      case 12:
-        grader = new DeliverableTwelveGrader();
         const partner = await grader.grade(user!);
         const submissions = await this.getSubmissions(netid);
         return [partner, submissions];
