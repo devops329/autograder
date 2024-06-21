@@ -93,7 +93,7 @@ secureApiRouter.post('/user', async function (req, res) {
     res.status(404).send({ msg: 'User not found' });
     return;
   }
-  const submissions = (await gradeService.getSubmissions(user.netId)).reverse();
+  const submissions = await gradeService.getSubmissions(netId);
   res.send(JSON.stringify({ user, submissions }));
 });
 

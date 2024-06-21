@@ -37,7 +37,7 @@ export class GradeService {
       case 11:
         grader = new DeliverableElevenGrader();
         const partner = await grader.grade(user!);
-        const submissions = (await this.getSubmissions(netid)).reverse();
+        const submissions = await this.getSubmissions(netid);
         return [partner, submissions];
       default:
         grader = new DefaultGrader();

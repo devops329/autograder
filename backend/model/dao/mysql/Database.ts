@@ -128,9 +128,11 @@ export class DB {
       const userId = await this.getUserId(netId);
       console.log('Getting submissions for user:', userId);
       const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ${userId}`);
-      return (rows as any[]).map((row) => {
-        return new Submission(row.time, row.phase, row.score);
-      });
+      return (rows as any[])
+        .map((row) => {
+          return new Submission(row.time, row.phase, row.score);
+        })
+        .reverse();
     } catch (err: any) {
       console.error('Error getting submissions:', err.message);
       return [];

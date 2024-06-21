@@ -26,15 +26,25 @@ export class DeliverableTwoGrader implements Grader {
     // Trigger the action
     await this.triggerAction(user);
 
+    // Wait a few seconds for the run to start
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
     // Get the most recent run
-    // const run = await this.getMostRecentRun(user);
-    // if (!run) {
-    //   console.error('No run found');
-    //   return score;
-    // }
+    let run = await this.getMostRecentRun(user);
+    if (!run) {
+      console.error('No run found');
+      return score;
+    }
 
     // Wait for the run to finish
-    await new Promise((resolve) => setTimeout(resolve, 60000));
+    while (run.status !== 'completed') {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      run = await this.getMostRecentRun(user);
+      if (!run) {
+        console.error('No updated run found');
+        return score;
+      }
+    }
 
     // Check for successful deployment
     const deliverableOne = new DeliverableOneGrader();
