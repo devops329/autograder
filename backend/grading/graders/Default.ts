@@ -1,4 +1,4 @@
-import { User } from '../model/domain/User';
+import { User } from '../../model/domain/User';
 import { Grader } from './Grader';
 
 export class DefaultGrader implements Grader {

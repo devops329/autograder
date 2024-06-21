@@ -1,12 +1,12 @@
-import { Grader } from '../../graders/Grader';
-import { DefaultGrader } from '../../graders/Default';
-import { DeliverableOneGrader } from '../../graders/DeliverableOne';
+import { Grader } from '../../grading/graders/Grader';
+import { DefaultGrader } from '../../grading/graders/Default';
+import { DeliverableOneGrader } from '../../grading/graders/DeliverableOne';
 import { Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
 import { Submission } from '../domain/Submission';
-import { DeliverableTwoGrader } from '../../graders/DeliverableTwo';
-import { DeliverableTenPartOneGrader } from '../../graders/DeliverableTenPartOne';
-import { DeliverableElevenGrader } from '../../graders/DeliverableEleven';
+import { DeliverableTwoGrader } from '../../grading/graders/DeliverableTwo';
+import { DeliverableTenPartOneGrader } from '../../grading/graders/DeliverableTenPartOne';
+import { DeliverableElevenGrader } from '../../grading/graders/DeliverableEleven';
 
 export class GradeService {
   private dao: DB;

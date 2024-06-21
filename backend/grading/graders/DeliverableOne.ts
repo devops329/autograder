@@ -1,4 +1,4 @@
-import { User } from '../model/domain/User';
+import { User } from '../../model/domain/User';
 import { Grader } from './Grader';
 import dns from 'dns';
 
