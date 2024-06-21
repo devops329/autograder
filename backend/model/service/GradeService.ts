@@ -7,6 +7,10 @@ import { Submission } from '../domain/Submission';
 import { DeliverableTwoGrader } from '../../grading/graders/DeliverableTwo';
 import { DeliverableTenPartOneGrader } from '../../grading/graders/DeliverableTenPartOne';
 import { DeliverableElevenGrader } from '../../grading/graders/DeliverableEleven';
+import { DeliverableThree } from '../../grading/graders/DeliverableThree';
+import { DeliverableFour } from '../../grading/graders/DeliverableFour';
+import { DeliverableFive } from '../../grading/graders/DeliverableFive';
+import { DeliverableSix } from '../../grading/graders/DeliverableSix';
 
 export class GradeService {
   private dao: DB;
@@ -30,6 +34,18 @@ export class GradeService {
       case 2:
         grader = new DeliverableTwoGrader();
         assignmentId = 945388;
+        break;
+      case 3:
+        grader = new DeliverableThree();
+        break;
+      case 4:
+        grader = new DeliverableFour();
+        break;
+      case 5:
+        grader = new DeliverableFive();
+        break;
+      case 6:
+        grader = new DeliverableSix();
         break;
       case 10:
         grader = new DeliverableTenPartOneGrader();

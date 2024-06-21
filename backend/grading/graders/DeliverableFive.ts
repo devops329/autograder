@@ -21,7 +21,11 @@ export class DeliverableFive implements Grader {
     // Check cloudfront deployment
     const cloudfrontDeployed = await tools.checkDNS(user.website, /cloudfront\.net/);
     const pageExists = await tools.checkPageExists(user.website, /JWT Pizza/g);
-    if (cloudfrontDeployed && pageExists) score += 60;
+    if (cloudfrontDeployed && pageExists) score += 58;
+
+    // Check handling of browser refresh React DOM Routing
+    const handles404Routing = await tools.checkPageExists(user.website + '/garbage', /Oops/g);
+    if (handles404Routing) score += 2;
 
     return score;
   }

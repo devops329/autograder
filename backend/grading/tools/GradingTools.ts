@@ -3,14 +3,17 @@ import { User } from '../../model/domain/User';
 import dns from 'dns';
 
 export class GradingTools {
-  async readWorkflowFile(user: User, repo: string): Promise<string> {
-    const workflowFileUrl = `https://raw.githubusercontent.com/${user.github}/${repo}/main/.github/workflows/ci.yml`;
-    const response = await fetch(workflowFileUrl);
+  async readGithubFile(user: User, repo: string, path: string): Promise<string> {
+    const fileUrl = `https://raw.githubusercontent.com/${user.github}/${repo}/main/${path}`;
+    const response = await fetch(fileUrl);
     if (!response.ok) {
-      console.error('Error fetching workflow file:', response.status);
+      console.error('Error fetching file:', response.status);
       return '';
     }
     return await response.text();
+  }
+  async readWorkflowFile(user: User, repo: string): Promise<string> {
+    return this.readGithubFile(user, repo, '.github/workflows/ci.yml');
   }
   async triggerWorkflow(user: User, repo: string): Promise<void> {
     const url = `https://api.github.com/repos/${user.github}/${repo}/actions/workflows/ci.yml/dispatches`;
@@ -86,13 +89,7 @@ export class GradingTools {
     return (await response.json()).version;
   }
   async readCoverageBadge(user: User, repo: string): Promise<string> {
-    const coverageBadgeUrl = `https://raw.githubusercontent.com/${user.github}/${repo}/main/coverage.svg`;
-    const response = await fetch(coverageBadgeUrl);
-    if (!response.ok) {
-      console.error('Error fetching coverage badge:', response.status);
-      return '';
-    }
-    return await response.text();
+    return this.readGithubFile(user, repo, 'coverage/badge.svg');
   }
 
   async checkDNS(hostname: string, regex: RegExp): Promise<boolean> {
@@ -125,5 +122,39 @@ export class GradingTools {
       return true;
     }
     return false;
+  }
+
+  async createUserAndLogin(serviceUrl: string): Promise<boolean> {
+    const response = await fetch(`${serviceUrl}/api/auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: 'test',
+        email: 'test@test',
+        password: 'test',
+      }),
+    });
+    if (!response.ok) {
+      console.error('Error creating user:', response.status);
+      return false;
+    }
+
+    const loginResponse = await fetch(`${serviceUrl}/api/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: 'test@test',
+        password: 'test',
+      }),
+    });
+    if (!loginResponse.ok) {
+      console.error('Error logging in:', loginResponse.status);
+      return false;
+    }
+    return true;
   }
 }
