@@ -1,11 +1,9 @@
-import { DB } from '../model/dao/mysql/Database';
 import { User } from '../model/domain/User';
 import { Grader } from './Grader';
 import dns from 'dns';
 
 export class DeliverableOneGrader implements Grader {
   async grade(user: User): Promise<number> {
-    const db = new DB();
     const hostname = user.website;
 
     if (!hostname) {
@@ -15,22 +13,30 @@ export class DeliverableOneGrader implements Grader {
 
     let pageExists = false;
     let pageDeployedWithGithub = false;
+    const regex = /JWT Pizza/g;
 
     try {
-      pageExists = await this.checkPageExists(hostname);
+      pageExists = await this.checkPageExists(hostname, regex);
       pageDeployedWithGithub = await this.checkPageDeployedWithGithub(hostname);
     } catch (e) {
       console.error(e);
     }
 
-    return pageExists && pageDeployedWithGithub ? 100 : 0;
+    let score = 0;
+    if (pageExists) {
+      score += 50;
+    }
+    if (pageDeployedWithGithub) {
+      score += 50;
+    }
+
+    return score;
   }
 
-  async checkPageExists(hostname: string): Promise<boolean> {
+  async checkPageExists(hostname: string, regex: RegExp): Promise<boolean> {
     const response = await fetch(`https://${hostname}`);
     const body = await response.text();
 
-    const regex = /JWT Pizza/g;
     const matches = body.match(regex);
     if (matches) {
       console.log('Page exists');

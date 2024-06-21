@@ -1,77 +1,99 @@
+import { s } from 'vite/dist/node/types.d-aGj9QkWt';
 import { config } from '../config';
 import { User } from '../model/domain/User';
 import { DeliverableOneGrader } from './DeliverableOne';
 import { Grader } from './Grader';
 
-const FUNCTIONAL_GITHUB_PAGES_PERCENTAGE = 0.5;
-
 export class DeliverableTwoGrader implements Grader {
   async grade(user: User): Promise<number> {
     const hostname = user.website;
+    let score = 0;
 
     if (!hostname) {
       console.error('No hostname found for user:', user.netId);
-      return 0;
+      return score;
     }
 
+    // Read workflow file
+    const workflowFileContents = await this.readWorkflowFile(user);
+    const deployedToPages = workflowFileContents.includes('actions/deploy-pages');
+    if (!deployedToPages) {
+      console.error('Not deployed to pages');
+      return score;
+    }
+    score += 30;
+
+    // Trigger the action
+    await this.triggerAction(user);
+
+    // Get the most recent run
+    // const run = await this.getMostRecentRun(user);
+    // if (!run) {
+    //   console.error('No run found');
+    //   return score;
+    // }
+
+    // Wait for the run to finish
+    await new Promise((resolve) => setTimeout(resolve, 60000));
+
+    // Check for successful deployment
     const deliverableOne = new DeliverableOneGrader();
-    const deliverableOneScore = await deliverableOne.grade(user);
-    const functionalGithubPagesScore = deliverableOneScore * FUNCTIONAL_GITHUB_PAGES_PERCENTAGE;
+    const deployedScore = await deliverableOne.grade(user);
+    score += deployedScore * 0.7;
 
-    // actions/deploy-pages
-    const mostRecentGithubActionRun = await this.getMostRecentGithubActionRun(user.github, 'jwt-pizza', config.github.personal_access_token);
-    const jobsUrl = mostRecentGithubActionRun.jobs_url;
-    const jobsDetails = await this.getJobsDetails(jobsUrl, config.github.personal_access_token);
+    return score;
+  }
 
+  async readWorkflowFile(user: User): Promise<string> {
+    const workflowFileUrl = `https://raw.githubusercontent.com/${user.github}/jwt-pizza/main/.github/workflows/ci.yml`;
+    const response = await fetch(workflowFileUrl);
+    if (!response.ok) {
+      console.error('Error fetching workflow file:', response.status);
+      return '';
+    }
+    return await response.text();
+  }
+
+  async triggerAction(user: User): Promise<void> {
+    const url = `https://api.github.com/repos/${user.github}/jwt-pizza/actions/workflows/ci.yml/dispatches`;
     try {
-      const deployJob = jobsDetails.jobs.find((job: any) => job.name === 'deploy');
-      const deployJobStatus = deployJob.conclusion;
-      if (deployJobStatus === 'success') {
-        console.log('GitHub Pages deployment job succeeded.');
-        return functionalGithubPagesScore + (1 - FUNCTIONAL_GITHUB_PAGES_PERCENTAGE) * 100;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `token ${config.github.personal_access_token}`,
+          Accept: 'application/vnd.github.v3+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+        body: JSON.stringify({
+          ref: 'main',
+        }),
+      });
+      if (response.status !== 204) {
+        console.error('Error triggering the action:', response.status);
       }
     } catch (error) {
-      console.error('Failed to fetch GitHub Action with deploy stage:', error);
-      return functionalGithubPagesScore;
-    }
-    return functionalGithubPagesScore;
-  }
-
-  async getJobsDetails(jobsUrl: string, token: string): Promise<any> {
-    try {
-      const response = await fetch(jobsUrl, {
-        headers: {
-          Authorization: `token ${token}`,
-          Accept: 'application/vnd.github.v3+json',
-        },
-      });
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Failed to fetch GitHub Actions jobs:', error);
-      return null;
+      console.error('Error triggering the action:', error);
     }
   }
 
-  async getMostRecentGithubActionRun(owner: string, repo: string, token: string): Promise<any> {
-    const url = `https://api.github.com/repos/${owner}/${repo}/actions/runs`;
+  async getMostRecentRun(user: User): Promise<any> {
+    const url = `https://api.github.com/repos/${user.github}/jwt-pizza/actions/workflows/ci.yml/runs`;
     try {
       const response = await fetch(url, {
         headers: {
-          Authorization: `token ${token}`,
+          Authorization: `token ${config.github.personal_access_token}`,
           Accept: 'application/vnd.github.v3+json',
+          'X-GitHub-Api-Version': '2022-11-28',
         },
       });
-      const data = await response.json();
-      const runs = data.workflow_runs;
-      if (runs.length === 0) {
-        console.error('No workflow runs found.');
+      if (!response.ok) {
+        console.error('Error fetching the most recent run:', response.status);
         return null;
       }
-      // Assuming the first run is the most recent one
-      return runs[0];
+      const data = await response.json();
+      return data.workflow_runs[0];
     } catch (error) {
-      console.error('Failed to fetch GitHub Actions runs:', error);
+      console.error('Error fetching the most recent run:', error);
       return null;
     }
   }

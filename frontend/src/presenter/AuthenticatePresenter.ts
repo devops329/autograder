@@ -39,6 +39,9 @@ export class AuthenticatePresenter {
   }
 
   async impersonate(netId: string) {
+    if (!netId) {
+      return;
+    }
     const [user, submissions] = await this.userService.getUserInfo(netId);
     this.view.setImpersonatedUser(user);
     this.view.setSubmissions(submissions);
