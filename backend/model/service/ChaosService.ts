@@ -1,9 +1,12 @@
 import { DB } from '../dao/mysql/Database';
+import { PizzaFactory } from '../dao/pizzaFactory/PizzaFactory';
 
 export class ChaosService {
   private db: DB;
-  constructor(db: DB) {
+  private pizzaFactory: PizzaFactory;
+  constructor(db: DB, pizzaFactory: PizzaFactory) {
     this.db = db;
+    this.pizzaFactory = pizzaFactory;
   }
   async checkForChaosToBeTriggered() {
     // Check database for untriggered chaos
@@ -12,19 +15,23 @@ export class ChaosService {
     for (const entry of chaosEntries) {
       if (new Date() > new Date(entry.chaosTime)) {
         await this.triggerChaos(entry.netId);
-        // update the triggered status
+        // update the triggered status in the database
         await this.db.triggerChaos(entry.netId);
-        console.log('Chaos triggered for:', entry.netId);
       }
     }
   }
 
   async triggerChaos(netId: string) {
-    //
+    const apiKey = (await this.db.getUser(netId))!.apiKey;
+    this.pizzaFactory.triggerChaos(apiKey);
+    console.log('Chaos triggered for:', netId);
   }
 
-  async resolveChaos(netId: string) {
-    // Send a request to the factory endpoint
-    // If the response is 200, grade the deliverable
+  async resolveChaos(apiKey: string, fixCode: string) {
+    const chaosResolved = await this.pizzaFactory.resolveChaos(apiKey, fixCode);
+    if (chaosResolved) {
+      console.log('Chaos resolved');
+      return true;
+    }
   }
 }

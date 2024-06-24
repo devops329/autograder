@@ -16,7 +16,7 @@ const pizzaFactory = new PizzaFactory();
 // Build services
 const gradeService = new GradeService(db, canvas);
 const userService = new UserService(db, pizzaFactory, canvas);
-const chaosService = new ChaosService(db);
+const chaosService = new ChaosService(db, pizzaFactory);
 
 // every 10 minutes, check for chaos to be triggered
 setInterval(async () => {
@@ -71,6 +71,21 @@ app.get('/cas-callback', async (req, res) => {
   } catch (error) {
     console.error('CAS authentication failed', error);
     res.status(500).send('Authentication failed');
+  }
+});
+
+apiRouter.post('/report', async (req, res) => {
+  const apiKey = req.query.apiKey as string;
+  const fixCode = req.query.fixCode as string;
+  if (!apiKey || !fixCode) {
+    res.status(400).send({ msg: 'Missing required parameters' });
+    return;
+  }
+  const chaosResolved = await chaosService.resolveChaos(apiKey, fixCode);
+  if (chaosResolved) {
+    res.send({ msg: 'Chaos resolved' });
+  } else {
+    res.status(500).send({ msg: 'Failed to resolve chaos' });
   }
 });
 
