@@ -74,7 +74,7 @@ app.get('/cas-callback', async (req, res) => {
   }
 });
 
-apiRouter.post('/report', async (req, res) => {
+apiRouter.get('/report', async (req, res) => {
   const apiKey = req.query.apiKey as string;
   const fixCode = req.query.fixCode as string;
   if (!apiKey || !fixCode) {
@@ -97,6 +97,10 @@ apiRouter.use(secureApiRouter);
 // If netid matches the token, or user is admin, proceed
 secureApiRouter.use(async (req, res, next) => {
   const authToken = req.cookies[AUTH_COOKIE_NAME];
+  if (!authToken) {
+    res.status(401).send({ msg: 'Unauthorized' });
+    return;
+  }
   const netIdFromRequest = req.body.netId;
   const netIdFromToken = await db.getNetIdByToken(authToken);
   const user = await db.getUser(netIdFromToken);

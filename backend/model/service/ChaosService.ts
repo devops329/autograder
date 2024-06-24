@@ -23,7 +23,8 @@ export class ChaosService {
 
   async triggerChaos(netId: string) {
     const apiKey = (await this.db.getUser(netId))!.apiKey;
-    this.pizzaFactory.triggerChaos(apiKey);
+    console.log(apiKey);
+    await this.pizzaFactory.triggerChaos(apiKey);
     console.log('Chaos triggered for:', netId);
   }
 
