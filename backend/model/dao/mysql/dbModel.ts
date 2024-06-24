@@ -23,17 +23,26 @@ export const tableCreateStatements = [
 
   `
   CREATE TABLE IF NOT EXISTS token (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    authtoken VARCHAR(255) NOT NULL,
-    netid VARCHAR(255) NOT NULL
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  authtoken VARCHAR(255) NOT NULL,
+  netid VARCHAR(255) NOT NULL
+  )
+  `,
+
+  `
+  CREATE TABLE IF NOT EXISTS chaos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  netid VARCHAR(255) NOT NULL,
+  chaosTime DATETIME NOT NULL,
+  triggered BOOLEAN NOT NULL DEFAULT false
   )
   `,
 
   `
   CREATE TABLE IF NOT EXISTS pentest (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    netid VARCHAR(255) NOT NULL,
-    partnerid VARCHAR(255) NOT NULL DEFAULT ''
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  netid VARCHAR(255) NOT NULL,
+  partnerid VARCHAR(255) NOT NULL DEFAULT ''
   )
   `,
 ];

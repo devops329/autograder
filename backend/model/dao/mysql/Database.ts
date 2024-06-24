@@ -243,4 +243,16 @@ export class DB {
       connection.end();
     }
   }
+
+  async putChaos(netId: string, chaosTime: Date) {
+    const connection = await this.getConnection();
+    try {
+      console.log('Inserting chaos:', netId);
+      await connection.query(`INSERT INTO chaos (netid, chaosTime) VALUES ('${netId}', '${chaosTime.toISOString()}')`);
+    } catch (err: any) {
+      console.error('Error putting chaos:', err.message);
+    } finally {
+      connection.end();
+    }
+  }
 }
