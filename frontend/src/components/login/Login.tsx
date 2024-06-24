@@ -5,13 +5,13 @@ import { Submission } from '../../model/domain/Submission';
 import { AuthenticatePresenter } from '../../presenter/AuthenticatePresenter';
 
 interface Props {
-  setLoggedInUser: (user: User | null) => void;
+  setUser: (user: User | null) => void;
   setSubmissions: (submissions: Submission[]) => void;
 }
 export function Login(props: Props) {
   useEffect(() => {
     const presenter = new AuthenticatePresenter({
-      setLoggedInUser: props.setLoggedInUser,
+      setUser: props.setUser,
       setSubmissions: props.setSubmissions,
     });
 
@@ -23,7 +23,7 @@ export function Login(props: Props) {
       } else {
         localStorage.removeItem('user');
         localStorage.removeItem('submissions');
-        props.setLoggedInUser(null);
+        props.setUser(null);
         props.setSubmissions([]);
         window.location.href = '/';
       }

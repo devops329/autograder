@@ -11,17 +11,23 @@ import { Login } from './components/login/Login';
 import Cookies from 'js-cookie';
 
 function App() {
-  const [loggedInUser, setLoggedInUser] = useState<User | null>(localStorage.getItem('user') ? User.fromJson(JSON.parse(localStorage.getItem('user')!)) : null);
-  const [submissions, setSubmissions] = useState<Submission[]>(
-    localStorage.getItem('submissions') ? JSON.parse(localStorage.getItem('submissions')!).map((item: JSON) => Submission.fromJson(item)) : []
+  const [impersonating, setImpersonating] = useState<boolean>(!!localStorage.getItem('impersonatedUser'));
+  const [user, setUser] = useState<User | null>(
+    impersonating ? User.fromJson(JSON.parse(localStorage.getItem('impersonatedUser')!)) : localStorage.getItem('user') ? User.fromJson(JSON.parse(localStorage.getItem('user')!)) : null
   );
-  const [impersonatedUser, setImpersonatedUser] = useState<User | null>(localStorage.getItem('impersonatedUser') ? User.fromJson(JSON.parse(localStorage.getItem('impersonatedUser')!)) : null);
+  const [submissions, setSubmissions] = useState<Submission[]>(
+    impersonating
+      ? JSON.parse(localStorage.getItem('impersonatedSubmissions')!).map((item: JSON) => Submission.fromJson(item))
+      : localStorage.getItem('submissions')
+      ? JSON.parse(localStorage.getItem('submissions')!).map((item: JSON) => Submission.fromJson(item))
+      : []
+  );
 
   useEffect(() => {
-    if (!Cookies.get('token') && loggedInUser) {
+    if (!Cookies.get('token') && user) {
       localStorage.removeItem('user');
       localStorage.removeItem('submissions');
-      setLoggedInUser(null);
+      setUser(null);
       setSubmissions([]);
       window.location.href = '/';
     }
@@ -30,16 +36,16 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <NavBar impersonatedUser={impersonatedUser} setImpersonatedUser={setImpersonatedUser} loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} setSubmissions={setSubmissions} />
+        <NavBar impersonating={impersonating} setImpersonating={setImpersonating} user={user} setUser={setUser} setSubmissions={setSubmissions} />
         <Routes>
-          <Route path="/login" element={<Login setLoggedInUser={setLoggedInUser} setSubmissions={setSubmissions} />} />
+          <Route path="/login" element={<Login setUser={setUser} setSubmissions={setSubmissions} />} />
         </Routes>
-        {loggedInUser ? (
+        {user ? (
           <Routes>
-            <Route path="/grader" element={<Grader user={impersonatedUser ?? loggedInUser} setSubmissions={setSubmissions} />} />
-            <Route path="/profile" element={<UserInfo impersonated={!!impersonatedUser} user={impersonatedUser ?? loggedInUser} setUser={setLoggedInUser} />} />
+            <Route path="/grader" element={<Grader user={user} setSubmissions={setSubmissions} />} />
+            <Route path="/profile" element={<UserInfo impersonating={impersonating} user={user} setUser={setUser} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
-            <Route path="*" element={<Grader user={impersonatedUser ?? loggedInUser} setSubmissions={setSubmissions} />} />
+            <Route path="*" element={<Grader user={user} setSubmissions={setSubmissions} />} />
           </Routes>
         ) : (
           <h1>Please log in to access the autograder.</h1>

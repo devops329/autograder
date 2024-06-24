@@ -3,9 +3,8 @@ import { User } from '../model/domain/User';
 import { UserService } from '../model/service/UserService';
 
 export interface AuthenticateView {
-  setLoggedInUser(user: User | null): void;
+  setUser(user: User | null): void;
   setSubmissions(submissions: Submission[]): void;
-  setImpersonatedUser(user: User | null): void;
 }
 export class AuthenticatePresenter {
   private userService: UserService;
@@ -24,7 +23,7 @@ export class AuthenticatePresenter {
 
   async getUserInfo() {
     const [user, submissions] = await this.userService.getUserInfo();
-    this.view.setLoggedInUser(user);
+    this.view.setUser(user);
     this.view.setSubmissions(submissions);
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('submissions', JSON.stringify(submissions));
@@ -33,12 +32,12 @@ export class AuthenticatePresenter {
   async logout() {
     const response = await this.userService.logout();
     console.log(response);
-    this.view.setLoggedInUser(null);
+    this.view.setUser(null);
     this.view.setSubmissions([]);
-    this.view.setImpersonatedUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('submissions');
     localStorage.removeItem('impersonatedUser');
+    localStorage.removeItem('impersonatedSubmissions');
   }
 
   async impersonate(netId: string) {
@@ -46,18 +45,20 @@ export class AuthenticatePresenter {
       return;
     }
     const [user, submissions] = await this.userService.getUserInfo(netId);
-    this.view.setImpersonatedUser(user);
+    this.view.setUser(user);
     this.view.setSubmissions(submissions);
     localStorage.setItem('impersonatedUser', JSON.stringify(user));
-    localStorage.setItem('submissions', JSON.stringify(submissions));
+    localStorage.setItem('impersonatedSubmissions', JSON.stringify(submissions));
     window.location.reload();
   }
 
-  async stopImpersonating(netId: string) {
+  async stopImpersonating() {
+    const netId = User.fromJson(JSON.parse(localStorage.getItem('user')!)).netId;
     const [user, submissions] = await this.userService.getUserInfo(netId);
-    this.view.setLoggedInUser(user);
+    this.view.setUser(user);
     this.view.setSubmissions(submissions);
     localStorage.removeItem('impersonatedUser');
+    localStorage.removeItem('impersonatedSubmissions');
     window.location.reload();
   }
 }
