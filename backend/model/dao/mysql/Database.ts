@@ -255,4 +255,31 @@ export class DB {
       connection.end();
     }
   }
+
+  async getUntriggeredChaos() {
+    const connection = await this.getConnection();
+    try {
+      const [rows] = await connection.query(`SELECT * FROM chaos WHERE triggered = false`);
+      return (rows as any[]).map((row) => {
+        return { netId: row.netid, chaosTime: row.chaosTime };
+      });
+    } catch (err: any) {
+      console.error('Error getting untriggered chaos:', err.message);
+      return [];
+    } finally {
+      connection.end();
+    }
+  }
+
+  async triggerChaos(netId: string) {
+    const connection = await this.getConnection();
+    try {
+      console.log('Triggering chaos:', netId);
+      await connection.query(`UPDATE chaos SET triggered = true WHERE netid = '${netId}'`);
+    } catch (err: any) {
+      console.error('Error triggering chaos:', err.message);
+    } finally {
+      connection.end();
+    }
+  }
 }

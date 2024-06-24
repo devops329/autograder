@@ -33,7 +33,7 @@ export const tableCreateStatements = [
   CREATE TABLE IF NOT EXISTS chaos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   netid VARCHAR(255) NOT NULL,
-  chaosTime DATETIME NOT NULL,
+  chaosTime VARCHAR(255) NOT NULL,
   triggered BOOLEAN NOT NULL DEFAULT false
   )
   `,

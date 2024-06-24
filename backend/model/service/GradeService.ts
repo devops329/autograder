@@ -26,6 +26,7 @@ export class GradeService {
     let grader: Grader;
     let assignmentId = 940837;
     const user = await this.dao.getUser(netid);
+    let submissions: Submission[] = [];
 
     switch (assignmentPhase) {
       case 1:
@@ -49,11 +50,13 @@ export class GradeService {
         break;
       case 10:
         grader = new DeliverableTen();
-        break;
+        const message = await (grader as DeliverableTen).start(user!);
+        submissions = await this.getSubmissions(netid);
+        return [message, submissions];
       case 11:
         grader = new DeliverableEleven();
         const partner = await grader.grade(user!);
-        const submissions = await this.getSubmissions(netid);
+        submissions = await this.getSubmissions(netid);
         return [partner, submissions];
       default:
         grader = new DefaultGrader();
@@ -70,7 +73,7 @@ export class GradeService {
     await this.canvas.updateGrade(assignmentId, studentId, score);
 
     await this.putSubmissionIntoDB(assignmentPhase, netid, score);
-    const submissions = await this.getSubmissions(netid);
+    submissions = await this.getSubmissions(netid);
     return [score, submissions];
   }
 

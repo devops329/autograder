@@ -6,6 +6,7 @@ import { Canvas } from './model/dao/canvas/Canvas';
 import { config } from './config';
 import cookieParser from 'cookie-parser';
 import { PizzaFactory } from './model/dao/pizzaFactory/PizzaFactory';
+import { ChaosService } from './model/service/ChaosService';
 
 const app = express();
 
@@ -15,6 +16,12 @@ const pizzaFactory = new PizzaFactory();
 // Build services
 const gradeService = new GradeService(db, canvas);
 const userService = new UserService(db, pizzaFactory, canvas);
+const chaosService = new ChaosService(db);
+
+// every 10 minutes, check for chaos to be triggered
+setInterval(async () => {
+  await chaosService.checkForChaosToBeTriggered();
+}, 600000);
 
 // Serve up the applications static content
 app.use(express.static('public'));

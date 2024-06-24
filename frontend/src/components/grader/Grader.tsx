@@ -67,7 +67,7 @@ export function Grader(props: Props) {
       )}
       {grade && (
         <p>
-          {selectedAssignment === 12 ? 'Partner: ' : 'Score: '} {grade}
+          {selectedAssignment! >= 10 ? 'Message: ' : 'Score: '} {grade}
         </p>
       )}
       {error && <p>Error: {error}</p>}

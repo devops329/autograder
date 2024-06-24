@@ -21,6 +21,6 @@ export class DeliverableEleven implements Grader {
       db.updatePentestPartner(partnerId, user.netId);
     }
 
-    return 'Name: ' + partner.name + ', Email: ' + partner.email;
+    return 'Partner: ' + partner.name + ', Email: ' + partner.email;
   }
 }
