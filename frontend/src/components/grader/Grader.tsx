@@ -57,7 +57,7 @@ export function Grader(props: Props) {
             clearDisplay();
             doGrade(selectedAssignment);
           }}>
-          Grade
+          {selectedAssignment === 10 ? "I'm ready for some chaos!" : selectedAssignment === 11 ? 'Find me a partner' : 'Grade'}
         </Button>
       )}
       {grading && (
@@ -67,7 +67,7 @@ export function Grader(props: Props) {
       )}
       {grade && (
         <p>
-          {selectedAssignment! >= 10 ? 'Message: ' : 'Score: '} {grade}
+          {selectedAssignment! >= 10 ? '' : 'Score: '} {grade}
         </p>
       )}
       {error && <p>Error: {error}</p>}

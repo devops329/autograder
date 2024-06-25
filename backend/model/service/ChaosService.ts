@@ -1,3 +1,4 @@
+import { DeliverableTenPartTwo } from '../../grading/graders/DeliverableTenPartTwo';
 import { DB } from '../dao/mysql/Database';
 import { PizzaFactory } from '../dao/pizzaFactory/PizzaFactory';
 
@@ -32,6 +33,9 @@ export class ChaosService {
     const chaosResolved = await this.pizzaFactory.resolveChaos(apiKey, fixCode);
     if (chaosResolved) {
       console.log('Chaos resolved');
+      const deliverableTenPartTwo = new DeliverableTenPartTwo();
+      const user = await this.db.getUserByApiKey(apiKey);
+      await deliverableTenPartTwo.grade(user!);
       return true;
     }
   }

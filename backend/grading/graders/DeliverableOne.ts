@@ -3,7 +3,7 @@ import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 import dns from 'dns';
 
-export class DeliverableOneGrader implements Grader {
+export class DeliverableOne implements Grader {
   async grade(user: User): Promise<number> {
     const hostname = user.website;
     const tools = new GradingTools();

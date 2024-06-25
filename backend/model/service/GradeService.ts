@@ -1,16 +1,18 @@
 import { Grader } from '../../grading/graders/Grader';
 import { DefaultGrader } from '../../grading/graders/Default';
-import { DeliverableOneGrader } from '../../grading/graders/DeliverableOne';
+import { DeliverableOne } from '../../grading/graders/DeliverableOne';
 import { Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
 import { Submission } from '../domain/Submission';
-import { DeliverableTwoGrader } from '../../grading/graders/DeliverableTwo';
+import { DeliverableTwo } from '../../grading/graders/DeliverableTwo';
 import { DeliverableThree } from '../../grading/graders/DeliverableThree';
 import { DeliverableFour } from '../../grading/graders/DeliverableFour';
 import { DeliverableFive } from '../../grading/graders/DeliverableFive';
 import { DeliverableSix } from '../../grading/graders/DeliverableSix';
 import { DeliverableTen } from '../../grading/graders/DeliverableTen';
 import { DeliverableEleven } from '../../grading/graders/DeliverableEleven';
+import { DeliverableTenPartTwo } from '../../grading/graders/DeliverableTenPartTwo';
+import { User } from '../domain/User';
 
 export class GradeService {
   private dao: DB;
@@ -30,10 +32,10 @@ export class GradeService {
 
     switch (assignmentPhase) {
       case 1:
-        grader = new DeliverableOneGrader();
+        grader = new DeliverableOne();
         break;
       case 2:
-        grader = new DeliverableTwoGrader();
+        grader = new DeliverableTwo();
         assignmentId = 945388;
         break;
       case 3:
@@ -63,7 +65,13 @@ export class GradeService {
         break;
     }
     score = (await grader.grade(user!)) as number;
-    // FIXME: remove hardcoded assignmentId
+
+    await this.submitScore(assignmentId, assignmentPhase, netid, score);
+    submissions = await this.getSubmissions(netid);
+    return [score, submissions];
+  }
+
+  async submitScore(assignmentId: number, assignmentPhase: number, netid: string, score: number) {
     let studentId = 135540;
     try {
       studentId = await this.canvas.getStudentId(netid);
@@ -71,10 +79,13 @@ export class GradeService {
       console.error(e);
     }
     await this.canvas.updateGrade(assignmentId, studentId, score);
-
     await this.putSubmissionIntoDB(assignmentPhase, netid, score);
-    submissions = await this.getSubmissions(netid);
-    return [score, submissions];
+  }
+
+  async gradeDeliverableTen(user: User) {
+    const grader = new DeliverableTenPartTwo();
+    const score = await grader.grade(user);
+    await this.submitScore(940837, 10, user.netId, score);
   }
 
   async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number) {

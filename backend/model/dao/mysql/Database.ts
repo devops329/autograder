@@ -109,6 +109,20 @@ export class DB {
     }
   }
 
+  async getUserByApiKey(apiKey: string) {
+    const connection = await this.getConnection();
+    try {
+      const [rows] = await connection.query(`SELECT * FROM user WHERE apiKey = '${apiKey}'`);
+      const row = (rows as any[])[0];
+      return new User(row.id, row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
+    } catch (err: any) {
+      console.error('Error getting user by API key:', err.message);
+      return null;
+    } finally {
+      connection.end();
+    }
+  }
+
   async putSubmission(submission: Submission, netId: string) {
     const connection = await this.getConnection();
     try {
@@ -278,6 +292,31 @@ export class DB {
       await connection.query(`UPDATE chaos SET triggered = true WHERE netid = '${netId}'`);
     } catch (err: any) {
       console.error('Error triggering chaos:', err.message);
+    } finally {
+      connection.end();
+    }
+  }
+
+  async getChaosTime(netId: string) {
+    const connection = await this.getConnection();
+    try {
+      const [rows] = await connection.query(`SELECT chaosTime FROM chaos WHERE netid = '${netId}'`);
+      return ((rows as any)[0] as any).chaosTime || '';
+    } catch (err: any) {
+      console.error('Error getting chaos time:', err.message);
+      return '';
+    } finally {
+      connection.end();
+    }
+  }
+
+  async deleteChaos(netId: string) {
+    const connection = await this.getConnection();
+    try {
+      console.log('Deleting chaos:', netId);
+      await connection.query(`DELETE FROM chaos WHERE netid = '${netId}'`);
+    } catch (err: any) {
+      console.error('Error deleting chaos:', err.message);
     } finally {
       connection.end();
     }

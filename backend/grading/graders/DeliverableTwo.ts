@@ -1,9 +1,9 @@
 import { User } from '../../model/domain/User';
-import { DeliverableOneGrader } from './DeliverableOne';
+import { DeliverableOne } from './DeliverableOne';
 import { Grader } from './Grader';
 import { GradingTools } from '../tools/GradingTools';
 
-export class DeliverableTwoGrader implements Grader {
+export class DeliverableTwo implements Grader {
   async grade(user: User): Promise<number> {
     const hostname = user.website;
     const tools = new GradingTools();
@@ -29,7 +29,7 @@ export class DeliverableTwoGrader implements Grader {
     await tools.triggerWorkflow(user, repo);
 
     // Check for successful deployment
-    const deliverableOne = new DeliverableOneGrader();
+    const deliverableOne = new DeliverableOne();
     const deployedScore = await deliverableOne.grade(user);
     score += deployedScore * 0.7;
 
