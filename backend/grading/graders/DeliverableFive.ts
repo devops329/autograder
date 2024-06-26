@@ -1,21 +1,23 @@
 import { User } from '../../model/domain/User';
+import { Github } from '../tools/Github';
 import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
 export class DeliverableFive implements Grader {
   async grade(user: User): Promise<number> {
     let score = 0;
+    const github = new Github(user, 'jwt-pizza');
     const tools = new GradingTools();
 
     // Read workflow file
-    const workflowFile = await tools.readWorkflowFile(user, 'jwt-pizza');
+    const workflowFile = await github.readWorkflowFile();
     const pushesToS3 = workflowFile.includes('aws s3 cp');
 
     // Run the workflow
-    await tools.triggerWorkflow(user, 'jwt-pizza');
+    await github.triggerWorkflow();
 
     // Check for successful run
-    const run = await tools.getMostRecentRun(user, 'jwt-pizza');
+    const run = await github.getMostRecentRun();
     if (pushesToS3 && run.conclusion === 'success') score += 40;
 
     // Check cloudfront deployment

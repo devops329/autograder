@@ -5,7 +5,7 @@ import { ChaosService } from '../../model/service/ChaosService';
 import { Grader } from './Grader';
 
 export class DeliverableTen implements Grader {
-  async start(user: User): Promise<string> {
+  async grade(user: User): Promise<string> {
     // const db = new DB();
     // calculate random time up to 6 hours after 8am the following day
     // const chaosTime = new Date();
@@ -22,15 +22,5 @@ export class DeliverableTen implements Grader {
     const chaosService = new ChaosService(new DB(), new PizzaFactory());
     await chaosService.triggerChaos(user.netId);
     return 'The chaos has been triggered for you. Good luck!';
-  }
-  async grade(user: User): Promise<number> {
-    const db = new DB();
-    let score = 100;
-    // get chaos time from chaos db
-    // Add 12 hours to chaos time for cutoff
-    // For every hour that the current time is past the cutoff, subtract 5 points
-    // put user into pentest db
-    db.putPentest(user.netId);
-    return 50;
   }
 }

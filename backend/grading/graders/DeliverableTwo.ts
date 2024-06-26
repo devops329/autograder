@@ -1,12 +1,12 @@
 import { User } from '../../model/domain/User';
 import { DeliverableOne } from './DeliverableOne';
 import { Grader } from './Grader';
-import { GradingTools } from '../tools/GradingTools';
+import { Github } from '../tools/Github';
 
 export class DeliverableTwo implements Grader {
   async grade(user: User): Promise<number> {
     const hostname = user.website;
-    const tools = new GradingTools();
+    const github = new Github(user, 'jwt-pizza');
     let score = 0;
 
     if (!hostname) {
@@ -17,7 +17,7 @@ export class DeliverableTwo implements Grader {
     const repo = 'jwt-pizza';
 
     // Read workflow file
-    const workflowFileContents = await tools.readWorkflowFile(user, repo);
+    const workflowFileContents = await github.readWorkflowFile();
     const deployedToPages = workflowFileContents.includes('actions/deploy-pages');
     if (!deployedToPages) {
       console.error('Not deployed to pages');
@@ -26,7 +26,7 @@ export class DeliverableTwo implements Grader {
     score += 30;
 
     // Trigger the action and wait for it to complete
-    await tools.triggerWorkflow(user, repo);
+    await github.triggerWorkflow();
 
     // Check for successful deployment
     const deliverableOne = new DeliverableOne();

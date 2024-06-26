@@ -1,10 +1,13 @@
 import { User } from '../../model/domain/User';
+import { CommitHistory } from '../tools/CommitHistory';
 import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
-import dns from 'dns';
 
 export class DeliverableOne implements Grader {
   async grade(user: User): Promise<number> {
+    // const commitHistory = new CommitHistory();
+    // const commits = await commitHistory.checkCommitHistory(user, 'jwt-pizza', 1, 5);
+
     const hostname = user.website;
     const tools = new GradingTools();
 

@@ -52,7 +52,7 @@ export class GradeService {
         break;
       case 10:
         grader = new DeliverableTen();
-        const message = await (grader as DeliverableTen).start(user!);
+        const message = await grader.grade(user!);
         submissions = await this.getSubmissions(netid);
         return [message, submissions];
       case 11:

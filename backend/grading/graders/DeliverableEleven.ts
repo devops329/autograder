@@ -13,7 +13,7 @@ export class DeliverableEleven implements Grader {
     } else {
       const eligiblePartners = await db.getPentestPartners(user.netId);
       if (eligiblePartners.length === 0) {
-        return 'No partners available';
+        return 'No partners available. Try again later or contact the instructor.';
       }
       const partnerId = eligiblePartners[Math.floor(Math.random() * eligiblePartners.length)].netId;
       partner = (await db.getUser(partnerId))!;

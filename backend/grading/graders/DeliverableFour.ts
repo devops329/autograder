@@ -1,33 +1,33 @@
 import { User } from '../../model/domain/User';
-import { GradingTools } from '../tools/GradingTools';
+import { Github } from '../tools/Github';
 import { Grader } from './Grader';
 
 export class DeliverableFour implements Grader {
   async grade(user: User): Promise<number> {
     let score = 0;
-    const tools = new GradingTools();
+    const github = new Github(user, 'jwt-pizza');
 
     // Read workflow file
-    const workflowFile = await tools.readWorkflowFile(user, 'jwt-pizza');
+    const workflowFile = await github.readWorkflowFile();
     const runsTest = workflowFile.includes('npm test');
     if (runsTest) score += 10;
 
     // Get current version
-    const versionNumber = await tools.getVersionNumber(user, 'jwt-pizza');
+    const versionNumber = await github.getVersionNumber();
 
     // Run the workflow
-    await tools.triggerWorkflow(user, 'jwt-pizza');
+    await github.triggerWorkflow();
 
     // Check for successful run
-    const run = await tools.getMostRecentRun(user, 'jwt-pizza');
+    const run = await github.getMostRecentRun();
     if (run && run.conclusion === 'success') score += 50;
 
     // Get new version number
-    const newVersionNumber = await tools.getVersionNumber(user, 'jwt-pizza');
+    const newVersionNumber = await github.getVersionNumber();
     if (versionNumber && newVersionNumber && newVersionNumber != versionNumber) score += 10;
 
     // Get coverage badge
-    const coverageBadge = await tools.readCoverageBadge(user, 'jwt-pizza');
+    const coverageBadge = await github.readCoverageBadge();
     console.log(coverageBadge);
 
     return score;

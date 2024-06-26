@@ -1,35 +1,35 @@
 import { User } from '../../model/domain/User';
-import { GradingTools } from '../tools/GradingTools';
+import { Github } from '../tools/Github';
 import { Grader } from './Grader';
 
 export class DeliverableThree implements Grader {
   async grade(user: User): Promise<number> {
     let score = 0;
-    const tools = new GradingTools();
+    const github = new Github(user, 'jwt-pizza-service');
 
     // Read workflow file
-    const workflowFile = await tools.readWorkflowFile(user, 'jwt-pizza-service');
+    const workflowFile = await github.readWorkflowFile();
     const runsLint = workflowFile.includes('npm run lint');
     if (runsLint) score += 10;
     const runsTest = workflowFile.includes('npm test');
     if (runsTest) score += 10;
 
     // Get current version
-    const versionNumber = await tools.getVersionNumber(user, 'jwt-pizza-service');
+    const versionNumber = await github.getVersionNumber();
 
     // Run the workflow
-    await tools.triggerWorkflow(user, 'jwt-pizza-service');
+    await github.triggerWorkflow();
 
     // Check for successful run
-    const run = await tools.getMostRecentRun(user, 'jwt-pizza-service');
+    const run = await github.getMostRecentRun();
     if (run && run.conclusion === 'success') score += 50;
 
     // Get new version number
-    const newVersionNumber = await tools.getVersionNumber(user, 'jwt-pizza-service');
+    const newVersionNumber = await github.getVersionNumber();
     if (versionNumber && newVersionNumber && newVersionNumber != versionNumber) score += 10;
 
     // Get coverage badge
-    const coverageBadge = await tools.readCoverageBadge(user, 'jwt-pizza-service');
+    const coverageBadge = await github.readCoverageBadge();
     console.log(coverageBadge);
 
     return score;

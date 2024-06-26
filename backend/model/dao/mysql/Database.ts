@@ -3,6 +3,7 @@ import { User } from '../../domain/User';
 import { Submission } from '../../domain/Submission';
 import { tableCreateStatements } from './dbModel';
 import { config } from '../../../config';
+import { c } from 'vite/dist/node/types.d-aGj9QkWt';
 
 export class DB {
   private initialized: Promise<void>;
@@ -150,6 +151,22 @@ export class DB {
     } catch (err: any) {
       console.error('Error getting submissions:', err.message);
       return [];
+    } finally {
+      connection.end();
+    }
+  }
+
+  async getMostRecentSubmissionOtherDeliverables(netId: string, deliverable: number) {
+    const connection = await this.getConnection();
+    try {
+      const userId = await this.getUserId(netId);
+      console.log('Getting most recent submission for user:', userId);
+      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ${userId} AND phase != ${deliverable} ORDER BY time DESC LIMIT 1`);
+      const row = (rows as any[])[0];
+      return new Submission(row.time, row.phase, row.score);
+    } catch (err: any) {
+      console.error('Error getting most recent submission:', err.message);
+      return null;
     } finally {
       connection.end();
     }
