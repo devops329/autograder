@@ -1,5 +1,3 @@
-import { config } from '../../config';
-import { User } from '../../model/domain/User';
 import dns from 'dns';
 
 export class GradingTools {

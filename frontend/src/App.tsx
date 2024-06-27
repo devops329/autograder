@@ -27,8 +27,11 @@ function App() {
     if (!Cookies.get('token') && user) {
       localStorage.removeItem('user');
       localStorage.removeItem('submissions');
+      localStorage.removeItem('impersonatedUser');
+      localStorage.removeItem('impersonatedSubmissions');
       setUser(null);
       setSubmissions([]);
+      setImpersonating(false);
       window.location.href = '/';
     }
   }, []);

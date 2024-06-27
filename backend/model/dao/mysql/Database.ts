@@ -161,7 +161,7 @@ export class DB {
     try {
       const userId = await this.getUserId(netId);
       console.log('Getting most recent submission for user:', userId);
-      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ${userId} AND phase != ${deliverable} ORDER BY time DESC LIMIT 1`);
+      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ${userId} AND phase != 'Phase ${deliverable}' ORDER BY time DESC LIMIT 1`);
       const row = (rows as any[])[0];
       return new Submission(row.time, row.phase, row.score);
     } catch (err: any) {

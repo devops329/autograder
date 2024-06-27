@@ -1,3 +1,4 @@
+import { c } from 'vite/dist/node/types.d-aGj9QkWt';
 import { config } from '../../config';
 import { User } from '../../model/domain/User';
 
@@ -20,7 +21,7 @@ export class Github {
   async readWorkflowFile(): Promise<string> {
     return this.readGithubFile('.github/workflows/ci.yml');
   }
-  async triggerWorkflow(): Promise<void> {
+  async triggerWorkflow(): Promise<boolean> {
     const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/actions/workflows/ci.yml/dispatches`;
     try {
       const response = await fetch(url, {
@@ -35,7 +36,9 @@ export class Github {
         }),
       });
       if (response.status !== 204) {
+        console.log(await response.text());
         console.error('Error triggering the action:', response.status);
+        return false;
       }
     } catch (error) {
       console.error('Error triggering the action:', error);
@@ -44,6 +47,7 @@ export class Github {
     await new Promise((resolve) => setTimeout(resolve, 5000));
     // Wait for the run to complete
     await this.waitForCompletion();
+    return true;
   }
 
   async getMostRecentRun(): Promise<any> {
@@ -85,7 +89,8 @@ export class Github {
     }
   }
   async getVersionNumber(): Promise<string> {
-    const versionUrl = `https://raw.githubusercontent.com/${this.user.github}/${this.repo}/main/version.json`;
+    // Adding a cache-busting query parameter
+    const versionUrl = `https://raw.githubusercontent.com/${this.user.github}/${this.repo}/main/src/version.json?timestamp=${new Date().getTime()}`;
     const response = await fetch(versionUrl);
     if (!response.ok) {
       console.error('Error fetching version file:', response.status);
@@ -94,6 +99,6 @@ export class Github {
     return (await response.json()).version;
   }
   async readCoverageBadge(): Promise<string> {
-    return this.readGithubFile('coverage/badge.svg');
+    return this.readGithubFile('coverageBadge.svg');
   }
 }
