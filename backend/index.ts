@@ -149,6 +149,12 @@ app.use((_req, res) => {
   res.sendFile('index.html', { root: 'public' });
 });
 
+// Default error handler for all exceptions and errors.
+// app.use((err, req, res, next) => {
+//   res.status(err.statusCode ?? 500).json({ message: err.message, stack: err.stack });
+//   next();
+// });
+
 const port = 3001;
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);

@@ -1,6 +1,6 @@
-import { c } from 'vite/dist/node/types.d-aGj9QkWt';
 import { config } from '../../config';
 import { User } from '../../model/domain/User';
+import { api } from '@opentelemetry/sdk-node';
 
 export class Github {
   private user: User;
@@ -90,13 +90,17 @@ export class Github {
   }
   async getVersionNumber(): Promise<string> {
     // Adding a cache-busting query parameter
-    const versionUrl = `https://raw.githubusercontent.com/${this.user.github}/${this.repo}/main/src/version.json?timestamp=${new Date().getTime()}`;
-    const response = await fetch(versionUrl);
+    const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/src/version.json`;
+    const response = await fetch(apiUrl);
     if (!response.ok) {
       console.error('Error fetching version file:', response.status);
       return '';
     }
-    return (await response.json()).version;
+    // get the content and base 64 decode it
+    const content = (await response.json()).content;
+    console.log('Content:', content);
+    const version = JSON.parse(atob(content)).version;
+    return version;
   }
   async readCoverageBadge(): Promise<string> {
     return this.readGithubFile('coverageBadge.svg');
