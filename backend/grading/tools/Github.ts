@@ -1,6 +1,5 @@
 import { config } from '../../config';
 import { User } from '../../model/domain/User';
-import { api } from '@opentelemetry/sdk-node';
 
 export class Github {
   private user: User;
