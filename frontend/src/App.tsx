@@ -45,10 +45,10 @@ function App() {
         </Routes>
         {user ? (
           <Routes>
-            <Route path="/grader" element={<Grader user={user} setSubmissions={setSubmissions} />} />
+            <Route path="/grader" element={<Grader user={user} setSubmissions={setSubmissions} impersonating />} />
             <Route path="/profile" element={<UserInfo impersonating={impersonating} user={user} setUser={setUser} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
-            <Route path="*" element={<Grader user={user} setSubmissions={setSubmissions} />} />
+            <Route path="*" element={<Grader user={user} setSubmissions={setSubmissions} impersonating />} />
           </Routes>
         ) : (
           <h1>Please log in to access the autograder.</h1>

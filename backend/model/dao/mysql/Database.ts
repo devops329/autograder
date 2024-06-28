@@ -3,7 +3,6 @@ import { User } from '../../domain/User';
 import { Submission } from '../../domain/Submission';
 import { tableCreateStatements } from './dbModel';
 import { config } from '../../../config';
-import { c } from 'vite/dist/node/types.d-aGj9QkWt';
 
 export class DB {
   private initialized: Promise<void>;

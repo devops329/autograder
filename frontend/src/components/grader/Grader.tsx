@@ -8,18 +8,20 @@ import { User } from '../../model/domain/User';
 interface Props {
   user: User;
   setSubmissions: (submissions: Submission[]) => void;
+  impersonating: boolean;
 }
 
 export function Grader(props: Props) {
   const [selectedAssignment, setSelectedAssignment] = useState<number | null>(null);
   const [grading, setGrading] = useState<boolean>(false);
-  const [grade, setGrade] = useState<string | null>(null);
+  const [gradeMessage, setGradeMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const listener: GradeView = {
-    setGrade,
+    setGradeMessage,
     setError,
     setSubmissions: props.setSubmissions,
+    impersonating: props.impersonating,
   };
   const [presenter] = useState(new GradePresenter(listener));
 
@@ -30,7 +32,7 @@ export function Grader(props: Props) {
   }
 
   function clearDisplay() {
-    setGrade(null);
+    setGradeMessage(null);
     setError(null);
   }
 
@@ -65,9 +67,9 @@ export function Grader(props: Props) {
           <span className="visually-hidden">Loading...</span>
         </Spinner>
       )}
-      {grade && (
+      {gradeMessage && (
         <p>
-          {selectedAssignment! >= 10 ? '' : 'Score: '} {grade}
+          {selectedAssignment! >= 10 ? '' : 'Score: '} {gradeMessage}
         </p>
       )}
       {error && <p>Error: {error}</p>}

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction } from 'express';
 import { GradeService } from './model/service/GradeService';
 import { UserService } from './model/service/UserService';
 import { DB } from './model/dao/mysql/Database';
@@ -148,12 +148,6 @@ app.use((_req, res) => {
   console.log(_req.url);
   res.sendFile('index.html', { root: 'public' });
 });
-
-// Default error handler for all exceptions and errors.
-// app.use((err, req, res, next) => {
-//   res.status(err.statusCode ?? 500).json({ message: err.message, stack: err.stack });
-//   next();
-// });
 
 const port = 3001;
 app.listen(port, () => {

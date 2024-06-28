@@ -2,9 +2,10 @@ import { Submission } from '../model/domain/Submission';
 import { GradeService } from '../model/service/GradeService';
 
 export interface GradeView {
-  setGrade(grade: string): void;
+  setGradeMessage(grade: string): void;
   setError(error: string): void;
   setSubmissions(submissions: Submission[]): void;
+  impersonating: boolean;
 }
 
 export class GradePresenter {
@@ -23,8 +24,8 @@ export class GradePresenter {
       this.view.setError((e as Error).message);
     }
     this.view.setSubmissions(submissions);
-    localStorage.setItem('submissions', JSON.stringify(submissions));
-    this.view.setGrade(score);
+    localStorage.setItem(this.view.impersonating ? 'impersonatedSubmissions' : 'submissions', JSON.stringify(submissions));
+    this.view.setGradeMessage(score);
   }
 
   get assignmentPhases(): number[] {
