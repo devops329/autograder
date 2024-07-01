@@ -13,18 +13,26 @@ import Cookies from 'js-cookie';
 function App() {
   const [impersonating, setImpersonating] = useState<boolean>(!!localStorage.getItem('impersonatedUser'));
   const [user, setUser] = useState<User | null>(
-    impersonating ? User.fromJson(JSON.parse(localStorage.getItem('impersonatedUser')!)) : localStorage.getItem('user') ? User.fromJson(JSON.parse(localStorage.getItem('user')!)) : null
+    impersonating
+      ? localStorage.getItem('impersonatedUser')
+        ? User.fromJson(JSON.parse(localStorage.getItem('impersonatedUser')!))
+        : null
+      : localStorage.getItem('user')
+      ? User.fromJson(JSON.parse(localStorage.getItem('user')!))
+      : null
   );
   const [submissions, setSubmissions] = useState<Submission[]>(
     impersonating
-      ? JSON.parse(localStorage.getItem('impersonatedSubmissions')!).map((item: JSON) => Submission.fromJson(item))
+      ? localStorage.getItem('impersonatedSubmissions')
+        ? JSON.parse(localStorage.getItem('impersonatedSubmissions')!).map((item: JSON) => Submission.fromJson(item))
+        : []
       : localStorage.getItem('submissions')
       ? JSON.parse(localStorage.getItem('submissions')!).map((item: JSON) => Submission.fromJson(item))
       : []
   );
 
   useEffect(() => {
-    console.log(impersonating);
+    // If front end thinks logged in but has no token
     if (!Cookies.get('token') && user) {
       localStorage.removeItem('user');
       localStorage.removeItem('submissions');
@@ -32,7 +40,6 @@ function App() {
       localStorage.removeItem('impersonatedSubmissions');
       setUser(null);
       setSubmissions([]);
-      setImpersonating(false);
       window.location.href = '/';
     }
   }, []);

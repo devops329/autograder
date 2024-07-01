@@ -30,14 +30,14 @@ export class AuthenticatePresenter {
   }
 
   async logout() {
-    const response = await this.userService.logout();
-    console.log(response);
-    this.view.setUser(null);
-    this.view.setSubmissions([]);
-    localStorage.removeItem('user');
-    localStorage.removeItem('submissions');
     localStorage.removeItem('impersonatedUser');
     localStorage.removeItem('impersonatedSubmissions');
+    localStorage.removeItem('user');
+    localStorage.removeItem('submissions');
+    this.view.setUser(null);
+    this.view.setSubmissions([]);
+    const response = await this.userService.logout();
+    console.log(response);
   }
 
   async impersonate(netId: string) {
