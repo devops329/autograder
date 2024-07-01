@@ -1,6 +1,4 @@
-import { DB } from '../../model/dao/mysql/Database';
 import { User } from '../../model/domain/User';
-import { CommitHistory } from '../tools/CommitHistory';
 import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
@@ -14,37 +12,26 @@ export class DeliverableOne implements Grader {
 
     let score = 0;
 
-    // Check commit history
-    const db = new DB();
-    const repo = 'jwt-pizza';
-    const deliverable = 1;
-    const dueDate = new Date('2024-9-20');
-    const minimumCommits = 5;
-    const commitPoints = 20;
-    const commitHistory = new CommitHistory(db, user, repo, deliverable, dueDate, minimumCommits, commitPoints);
-    const commitScore = await commitHistory.checkCommitHistory();
-    score += commitScore;
-
     if (!hostname) {
       console.error('No hostname found for user:', user.netId);
       return 0;
     }
 
-    let pageExists = false;
-    let pageDeployedWithGithub = false;
+    let customDomainNameSuccess = false;
+    let githubPagesSuccess = false;
 
     try {
-      pageExists = await tools.checkPageExists(hostname, /JWT Pizza/g);
-      pageDeployedWithGithub = await tools.checkDNS(hostname, /github\.io/);
+      customDomainNameSuccess = await tools.checkPageExists(hostname, /JWT Pizza/g);
+      githubPagesSuccess = await tools.checkDNS(hostname, /github\.io/);
     } catch (e) {
       console.error(e);
     }
 
-    if (pageExists) {
-      score += 50;
+    if (customDomainNameSuccess) {
+      score += 30;
     }
-    if (pageDeployedWithGithub) {
-      score += 50;
+    if (githubPagesSuccess) {
+      score += 70;
     }
 
     return score;

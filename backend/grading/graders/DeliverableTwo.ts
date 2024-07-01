@@ -8,19 +8,8 @@ import { CommitHistory } from '../tools/CommitHistory';
 export class DeliverableTwo implements Grader {
   async grade(user: User): Promise<number> {
     const hostname = user.website;
-    let score = 0;
-
-    // Check commit history
     const github = new Github(user, 'jwt-pizza');
-    const db = new DB();
-    const repo = 'jwt-pizza';
-    const deliverable = 2;
-    const dueDate = new Date('2024-9-20');
-    const minimumCommits = 5;
-    const commitPoints = 20;
-    const commitHistory = new CommitHistory(db, user, repo, deliverable, dueDate, minimumCommits, commitPoints);
-    const commitScore = await commitHistory.checkCommitHistory();
-    score += commitScore;
+    let score = 0;
 
     if (!hostname) {
       console.error('No hostname found for user:', user.netId);
