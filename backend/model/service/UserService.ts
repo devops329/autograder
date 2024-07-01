@@ -40,7 +40,7 @@ export class UserService {
         name = 'See TA to update name';
       }
       const apiKey = await this.pizzaFactory.getApiKey(netid, name);
-      user = new User(name, netid, apiKey, '', '', email, true);
+      user = new User(name, netid, apiKey, '', '', email, false);
       await this.dao.putUser(user);
       return token;
     }

@@ -42,8 +42,9 @@ app.use(`/api`, apiRouter);
 const AUTH_COOKIE_NAME = 'token';
 
 apiRouter.get('/login', async function (req, res) {
-  const netid = req.body.netId ?? 'fakeNetId';
-  const token = await userService.login(netid);
+  const netId = (req.query.netId as string) ?? 'fakeNetId';
+  console.log('Logging in', netId);
+  const token = await userService.login(netId);
   res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
   const redirectUrl = req.query.redirectUrl;
   res.redirect(redirectUrl as string);
@@ -104,14 +105,15 @@ secureApiRouter.use(async (req, res, next) => {
   const netIdFromRequest = req.body.netId;
   const netIdFromToken = await db.getNetIdByToken(authToken);
   const user = await db.getUser(netIdFromToken);
-  if (user!.isAdmin || netIdFromRequest === netIdFromToken) {
+  // Only allows the user to access their own information, unless they are an admin
+  if (user!.isAdmin || netIdFromRequest === netIdFromToken || !netIdFromRequest) {
     next();
   } else {
     res.status(401).send({ msg: 'Unauthorized' });
   }
 });
 
-// Get logged in user's information
+// Get user's information
 secureApiRouter.post('/user', async function (req, res) {
   let netId = req.body.netId ?? (await db.getNetIdByToken(req.cookies[AUTH_COOKIE_NAME]));
   const user = await userService.getUser(netId);
@@ -152,4 +154,13 @@ app.use((_req, res) => {
 const port = 3001;
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
+});
+
+// Catch any uncaught errors that would cause the server to crash
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection:', reason);
 });

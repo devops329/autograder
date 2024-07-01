@@ -10,10 +10,13 @@ interface Props {
   user: User | null;
   impersonating: boolean;
   setImpersonating: (impersonating: boolean) => void;
+  isAdmin: boolean;
+  setIsAdmin: (isAdmin: boolean) => void;
 }
 
 export function NavBar(props: Props) {
   const [netIdToImpersonate, setNetIdToImpersonate] = useState(props.impersonating ? props.user?.netId : '');
+  const [netIdToLogin, setNetIdToLogin] = useState('');
   const listener: AuthenticateView = {
     setUser: props.setUser,
     setSubmissions: props.setSubmissions,
@@ -32,7 +35,7 @@ export function NavBar(props: Props) {
           </Nav>
           {props.user ? (
             <>
-              {props.user.isAdmin && (
+              {props.isAdmin && (
                 <InputGroup style={{ width: '12rem', margin: '1rem 1rem 1rem 0' }}>
                   <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                   <Form.Control
@@ -65,7 +68,21 @@ export function NavBar(props: Props) {
               </Button>
             </>
           ) : (
-            <Button onClick={() => presenter.login()}>Login</Button>
+            <>
+              <InputGroup style={{ width: '12rem', margin: '1rem 1rem 1rem 0' }}>
+                <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
+                <Form.Control
+                  value={netIdToLogin}
+                  onChange={(event) => {
+                    setNetIdToLogin(event.target.value);
+                  }}
+                  placeholder="netId"
+                  aria-label="NetIdLogin"
+                  aria-describedby="basic-addon1"
+                />
+              </InputGroup>
+              <Button onClick={() => presenter.login(netIdToLogin)}>Login</Button>
+            </>
           )}
         </Navbar.Collapse>
       </Container>

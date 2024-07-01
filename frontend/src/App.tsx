@@ -11,6 +11,7 @@ import { Login } from './components/login/Login';
 import Cookies from 'js-cookie';
 
 function App() {
+  const [isAdmin, setIsAdmin] = useState<boolean>(!!localStorage.getItem('isAdmin'));
   const [impersonating, setImpersonating] = useState<boolean>(!!localStorage.getItem('impersonatedUser'));
   const [user, setUser] = useState<User | null>(
     impersonating
@@ -47,9 +48,9 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <NavBar impersonating={impersonating} setImpersonating={setImpersonating} user={user} setUser={setUser} setSubmissions={setSubmissions} />
+        <NavBar impersonating={impersonating} setImpersonating={setImpersonating} user={user} setUser={setUser} setSubmissions={setSubmissions} isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
         <Routes>
-          <Route path="/login" element={<Login setUser={setUser} setSubmissions={setSubmissions} />} />
+          <Route path="/login" element={<Login setUser={setUser} setSubmissions={setSubmissions} setIsAdmin={setIsAdmin} />} />
         </Routes>
         {user ? (
           <Routes>

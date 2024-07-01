@@ -7,6 +7,7 @@ import { AuthenticatePresenter } from '../../presenter/AuthenticatePresenter';
 interface Props {
   setUser: (user: User | null) => void;
   setSubmissions: (submissions: Submission[]) => void;
+  setIsAdmin: (isAdmin: boolean) => void;
 }
 export function Login(props: Props) {
   useEffect(() => {

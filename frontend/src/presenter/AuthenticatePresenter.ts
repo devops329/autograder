@@ -14,16 +14,19 @@ export class AuthenticatePresenter {
     this.userService = new UserService();
   }
 
-  async login() {
+  async login(netId: string) {
     const originalUrl = window.location.href;
     const baseUrl = originalUrl.substring(0, originalUrl.lastIndexOf('/'));
     const redirectUrl = `${baseUrl}/login`;
-    window.location.href = `/api/login?redirectUrl=${redirectUrl}`;
+    window.location.href = `/api/login?netId=${netId}&redirectUrl=${redirectUrl}`;
   }
 
   async getUserInfo() {
     const [user, submissions] = await this.userService.getUserInfo();
     this.view.setUser(user);
+    if (user.isAdmin) {
+      localStorage.setItem('isAdmin', 'true');
+    }
     this.view.setSubmissions(submissions);
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('submissions', JSON.stringify(submissions));
@@ -34,6 +37,7 @@ export class AuthenticatePresenter {
     localStorage.removeItem('impersonatedSubmissions');
     localStorage.removeItem('user');
     localStorage.removeItem('submissions');
+    localStorage.removeItem('isAdmin');
     this.view.setUser(null);
     this.view.setSubmissions([]);
     const response = await this.userService.logout();
