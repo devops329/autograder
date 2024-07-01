@@ -23,6 +23,7 @@ mkdir build
 cd backend
 rm -rf dist
 npm run build # build the back end service
+cp ../config.prod.js dist/config.js # copy the production config file to the distribution
 cp -r dist/* ../build # move the back end service to the target distribution
 cp package.json ../build
 

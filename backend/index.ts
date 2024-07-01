@@ -1,4 +1,4 @@
-import express, { NextFunction } from 'express';
+import express from 'express';
 import { GradeService } from './model/service/GradeService';
 import { UserService } from './model/service/UserService';
 import { DB } from './model/dao/mysql/Database';
