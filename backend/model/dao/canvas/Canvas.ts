@@ -7,16 +7,6 @@ export class Canvas {
     return id;
   }
 
-  // async getStudentEmail(netId: string): Promise<string> {
-  //   const data = await this.getStudentInfo(netId);
-  //   try {
-  //     const email = data.email;
-  //     return email;
-  //   } finally {
-  //     return '';
-  //   }
-  // }
-
   async getStudentInfo(netId: string): Promise<any> {
     const url = config.canvas.base_url + '/users?search_term=' + netId;
     const response = await fetch(url, {

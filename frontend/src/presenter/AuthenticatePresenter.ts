@@ -15,6 +15,9 @@ export class AuthenticatePresenter {
   }
 
   async login(netId: string) {
+    if (!netId) {
+      return;
+    }
     const originalUrl = window.location.href;
     const baseUrl = originalUrl.substring(0, originalUrl.lastIndexOf('/'));
     const redirectUrl = `${baseUrl}/login`;

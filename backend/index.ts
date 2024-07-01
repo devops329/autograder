@@ -7,6 +7,7 @@ import { config } from './config';
 import cookieParser from 'cookie-parser';
 import { PizzaFactory } from './model/dao/pizzaFactory/PizzaFactory';
 import { ChaosService } from './model/service/ChaosService';
+import { Logger } from './logger';
 
 const app = express();
 
@@ -17,6 +18,8 @@ const pizzaFactory = new PizzaFactory();
 const gradeService = new GradeService(db, canvas);
 const userService = new UserService(db, pizzaFactory, canvas);
 const chaosService = new ChaosService(db, pizzaFactory);
+// Logger
+const logger = new Logger();
 
 // every 10 minutes, check for chaos to be triggered
 setInterval(async () => {
@@ -34,6 +37,8 @@ app.use(cookieParser());
 
 // Trust headers that are forwarded from the proxy so we can determine IP addresses
 app.set('trust proxy', true);
+
+app.use(logger.httpLogger);
 
 // Router for service endpoints
 const apiRouter = express.Router();
