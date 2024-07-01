@@ -1,5 +1,3 @@
-import { s } from 'vite/dist/node/types.d-aGj9QkWt';
-import { config } from '../../config';
 import { DB } from '../../model/dao/mysql/Database';
 import { User } from '../../model/domain/User';
 

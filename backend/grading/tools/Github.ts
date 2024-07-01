@@ -9,13 +9,15 @@ export class Github {
     this.repo = repo;
   }
   async readGithubFile(path: string): Promise<string> {
-    const fileUrl = `https://raw.githubusercontent.com/${this.user.github}/${this.repo}/main/${path}`;
-    const response = await fetch(fileUrl);
+    const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/${path}`;
+    const response = await fetch(apiUrl);
     if (!response.ok) {
-      console.error('Error fetching file:', response.status);
+      console.error('Error fetching version file:', response.status);
       return '';
     }
-    return await response.text();
+    // get the content and base 64 decode it
+    const content = (await response.json()).content;
+    return atob(content);
   }
   async readWorkflowFile(): Promise<string> {
     return this.readGithubFile('.github/workflows/ci.yml');
@@ -88,7 +90,6 @@ export class Github {
     }
   }
   async getVersionNumber(): Promise<string> {
-    // Adding a cache-busting query parameter
     const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/src/version.json`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
@@ -97,7 +98,6 @@ export class Github {
     }
     // get the content and base 64 decode it
     const content = (await response.json()).content;
-    console.log('Content:', content);
     const version = JSON.parse(atob(content)).version;
     return version;
   }
