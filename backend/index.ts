@@ -42,7 +42,7 @@ app.use(`/api`, apiRouter);
 const AUTH_COOKIE_NAME = 'token';
 
 apiRouter.get('/login', async function (req, res) {
-  const netid = 'fakeNetId';
+  const netid = req.body.netId ?? 'fakeNetId';
   const token = await userService.login(netid);
   res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
   const redirectUrl = req.query.redirectUrl;

@@ -37,7 +37,7 @@ export class UserService {
         email = studentInfo.email;
         name = studentInfo.short_name;
       } catch (e) {
-        name = 'Fake User';
+        name = 'See TA to update name';
       }
       const apiKey = await this.pizzaFactory.getApiKey(netid, name);
       user = new User(name, netid, apiKey, '', '', email, true);

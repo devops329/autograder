@@ -1,7 +1,7 @@
 import { config } from '../../../config';
 
 export class PizzaFactory {
-  async getApiKey(netid: string, name: string) {
+  async getApiKey(netId: string, name: string) {
     try {
       const response = await fetch(`${config.pizza_factory.url}/api/admin/vendor`, {
         method: 'POST',
@@ -10,7 +10,7 @@ export class PizzaFactory {
           Authorization: `Bearer ${config.pizza_factory.authtoken}`,
         },
         body: JSON.stringify({
-          id: netid,
+          id: netId,
           name: name,
         }),
       });
