@@ -29,7 +29,6 @@ export class UserService {
       console.log('User already exists');
       return token;
     } else {
-      const apiKey = await this.pizzaFactory.getApiKey(netid, 'Fake User');
       const studentInfo = await this.canvas.getStudentInfo(netid);
       console.log('Student info:', studentInfo);
       let name = '';
@@ -40,7 +39,8 @@ export class UserService {
       } catch (e) {
         name = 'Fake User';
       }
-      user = new User(1, name, netid, apiKey, '', '', email, true);
+      const apiKey = await this.pizzaFactory.getApiKey(netid, name);
+      user = new User(name, netid, apiKey, '', '', email, true);
       await this.dao.putUser(user);
       return token;
     }

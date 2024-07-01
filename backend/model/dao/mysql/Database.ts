@@ -100,7 +100,7 @@ export class DB {
     try {
       const [rows] = await connection.query(`SELECT * FROM user WHERE netid = '${netId}'`);
       const row = (rows as any[])[0];
-      return new User(row.id, row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
+      return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
     } catch (err: any) {
       console.error('Error getting user:', err.message);
       return null;
@@ -114,7 +114,7 @@ export class DB {
     try {
       const [rows] = await connection.query(`SELECT * FROM user WHERE apiKey = '${apiKey}'`);
       const row = (rows as any[])[0];
-      return new User(row.id, row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
+      return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
     } catch (err: any) {
       console.error('Error getting user by API key:', err.message);
       return null;
