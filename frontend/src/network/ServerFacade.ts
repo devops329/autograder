@@ -27,17 +27,18 @@ export class ServerFacade {
     return response.msg;
   }
 
-  async grade(netId: string, assignmentPhase: number): Promise<[string, Submission[]]> {
+  async grade(netId: string, assignmentPhase: number): Promise<[string, Submission[], JSON]> {
     const endpoint = 'grade';
-    const response: { score: string; submissions: JSON[] } = (await this.clientCommunicator.doPost({ assignmentPhase, netId }, endpoint)) as unknown as {
-      score: string;
+    const response: { message: string; submissions: JSON[]; rubric: JSON } = (await this.clientCommunicator.doPost({ assignmentPhase, netId }, endpoint)) as unknown as {
+      message: string;
       submissions: JSON[];
+      rubric: JSON;
     };
     const submissions: Submission[] = [];
     for (const submission of response.submissions) {
       submissions.push(Submission.fromJson(submission));
     }
-    return [response.score, submissions];
+    return [response.message, submissions, response.rubric];
   }
 
   async getUserInfo(netId?: string): Promise<[User, Submission[]]> {

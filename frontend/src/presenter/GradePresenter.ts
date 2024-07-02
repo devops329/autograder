@@ -6,6 +6,8 @@ export interface GradeView {
   setError(error: string): void;
   setSubmissions(submissions: Submission[]): void;
   impersonating: boolean;
+  rubric: object | null;
+  setRubric(rubric: object): void;
 }
 
 export class GradePresenter {
@@ -16,16 +18,18 @@ export class GradePresenter {
     this.gradeService = new GradeService();
   }
   async doGrade(netId: string, assignmentPhase: number) {
-    let score = '';
+    let message = '';
     let submissions: Submission[] = [];
+    let rubric: object = {};
     try {
-      [score, submissions] = await this.gradeService.grade(netId, assignmentPhase);
+      [message, submissions, rubric] = await this.gradeService.grade(netId, assignmentPhase);
     } catch (e) {
       this.view.setError((e as Error).message);
     }
     this.view.setSubmissions(submissions);
     localStorage.setItem(this.view.impersonating ? 'impersonatedSubmissions' : 'submissions', JSON.stringify(submissions));
-    this.view.setGradeMessage(score);
+    this.view.setGradeMessage(message);
+    this.view.setRubric(rubric);
   }
 
   get assignmentPhases(): number[] {

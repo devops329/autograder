@@ -1,5 +1,5 @@
 import Button from 'react-bootstrap/Button';
-import { Dropdown, DropdownButton, Spinner } from 'react-bootstrap';
+import { Dropdown, DropdownButton, Spinner, Table } from 'react-bootstrap';
 import { useState } from 'react';
 import { GradePresenter, GradeView } from '../../presenter/GradePresenter';
 import { Submission } from '../../model/domain/Submission';
@@ -16,12 +16,15 @@ export function Grader(props: Props) {
   const [grading, setGrading] = useState<boolean>(false);
   const [gradeMessage, setGradeMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [rubric, setRubric] = useState<object | null>(null);
 
   const listener: GradeView = {
     setGradeMessage,
     setError,
     setSubmissions: props.setSubmissions,
     impersonating: props.impersonating,
+    rubric,
+    setRubric,
   };
   const [presenter] = useState(new GradePresenter(listener));
 
@@ -34,6 +37,7 @@ export function Grader(props: Props) {
   function clearDisplay() {
     setGradeMessage(null);
     setError(null);
+    setRubric(null);
   }
 
   // Replace with getAssignments() from the backend
@@ -68,9 +72,27 @@ export function Grader(props: Props) {
         </Spinner>
       )}
       {gradeMessage && (
-        <p>
+        <h3>
           {selectedAssignment! >= 10 ? '' : 'Score: '} {gradeMessage}
-        </p>
+        </h3>
+      )}
+      {rubric && (
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(rubric).map(([category, points]) => (
+              <tr key={category}>
+                <td>{category}</td>
+                <td>{points}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       )}
       {error && <p>Error: {error}</p>}
     </>
