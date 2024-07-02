@@ -3,7 +3,7 @@ import { Github } from '../tools/Github';
 import { Grader } from './Grader';
 
 export class DeliverableFour implements Grader {
-  async grade(user: User): Promise<number> {
+  async grade(user: User): Promise<[number]> {
     let score = 0;
     const github = new Github(user, 'jwt-pizza');
 
@@ -30,6 +30,6 @@ export class DeliverableFour implements Grader {
     const coverageBadge = await github.readCoverageBadge();
     console.log(coverageBadge);
 
-    return score;
+    return [score];
   }
 }

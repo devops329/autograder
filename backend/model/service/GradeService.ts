@@ -23,7 +23,7 @@ export class GradeService {
     this.canvas = canvas;
   }
 
-  async grade(assignmentPhase: number, netid: string) {
+  async grade(assignmentPhase: number, netid: string): Promise<[number | string, Submission[], object?]> {
     let score = 0;
     let grader: Grader;
     let assignmentId = 0;
@@ -58,23 +58,25 @@ export class GradeService {
         break;
       case 10:
         grader = new DeliverableTen();
-        const message = await grader.grade(user!);
+        const message = (await grader.grade(user!))[0];
         submissions = await this.getSubmissions(netid);
         return [message, submissions];
       case 11:
         grader = new DeliverableEleven();
-        const partner = await grader.grade(user!);
+        const partner = (await grader.grade(user!))[0];
         submissions = await this.getSubmissions(netid);
         return [partner, submissions];
       default:
         grader = new DefaultGrader();
         break;
     }
-    score = (await grader.grade(user!)) as number;
+    const result = await grader.grade(user!);
+    score = result[0] as number;
+    const rubric = result[1] as object;
 
     await this.submitScore(assignmentId, assignmentPhase, netid, score);
     submissions = await this.getSubmissions(netid);
-    return [score, submissions];
+    return [score, submissions, rubric];
   }
 
   async submitScore(assignmentId: number, assignmentPhase: number, netid: string, score: number) {
@@ -90,7 +92,7 @@ export class GradeService {
 
   async gradeDeliverableTen(user: User) {
     const grader = new DeliverableTenPartTwo();
-    const score = await grader.grade(user);
+    const score = (await grader.grade(user))[0];
     await this.submitScore(940837, 10, user.netId, score);
   }
 

@@ -4,7 +4,7 @@ import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
 export class DeliverableSix implements Grader {
-  async grade(user: User): Promise<number> {
+  async grade(user: User): Promise<[number]> {
     let score = 0;
     const github = new Github(user, 'jwt-pizza');
     const tools = new GradingTools();
@@ -36,6 +36,6 @@ export class DeliverableSix implements Grader {
       if (serviceWorks) score += 40;
     }
 
-    return score;
+    return [score];
   }
 }

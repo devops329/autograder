@@ -3,7 +3,7 @@ import { User } from '../../model/domain/User';
 import { Grader } from './Grader';
 
 export class DeliverableTenPartTwo implements Grader {
-  async grade(user: User): Promise<number> {
+  async grade(user: User): Promise<[number]> {
     const db = new DB();
     let score = 100;
 
@@ -23,6 +23,6 @@ export class DeliverableTenPartTwo implements Grader {
 
     // put user into pentest db
     db.putPentest(user.netId);
-    return score;
+    return [score];
   }
 }

@@ -5,7 +5,7 @@ import { Github } from '../tools/Github';
 import { Grader } from './Grader';
 
 export class DeliverableThree implements Grader {
-  async grade(user: User): Promise<number> {
+  async grade(user: User): Promise<[number]> {
     let score = 0;
 
     // Check commit history
@@ -31,7 +31,7 @@ export class DeliverableThree implements Grader {
     // Run the workflow
     const triggeredWorkflow = await github.triggerWorkflow();
     if (!triggeredWorkflow) {
-      return score;
+      return [score];
     }
 
     // Check for successful run
@@ -60,6 +60,6 @@ export class DeliverableThree implements Grader {
       }
     }
 
-    return score;
+    return [score];
   }
 }

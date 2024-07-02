@@ -3,7 +3,7 @@ import { User } from '../../model/domain/User';
 import { Grader } from './Grader';
 
 export class DeliverableEleven implements Grader {
-  async grade(user: User): Promise<string> {
+  async grade(user: User): Promise<[string]> {
     const db = new DB();
     let partner: User;
     let pentest = await db.getPentest(user.netId);
@@ -13,7 +13,7 @@ export class DeliverableEleven implements Grader {
     } else {
       const eligiblePartners = await db.getPentestPartners(user.netId);
       if (eligiblePartners.length === 0) {
-        return 'No partners available. Try again later or contact the instructor.';
+        return ['No partners available. Try again later or contact the instructor.'];
       }
       const partnerId = eligiblePartners[Math.floor(Math.random() * eligiblePartners.length)].netId;
       partner = (await db.getUser(partnerId))!;
@@ -21,6 +21,6 @@ export class DeliverableEleven implements Grader {
       db.updatePentestPartner(partnerId, user.netId);
     }
 
-    return 'Partner: ' + partner.name + ', Email: ' + partner.email;
+    return ['Partner: ' + partner.name + ', Email: ' + partner.email];
   }
 }

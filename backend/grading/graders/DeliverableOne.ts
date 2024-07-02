@@ -2,11 +2,17 @@ import { User } from '../../model/domain/User';
 import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
-export class DeliverableOne implements Grader {
-  async grade(user: User): Promise<number> {
-    // const commitHistory = new CommitHistory();
-    // const commits = await commitHistory.checkCommitHistory(user, 'jwt-pizza', 1, 5);
+interface Rubric {
+  customDomainName: number;
+  githubPages: number;
+}
 
+export class DeliverableOne implements Grader {
+  async grade(user: User): Promise<[number, object]> {
+    const rubric: Rubric = {
+      customDomainName: 0,
+      githubPages: 0,
+    };
     const hostname = user.website;
     const tools = new GradingTools();
 
@@ -14,7 +20,7 @@ export class DeliverableOne implements Grader {
 
     if (!hostname) {
       console.error('No hostname found for user:', user.netId);
-      return 0;
+      return [0, rubric];
     }
 
     let customDomainNameSuccess = false;
@@ -29,11 +35,12 @@ export class DeliverableOne implements Grader {
 
     if (customDomainNameSuccess) {
       score += 30;
+      rubric.customDomainName = 30;
     }
     if (githubPagesSuccess) {
       score += 70;
+      rubric.githubPages = 70;
     }
-
-    return score;
+    return [score, rubric];
   }
 }

@@ -4,7 +4,7 @@ import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
 export class DeliverableFive implements Grader {
-  async grade(user: User): Promise<number> {
+  async grade(user: User): Promise<[number]> {
     let score = 0;
     const github = new Github(user, 'jwt-pizza');
     const tools = new GradingTools();
@@ -29,6 +29,6 @@ export class DeliverableFive implements Grader {
     const handles404Routing = await tools.checkPageExists(user.website + '/garbage', /Oops/g);
     if (handles404Routing) score += 2;
 
-    return score;
+    return [score];
   }
 }

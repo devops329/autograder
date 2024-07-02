@@ -2,18 +2,16 @@ import { User } from '../../model/domain/User';
 import { DeliverableOne } from './DeliverableOne';
 import { Grader } from './Grader';
 import { Github } from '../tools/Github';
-import { DB } from '../../model/dao/mysql/Database';
-import { CommitHistory } from '../tools/CommitHistory';
 
 export class DeliverableTwo implements Grader {
-  async grade(user: User): Promise<number> {
+  async grade(user: User): Promise<[number]> {
     const hostname = user.website;
     const github = new Github(user, 'jwt-pizza');
     let score = 0;
 
     if (!hostname) {
       console.error('No hostname found for user:', user.netId);
-      return score;
+      return [score];
     }
 
     // Read workflow file
@@ -21,7 +19,7 @@ export class DeliverableTwo implements Grader {
     const deployedToPages = workflowFileContents.includes('actions/deploy-pages');
     if (!deployedToPages) {
       console.error('Not deployed to pages');
-      return score;
+      return [score];
     }
     score += 30;
 
@@ -30,9 +28,9 @@ export class DeliverableTwo implements Grader {
 
     // Check for successful deployment
     const deliverableOne = new DeliverableOne();
-    const deployedScore = await deliverableOne.grade(user);
+    const deployedScore = (await deliverableOne.grade(user))[0];
     score += deployedScore * 0.7;
 
-    return score;
+    return [score];
   }
 }

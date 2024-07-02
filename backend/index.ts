@@ -136,8 +136,8 @@ secureApiRouter.post('/update', async function (req, res) {
 // Grade an assignment
 secureApiRouter.post('/grade', async function (req, res) {
   const netId = req.body.netId;
-  const [score, submissions] = await gradeService.grade(req.body.assignmentPhase, netId);
-  res.send(JSON.stringify({ score, submissions }));
+  const [message, submissions, rubric] = await gradeService.grade(req.body.assignmentPhase, netId);
+  res.send(JSON.stringify({ message, submissions, rubric }));
 });
 
 secureApiRouter.post('/logout', async function (req, res) {
