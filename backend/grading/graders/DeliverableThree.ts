@@ -4,9 +4,24 @@ import { CommitHistory } from '../tools/CommitHistory';
 import { Github } from '../tools/Github';
 import { Grader } from './Grader';
 
+interface Rubric {
+  commitHistory: number;
+  lintSuccess: number;
+  testSuccess: number;
+  versionIncrement: number;
+  coverage: number;
+}
+
 export class DeliverableThree implements Grader {
-  async grade(user: User): Promise<[number]> {
+  async grade(user: User): Promise<[number, object]> {
     let score = 0;
+    const rubric: Rubric = {
+      commitHistory: 0,
+      testSuccess: 0,
+      lintSuccess: 0,
+      versionIncrement: 0,
+      coverage: 0,
+    };
 
     // Check commit history
     const github = new Github(user, 'jwt-pizza-service');
@@ -19,32 +34,42 @@ export class DeliverableThree implements Grader {
     const commitHistory = new CommitHistory(db, user, repo, deliverable, dueDate, minimumCommits, commitPoints);
     const commitScore = await commitHistory.checkCommitHistory();
     score += commitScore;
+    rubric.commitHistory = commitScore;
 
     // Read workflow file
     const workflowFile = await github.readWorkflowFile();
     const runsLint = workflowFile.includes('npm run lint');
+    if (runsLint) {
+      score += 5;
+      rubric.lintSuccess += 5;
+    }
     const runsTest = workflowFile.includes('npm test');
+    if (runsTest) {
+      score += 5;
+      rubric.testSuccess += 5;
+    }
 
     // Get current version
     const versionNumber = await github.getVersionNumber();
-    console.log('Current version:', versionNumber);
     // Run the workflow
     const triggeredWorkflow = await github.triggerWorkflow();
     if (!triggeredWorkflow) {
-      return [score];
+      return [score, rubric];
     }
 
     // Check for successful run
     const run = await github.getMostRecentRun();
     if (runsLint && runsTest && run.conclusion === 'success') {
-      score += 20;
+      score += 10;
+      rubric.lintSuccess += 5;
+      rubric.testSuccess += 5;
     }
 
     // Get new version number
     const newVersionNumber = await github.getVersionNumber();
-    console.log('New version:', newVersionNumber);
     if (newVersionNumber && newVersionNumber != versionNumber) {
       score += 5;
+      rubric.versionIncrement += 5;
     }
 
     // Get coverage badge
@@ -54,12 +79,12 @@ export class DeliverableThree implements Grader {
       // example match <title xmlns="http://www.w3.org/2000/svg">Coverage: 92.41%</title>
       const regex = /Coverage: (\d+\.\d+)%/;
       const matches = coverageBadge.match(regex);
-      console.log('Coverage:', matches![1]);
       if (matches && parseFloat(matches[1]) >= 80) {
         score += 55;
+        rubric.coverage += 55;
       }
     }
 
-    return [score];
+    return [score, rubric];
   }
 }
