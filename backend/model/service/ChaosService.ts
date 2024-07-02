@@ -1,4 +1,5 @@
 import { DeliverableTenPartTwo } from '../../grading/graders/DeliverableTenPartTwo';
+import logger from '../../logger';
 import { DB } from '../dao/mysql/Database';
 import { PizzaFactory } from '../dao/pizzaFactory/PizzaFactory';
 
@@ -24,17 +25,16 @@ export class ChaosService {
 
   async triggerChaos(netId: string) {
     const apiKey = (await this.db.getUser(netId))!.apiKey;
-    console.log(apiKey);
     await this.pizzaFactory.triggerChaos(apiKey);
-    console.log('Chaos triggered for:', netId);
+    logger.log('info', 'chaos_triggered', { netId });
   }
 
   async resolveChaos(apiKey: string, fixCode: string) {
     const chaosResolved = await this.pizzaFactory.resolveChaos(apiKey, fixCode);
     if (chaosResolved) {
-      console.log('Chaos resolved');
-      const deliverableTenPartTwo = new DeliverableTenPartTwo();
       const user = await this.db.getUserByApiKey(apiKey);
+      logger.log('info', 'chaos_resolved', { netId: user?.netId ?? 'unknown' });
+      const deliverableTenPartTwo = new DeliverableTenPartTwo();
       await deliverableTenPartTwo.grade(user!);
       return true;
     }

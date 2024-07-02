@@ -16,7 +16,6 @@ export class GradePresenter {
     this.gradeService = new GradeService();
   }
   async doGrade(netId: string, assignmentPhase: number) {
-    console.log(this.view.impersonating);
     let score = '';
     let submissions: Submission[] = [];
     try {

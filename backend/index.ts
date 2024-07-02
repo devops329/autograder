@@ -7,7 +7,7 @@ import { config } from './config';
 import cookieParser from 'cookie-parser';
 import { PizzaFactory } from './model/dao/pizzaFactory/PizzaFactory';
 import { ChaosService } from './model/service/ChaosService';
-import { Logger } from './logger';
+import logger from './logger';
 
 const app = express();
 
@@ -18,8 +18,6 @@ const pizzaFactory = new PizzaFactory();
 const gradeService = new GradeService(db, canvas);
 const userService = new UserService(db, pizzaFactory, canvas);
 const chaosService = new ChaosService(db, pizzaFactory);
-// Logger
-const logger = new Logger();
 
 // every 10 minutes, check for chaos to be triggered
 setInterval(async () => {
@@ -48,7 +46,6 @@ const AUTH_COOKIE_NAME = 'token';
 
 apiRouter.get('/login', async function (req, res) {
   const netId = (req.query.netId as string) ?? 'fakeNetId';
-  console.log('Logging in', netId);
   const token = await userService.login(netId);
   res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
   const redirectUrl = req.query.redirectUrl;
@@ -68,7 +65,6 @@ app.get('/cas-callback', async (req, res) => {
   try {
     const response = await fetch(casValidateUrl);
     const data = await response.text();
-    console.log(data);
 
     // const user = await userService.login();
     // const submissions = await gradeService.getSubmissions('fakeNetId');
@@ -152,18 +148,17 @@ secureApiRouter.post('/logout', async function (req, res) {
 
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
-  console.log(_req.url);
   res.sendFile('index.html', { root: 'public' });
 });
 
 const port = 3001;
 app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
+  logger.log('info', 'server', `Listening on port ${port}`);
 });
 
 // Catch any uncaught errors that would cause the server to crash
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+  logger.log('error', 'uncaught_exception', err);
 });
 
 process.on('unhandledRejection', (reason, promise) => {

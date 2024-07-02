@@ -1,4 +1,5 @@
 import { config } from '../../../config';
+import logger from '../../../logger';
 
 export class PizzaFactory {
   async getApiKey(netId: string, name: string) {
@@ -43,7 +44,7 @@ export class PizzaFactory {
     try {
       const response = await fetch(`${config.pizza_factory.url}/api/support/${apiKey}/report/${fixCode}`);
       const data = await response.json();
-      console.log('Attempted to resolve chaos. Response: ', data);
+      logger.log('info', 'chaos_resolve', data);
       return response.ok;
     } catch (error) {
       console.error(error);

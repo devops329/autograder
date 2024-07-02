@@ -1,4 +1,5 @@
 import { config } from '../../../config';
+import logger from '../../../logger';
 
 export class Canvas {
   async getStudentId(netid: string): Promise<number> {
@@ -30,7 +31,7 @@ export class Canvas {
         posted_grade: score,
       },
     };
-    console.log('Updating grade for student', studentId, 'to', score);
+    logger.log('info', 'update_grade', { studentId, score });
     await fetch(url, {
       method: 'PUT',
       headers: {

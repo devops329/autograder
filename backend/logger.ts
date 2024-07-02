@@ -1,7 +1,9 @@
 import { config } from './config';
 import { Request, Response, NextFunction } from 'express';
 
-export class Logger {
+type Level = 'info' | 'warn' | 'error';
+
+class Logger {
   httpLogger = (req: Request, res: Response, next: NextFunction): void => {
     let send = res.send;
     res.send = (resBody: any): any => {
@@ -20,7 +22,7 @@ export class Logger {
     next();
   };
 
-  log(level: string, type: string, logData: Object) {
+  log(level: Level, type: string, logData: Object) {
     const labels = { component: config.logging.source, level: level, type: type };
     const values = [this.nowString(), this.sanitize(logData)];
     const logEvent = { streams: [{ stream: labels, values: [values] }] };
@@ -53,7 +55,9 @@ export class Logger {
         Authorization: `Bearer ${config.logging.userId}:${config.logging.apiKey}`,
       },
     }).then((res) => {
-      if (!res.ok) console.log('Failed to send log to Grafana');
+      if (!res.ok) console.error('Failed to send log to Grafana');
     });
   }
 }
+
+export default new Logger();
