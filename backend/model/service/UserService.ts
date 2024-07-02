@@ -26,6 +26,11 @@ export class UserService {
 
     let user = await this.dao.getUser(netid);
     if (user) {
+      if (!user.apiKey) {
+        const apiKey = await this.pizzaFactory.getApiKey(netid, user.name);
+        this.dao.updateApiKey(netid, apiKey);
+        Logger.log('info', 'new_api_key', { netid: netid });
+      }
       return token;
     } else {
       const studentInfo = await this.canvas.getStudentInfo(netid);

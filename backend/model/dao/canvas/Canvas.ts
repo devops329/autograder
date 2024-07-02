@@ -45,4 +45,29 @@ export class Canvas {
       }
     });
   }
+
+  async getAssignmentIds(): Promise<{
+    [key: number]: number;
+  }> {
+    const url = config.canvas.base_url + '/assignments';
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${config.canvas.token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await response.json();
+    const assignmentIds: { [key: number]: number } = {};
+    data.forEach((assignment: any) => {
+      const name = assignment.name;
+      const regex = /Deliverable (\d+)/;
+      const match = name.match(regex);
+      if (match) {
+        const deliverableNumber = parseInt(match[1]);
+        assignmentIds[deliverableNumber] = assignment.id;
+      }
+    });
+    return assignmentIds;
+  }
 }

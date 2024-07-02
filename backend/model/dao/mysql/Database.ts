@@ -127,6 +127,18 @@ export class DB {
     }
   }
 
+  async updateApiKey(netId: string, apiKey: string) {
+    const connection = await this.getConnection();
+    try {
+      // logger.log('info', 'update_api_key', { netid: netId });
+      await connection.query(`UPDATE user SET apiKey = '${apiKey}' WHERE netid = '${netId}'`);
+    } catch (err: any) {
+      logger.log('error', 'update_api_key', { netid: netId, exception: err.message });
+    } finally {
+      connection.end();
+    }
+  }
+
   async putSubmission(submission: Submission, netId: string) {
     const connection = await this.getConnection();
     try {

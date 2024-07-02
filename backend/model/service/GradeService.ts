@@ -26,29 +26,35 @@ export class GradeService {
   async grade(assignmentPhase: number, netid: string) {
     let score = 0;
     let grader: Grader;
-    let assignmentId = 940837;
+    let assignmentId = 0;
+    const assignmentIds = await this.getAssignmentIds();
     const user = await this.dao.getUser(netid);
     let submissions: Submission[] = [];
 
     switch (assignmentPhase) {
       case 1:
         grader = new DeliverableOne();
+        assignmentId = assignmentIds['1'];
         break;
       case 2:
         grader = new DeliverableTwo();
-        assignmentId = 945388;
+        assignmentId = assignmentIds['2'];
         break;
       case 3:
         grader = new DeliverableThree();
+        assignmentId = assignmentIds['3'];
         break;
       case 4:
         grader = new DeliverableFour();
+        assignmentId = assignmentIds['4'];
         break;
       case 5:
         grader = new DeliverableFive();
+        assignmentId = assignmentIds['5'];
         break;
       case 6:
         grader = new DeliverableSix();
+        assignmentId = assignmentIds['6'];
         break;
       case 10:
         grader = new DeliverableTen();
@@ -96,5 +102,9 @@ export class GradeService {
 
   async getSubmissions(netId: string) {
     return this.dao.getSubmissions(netId);
+  }
+
+  async getAssignmentIds() {
+    return await this.canvas.getAssignmentIds();
   }
 }
