@@ -78,4 +78,13 @@ export class GradingTools {
     }
     return true;
   }
+
+  async checkCoverage(badge: string, percentage: number) {
+    const regex = /Coverage: (\d+\.\d+)%/;
+    const matches = badge.match(regex);
+    if (matches && parseFloat(matches[1]) >= percentage) {
+      return true;
+    }
+    return false;
+  }
 }

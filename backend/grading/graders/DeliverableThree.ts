@@ -2,6 +2,7 @@ import { DB } from '../../model/dao/mysql/Database';
 import { User } from '../../model/domain/User';
 import { CommitHistory } from '../tools/CommitHistory';
 import { Github } from '../tools/Github';
+import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
 interface Rubric {
@@ -22,6 +23,7 @@ export class DeliverableThree implements Grader {
       versionIncrement: 0,
       coverage: 0,
     };
+    const tools = new GradingTools();
 
     // Check commit history
     const github = new Github(user, 'jwt-pizza-service');
@@ -74,15 +76,9 @@ export class DeliverableThree implements Grader {
 
     // Get coverage badge
     const coverageBadge = await github.readCoverageBadge();
-    if (coverageBadge) {
-      // check the svg code contains a number >= 80
-      // example match <title xmlns="http://www.w3.org/2000/svg">Coverage: 92.41%</title>
-      const regex = /Coverage: (\d+\.\d+)%/;
-      const matches = coverageBadge.match(regex);
-      if (matches && parseFloat(matches[1]) >= 80) {
-        score += 55;
-        rubric.coverage += 55;
-      }
+    if (await tools.checkCoverage(coverageBadge, 55)) {
+      score += 55;
+      rubric.coverage += 55;
     }
 
     return [score, rubric];
