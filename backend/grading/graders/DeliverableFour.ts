@@ -36,7 +36,7 @@ export class DeliverableFour implements Grader {
 
     // Read workflow file
     const workflowFile = await github.readWorkflowFile();
-    const runsTest = workflowFile.includes('npm test');
+    const runsTest = workflowFile.includes('npm run test:coverage');
     if (runsTest) {
       score += 5;
       rubric.testSuccess = 5;
