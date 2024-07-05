@@ -14,12 +14,6 @@ export function SubmissionRow(submission: Submission) {
     setDateFormat(dateFormat === 'short' ? 'long' : 'short');
   }
   function toggleRubricVisibility() {
-    console.log(submission.rubric);
-    // try {
-    //   console.log(JSON.parse(submission.rubric));
-    // } catch (e) {
-    //   console.error(e);
-    // }
     setShowRubric(!showRubric);
   }
   return (

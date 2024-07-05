@@ -38,7 +38,6 @@ export class ServerFacade {
     for (const submission of response.submissions) {
       submissions.push(Submission.fromJson(submission));
     }
-    console.log(typeof submissions[0].rubric);
     return [response.message, submissions, response.rubric];
   }
 
