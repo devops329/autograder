@@ -29,7 +29,7 @@ export class CommitHistory {
     if (commits.length < this.minimumCommits) {
       // Lose points for not meeting minimum commits
       const missingCommits = this.minimumCommits - commits.length;
-      this.points -= missingCommits * Math.floor(pointsPossible / this.minimumCommits) * 0.6;
+      this.points -= Math.floor(missingCommits * Math.floor(pointsPossible / this.minimumCommits) * 0.6);
     }
 
     // 40% of the points are for the commits before the due date

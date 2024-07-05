@@ -57,7 +57,7 @@ export class DeliverableFour implements Grader {
 
     // Get new version number
     const newVersionNumber = await github.getVersionNumber();
-    if (versionNumber && newVersionNumber && newVersionNumber != versionNumber) {
+    if (newVersionNumber && newVersionNumber != versionNumber) {
       score += 5;
       rubric.versionIncrement += 5;
     }
