@@ -17,7 +17,7 @@ export const tableCreateStatements = [
   userId INT NOT NULL,
   phase VARCHAR(255) NOT NULL,
   score INT NOT NULL,
-  rubric TEXT NOT NULL,
+  rubric JSON,
   FOREIGN KEY (userId) REFERENCES user(id)
   )
   `,
