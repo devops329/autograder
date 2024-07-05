@@ -144,7 +144,9 @@ export class DB {
     try {
       const userId = await this.getUserId(netId);
       // logger.log('info', 'put_submission', { netid: netId });
-      await connection.query(`INSERT INTO submission (time, userId, phase, score) VALUES ('${submission.date}', ${userId}, '${submission.phase}', ${submission.score})`);
+      await connection.query(
+        `INSERT INTO submission (time, userId, phase, score, rubric) VALUES ('${submission.date}', ${userId}, '${submission.phase}', ${submission.score}, '${submission.rubric}')`
+      );
     } catch (err: any) {
       logger.log('error', 'put_submission', { netid: netId, exception: err.message });
     } finally {
@@ -160,7 +162,7 @@ export class DB {
       // Get all submissions for the user, ordered by time
       const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ${userId} ORDER BY time DESC`);
       return (rows as any[]).map((row) => {
-        return new Submission(row.time, row.phase, row.score);
+        return new Submission(row.time, row.phase, row.score, row.rubric);
       });
     } catch (err: any) {
       logger.log('error', 'get_submissions', { netid: netId, exception: err.message });
@@ -177,7 +179,7 @@ export class DB {
       // logger.log('info', 'get_most_recent_submission_other_deliverables', { netid: netId });
       const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ${userId} AND phase != 'Phase ${deliverable}' ORDER BY time DESC LIMIT 1`);
       const row = (rows as any[])[0];
-      return new Submission(row.time, row.phase, row.score);
+      return new Submission(row.time, row.phase, row.score, row.rubric);
     } catch (err: any) {
       logger.log('error', 'get_most_recent_submission_other_deliverables', { netid: netId, exception: err.message });
       return null;

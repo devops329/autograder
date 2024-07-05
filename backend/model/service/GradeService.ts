@@ -74,12 +74,12 @@ export class GradeService {
     score = result[0] as number;
     const rubric = result[1] as object;
 
-    await this.submitScore(assignmentId, assignmentPhase, netid, score);
+    await this.submitScore(assignmentId, assignmentPhase, netid, score, rubric);
     submissions = await this.getSubmissions(netid);
     return [score, submissions, rubric];
   }
 
-  async submitScore(assignmentId: number, assignmentPhase: number, netid: string, score: number) {
+  async submitScore(assignmentId: number, assignmentPhase: number, netid: string, score: number, rubric: object) {
     let studentId = 135540;
     try {
       studentId = await this.canvas.getStudentId(netid);
@@ -87,18 +87,19 @@ export class GradeService {
       console.error(e);
     }
     await this.canvas.updateGrade(assignmentId, studentId, score);
-    await this.putSubmissionIntoDB(assignmentPhase, netid, score);
+    await this.putSubmissionIntoDB(assignmentPhase, netid, score, rubric);
   }
 
   async gradeDeliverableTen(user: User) {
     const grader = new DeliverableTenPartTwo();
     const score = (await grader.grade(user))[0];
-    await this.submitScore(940837, 10, user.netId, score);
+    const rubric = {};
+    await this.submitScore(940837, 10, user.netId, score, rubric);
   }
 
-  async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number) {
+  async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number, rubric: object) {
     const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const submission = new Submission(date, `Phase ${assignmentPhase}`, score);
+    const submission = new Submission(date, `Phase ${assignmentPhase}`, score, JSON.stringify(rubric));
     await this.dao.putSubmission(submission, netId);
   }
 
