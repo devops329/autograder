@@ -13,7 +13,6 @@ export class GradingTools {
     addresses.forEach((address) => {
       const matches = address.match(regex);
       if (matches) {
-        console.log('DNS check matches');
         matchesRegex = true;
         return;
       }
@@ -26,11 +25,7 @@ export class GradingTools {
     const body = await response.text();
 
     const matches = body.match(regex);
-    if (matches) {
-      console.log('Page exists');
-      return true;
-    }
-    return false;
+    return !!matches;
   }
 
   async getEnvVariable(envFile: string, variableName: string): Promise<string> {

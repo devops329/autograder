@@ -1,4 +1,5 @@
 import { config } from '../../config';
+import logger from '../../logger';
 import { User } from '../../model/domain/User';
 
 export class Github {
@@ -103,5 +104,17 @@ export class Github {
   }
   async readCoverageBadge(): Promise<string> {
     return this.readGithubFile('coverageBadge.svg');
+  }
+
+  async getCommits(): Promise<object[]> {
+    const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/commits`;
+    try {
+      const response = await fetch(url);
+      const commits = await response.json();
+      return commits as object[];
+    } catch (error) {
+      logger.log('error', 'commits_fetch', this.user.github);
+    }
+    return [];
   }
 }
