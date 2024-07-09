@@ -27,7 +27,7 @@ export class DeliverableOne implements Grader {
     let githubPagesSuccess = false;
 
     try {
-      customDomainNameSuccess = await tools.checkPageExists(hostname, /JWT Pizza/g);
+      customDomainNameSuccess = await tools.checkPageExistsAndContainsText(hostname, /JWT Pizza/g);
       githubPagesSuccess = await tools.checkDNS(hostname, /github\.io/);
     } catch (e) {
       console.error(e);

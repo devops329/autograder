@@ -1,26 +1,32 @@
 import dns from 'dns';
+import logger from '../../logger';
 
 export class GradingTools {
   async checkDNS(hostname: string, regex: RegExp): Promise<boolean> {
-    const addresses = await new Promise<string[]>((resolve, reject) => {
-      dns.resolveCname(hostname, (err, addresses) => {
-        if (err) reject(err);
-        else resolve(addresses);
+    try {
+      const addresses = await new Promise<string[]>((resolve, reject) => {
+        dns.resolveCname(hostname, (err, addresses) => {
+          if (err) reject(err);
+          else resolve(addresses);
+        });
       });
-    });
 
-    let matchesRegex = false;
-    addresses.forEach((address) => {
-      const matches = address.match(regex);
-      if (matches) {
-        matchesRegex = true;
-        return;
-      }
-    });
-    return matchesRegex;
+      let matchesRegex = false;
+      addresses.forEach((address) => {
+        const matches = address.match(regex);
+        if (matches) {
+          matchesRegex = true;
+          return;
+        }
+      });
+      return matchesRegex;
+    } catch (e) {
+      logger.log('error', 'dns_error', { hostname, error: e });
+      return false;
+    }
   }
 
-  async checkPageExists(hostname: string, regex: RegExp): Promise<boolean> {
+  async checkPageExistsAndContainsText(hostname: string, regex: RegExp): Promise<boolean> {
     const response = await fetch(`https://${hostname}`);
     const body = await response.text();
 
