@@ -50,7 +50,7 @@ export class DeliverableThree implements Grader {
     if (runsLint && runsTest && run.conclusion === 'success') {
       score += 10;
       rubric.lintSuccess += 5;
-      rubric.testSuccess += 5;
+      rubric.testSuccess += 15;
     }
 
     // Get new version number
@@ -63,8 +63,8 @@ export class DeliverableThree implements Grader {
     // Get coverage badge
     const coverageBadge = await github.readCoverageBadge();
     if (await tools.checkCoverage(coverageBadge, 55)) {
-      score += 55;
-      rubric.coverage += 55;
+      score += 65;
+      rubric.coverage += 65;
     }
 
     return [score, rubric];

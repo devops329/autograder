@@ -37,22 +37,22 @@ export class DeliverableFour implements Grader {
     // Check for successful run
     const run = await github.getMostRecentRun();
     if (run && run.conclusion === 'success') {
-      score += 5;
-      rubric.testSuccess += 5;
+      score += 15;
+      rubric.testSuccess += 15;
     }
 
     // Get new version number
     const newVersionNumber = await github.getVersionNumber();
     if (newVersionNumber && newVersionNumber != versionNumber) {
-      score += 5;
-      rubric.versionIncrement += 5;
+      score += 10;
+      rubric.versionIncrement += 10;
     }
 
     // Get coverage badge
     const coverageBadge = await github.readCoverageBadge();
     if (await tools.checkCoverage(coverageBadge, 55)) {
-      score += 65;
-      rubric.coverage += 65;
+      score += 70;
+      rubric.coverage += 70;
     }
 
     return [score, rubric];
