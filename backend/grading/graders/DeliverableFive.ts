@@ -43,7 +43,7 @@ export class DeliverableFive implements Grader {
     }
 
     // Check handling of browser refresh React DOM Routing
-    const handles404Routing = await tools.checkPageExistsAndContainsText(user.website + '/garbage', /Oops/g);
+    const handles404Routing = await tools.checkPageExistsAndContainsText(user.website + '/garbage', /JWT Pizza/g);
     if (handles404Routing) {
       rubric.handles404Routing = 10;
       score += 10;

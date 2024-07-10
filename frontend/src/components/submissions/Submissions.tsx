@@ -17,7 +17,7 @@ export function Submissions(props: Props) {
               <th>Date</th>
               <th>Deliverable</th>
               <th>Score</th>
-              <th>Rubric</th>
+              <th>Details</th>
             </tr>
           </thead>
           <tbody>
