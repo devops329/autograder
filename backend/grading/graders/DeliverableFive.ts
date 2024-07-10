@@ -30,23 +30,23 @@ export class DeliverableFive implements Grader {
     // Check for successful run
     const run = await github.getMostRecentRun();
     if (pushesToS3 && run.conclusion === 'success') {
-      rubric.pushesToS3 = 40;
-      score += 40;
+      rubric.pushesToS3 = 45;
+      score += 45;
     }
 
     // Check cloudfront deployment
     const cloudfrontDeployed = await tools.checkDNS(user.website, /cloudfront\.net/);
     const pageExists = await tools.checkPageExistsAndContainsText(user.website, /JWT Pizza/g);
     if (cloudfrontDeployed && pageExists) {
-      rubric.cloudfrontDeployment = 58;
-      score += 58;
+      rubric.cloudfrontDeployment = 45;
+      score += 45;
     }
 
     // Check handling of browser refresh React DOM Routing
     const handles404Routing = await tools.checkPageExistsAndContainsText(user.website + '/garbage', /Oops/g);
     if (handles404Routing) {
-      rubric.handles404Routing = 2;
-      score += 2;
+      rubric.handles404Routing = 10;
+      score += 10;
     }
 
     return [score, rubric];
