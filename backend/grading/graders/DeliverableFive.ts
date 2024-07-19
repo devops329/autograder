@@ -25,11 +25,11 @@ export class DeliverableFive implements Grader {
     const pushesToS3 = workflowFile.includes('aws s3 cp');
 
     // Run the workflow
-    await github.triggerWorkflow();
+    await github.triggerWorkflow('ci.yml');
 
     // Check for successful run
-    const run = await github.getMostRecentRun();
-    if (pushesToS3 && run.conclusion === 'success') {
+    const runSuccess = await github.checkRecentRunSuccess('ci.yml');
+    if (pushesToS3 && runSuccess) {
       rubric.pushesToS3 = 45;
       score += 45;
     }

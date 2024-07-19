@@ -34,6 +34,11 @@ export class GradingTools {
     return !!matches;
   }
 
+  async readPageJson(hostname: string): Promise<any> {
+    const response = await fetch(`https://${hostname}`);
+    return response.json();
+  }
+
   async getEnvVariable(envFile: string, variableName: string): Promise<string> {
     const envVars = envFile.split('\n');
     let variableValue = '';

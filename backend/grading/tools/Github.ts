@@ -23,8 +23,9 @@ export class Github {
   async readWorkflowFile(): Promise<string> {
     return this.readGithubFile('.github/workflows/ci.yml');
   }
-  async triggerWorkflow(): Promise<boolean> {
-    const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/actions/workflows/ci.yml/dispatches`;
+
+  async triggerWorkflow(file: string, inputs?: object): Promise<boolean> {
+    const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/actions/workflows/${file}/dispatches`;
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -35,6 +36,7 @@ export class Github {
         },
         body: JSON.stringify({
           ref: 'main',
+          inputs,
         }),
       });
       if (response.status !== 204) {
@@ -48,12 +50,17 @@ export class Github {
     // Wait a few seconds for the run to start
     await new Promise((resolve) => setTimeout(resolve, 5000));
     // Wait for the run to complete
-    await this.waitForCompletion();
+    await this.waitForCompletion(file);
     return true;
   }
 
-  async getMostRecentRun(): Promise<any> {
-    const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/actions/workflows/ci.yml/runs`;
+  async checkRecentRunSuccess(file: string): Promise<boolean> {
+    const run = await this.getMostRecentRun(file);
+    return run && run.conclusion === 'success';
+  }
+
+  async getMostRecentRun(file: string): Promise<any> {
+    const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/actions/workflows/${file}/runs`;
     try {
       const response = await fetch(url, {
         headers: {
@@ -74,8 +81,8 @@ export class Github {
     }
   }
 
-  async waitForCompletion(): Promise<void> {
-    let run = await this.getMostRecentRun();
+  async waitForCompletion(file: string): Promise<void> {
+    let run = await this.getMostRecentRun(file);
     if (!run) {
       console.error('No run found');
       return;
@@ -83,15 +90,15 @@ export class Github {
 
     while (run.status !== 'completed') {
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      run = await this.getMostRecentRun();
+      run = await this.getMostRecentRun(file);
       if (!run) {
         console.error('No updated run found');
         return;
       }
     }
   }
-  async getVersionNumber(): Promise<string> {
-    const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/src/version.json`;
+  async getVersionNumber(app: 'frontend' | 'backend'): Promise<string> {
+    const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/${app === 'frontend' ? 'public' : 'src'}/version.json`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
       console.error('Error fetching version file:', response.status);
@@ -116,5 +123,20 @@ export class Github {
       logger.log('error', 'commits_fetch', this.user.github);
     }
     return [];
+  }
+
+  async getMostRecentRelease() {
+    const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/releases/latest`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error('Error fetching the most recent release:', response.status);
+        return null;
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching the most recent release:', error);
+      return null;
+    }
   }
 }

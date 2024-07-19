@@ -38,23 +38,23 @@ export class DeliverableThree implements Grader {
     }
 
     // Get current version
-    const versionNumber = await github.getVersionNumber();
+    const versionNumber = await github.getVersionNumber('backend');
     // Run the workflow
-    const triggeredWorkflow = await github.triggerWorkflow();
+    const triggeredWorkflow = await github.triggerWorkflow('ci.yml');
     if (!triggeredWorkflow) {
       return [score, rubric];
     }
 
     // Check for successful run
-    const run = await github.getMostRecentRun();
-    if (runsLint && runsTest && run.conclusion === 'success') {
+    const runSuccess = await github.checkRecentRunSuccess('ci.yml');
+    if (runsLint && runsTest && runSuccess) {
       score += 10;
       rubric.lintSuccess += 5;
       rubric.testSuccess += 15;
     }
 
     // Get new version number
-    const newVersionNumber = await github.getVersionNumber();
+    const newVersionNumber = await github.getVersionNumber('backend');
     if (newVersionNumber && newVersionNumber != versionNumber) {
       score += 5;
       rubric.versionIncrement += 5;

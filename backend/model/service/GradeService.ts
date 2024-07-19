@@ -13,6 +13,7 @@ import { DeliverableTen } from '../../grading/graders/DeliverableTen';
 import { DeliverableEleven } from '../../grading/graders/DeliverableEleven';
 import { DeliverableTenPartTwo } from '../../grading/graders/DeliverableTenPartTwo';
 import { User } from '../domain/User';
+import { DeliverableSeven } from '../../grading/graders/DeliverableSeven';
 
 export class GradeService {
   private dao: DB;
@@ -55,6 +56,10 @@ export class GradeService {
       case 6:
         grader = new DeliverableSix();
         assignmentId = assignmentIds['6'];
+        break;
+      case 7:
+        grader = new DeliverableSeven();
+        assignmentId = assignmentIds['7'];
         break;
       case 10:
         grader = new DeliverableTen();

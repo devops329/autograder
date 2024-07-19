@@ -15,11 +15,11 @@ export class DeliverableSix implements Grader {
     const buildsAndPushesToECR = workflowFile.includes('docker build') && workflowFile.includes('$ECR_REGISTRY/$ECR_REPOSITORY --push');
 
     // Run the workflow
-    await github.triggerWorkflow();
+    await github.triggerWorkflow('ci.yml');
 
     // Check for successful run
-    const run = await github.getMostRecentRun();
-    if (pushesToECS && buildsAndPushesToECR && run.conclusion === 'success') score += 40;
+    const runSuccess = await github.checkRecentRunSuccess('ci.yml');
+    if (pushesToECS && buildsAndPushesToECR && runSuccess) score += 40;
 
     // Check DNS
     const deployedWithELB = await tools.checkDNS(user.website, /elb\.amazonaws\.com/);

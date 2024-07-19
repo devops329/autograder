@@ -29,20 +29,20 @@ export class DeliverableFour implements Grader {
     }
 
     // Get current version
-    const versionNumber = await github.getVersionNumber();
+    const versionNumber = await github.getVersionNumber('frontend');
 
     // Run the workflow
-    await github.triggerWorkflow();
+    await github.triggerWorkflow('ci.yml');
 
     // Check for successful run
-    const run = await github.getMostRecentRun();
-    if (run && run.conclusion === 'success') {
+    const runSuccess = await github.checkRecentRunSuccess('ci.yml');
+    if (runSuccess) {
       score += 15;
       rubric.testSuccess += 15;
     }
 
     // Get new version number
-    const newVersionNumber = await github.getVersionNumber();
+    const newVersionNumber = await github.getVersionNumber('frontend');
     if (newVersionNumber && newVersionNumber != versionNumber) {
       score += 10;
       rubric.versionIncrement += 10;
