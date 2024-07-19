@@ -40,7 +40,7 @@ export class DeliverableThree implements Grader {
     // Get current version
     const versionNumber = await github.getVersionNumber('backend');
     // Run the workflow
-    const triggeredWorkflow = await github.triggerWorkflow('ci.yml');
+    const triggeredWorkflow = await github.triggerWorkflowAndWaitForCompletion('ci.yml');
     if (!triggeredWorkflow) {
       return [score, rubric];
     }

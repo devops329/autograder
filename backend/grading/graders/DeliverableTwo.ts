@@ -34,7 +34,7 @@ export class DeliverableTwo implements Grader {
     rubric.deployedToPages = 30;
 
     // Trigger the action and wait for it to complete
-    await github.triggerWorkflow('ci.yml');
+    await github.triggerWorkflowAndWaitForCompletion('ci.yml');
 
     // Check for successful deployment
     const deliverableOne = new DeliverableOne();

@@ -15,7 +15,7 @@ export class DeliverableSix implements Grader {
     const buildsAndPushesToECR = workflowFile.includes('docker build') && workflowFile.includes('$ECR_REGISTRY/$ECR_REPOSITORY --push');
 
     // Run the workflow
-    await github.triggerWorkflow('ci.yml');
+    await github.triggerWorkflowAndWaitForCompletion('ci.yml');
 
     // Check for successful run
     const runSuccess = await github.checkRecentRunSuccess('ci.yml');

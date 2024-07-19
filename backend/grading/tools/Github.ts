@@ -24,7 +24,7 @@ export class Github {
     return this.readGithubFile('.github/workflows/ci.yml');
   }
 
-  async triggerWorkflow(file: string, inputs?: object): Promise<boolean> {
+  async triggerWorkflowAndWaitForCompletion(file: string, inputs?: object): Promise<boolean> {
     const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/actions/workflows/${file}/dispatches`;
     try {
       const response = await fetch(url, {

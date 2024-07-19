@@ -35,7 +35,7 @@ export class DeliverableSeven implements Grader {
     }
     // Trigger it and wait for completion
     // Run the workflow
-    await github.triggerWorkflow('ci.yml');
+    await github.triggerWorkflowAndWaitForCompletion('ci.yml');
 
     // Check for successful run
     const stagingRunSuccess = await github.checkRecentRunSuccess('ci.yml');
@@ -55,12 +55,10 @@ export class DeliverableSeven implements Grader {
         rubric.githubReleases += 10;
         // Fetch version number from release
         const stagingReleaseVersion = stagingReleaseJson.name.match(/\d{8}\.\d{6}/)?.[0];
-        console.log('Release version:', stagingReleaseVersion);
         // Fetch version number from staging site
         const siteParts = user.website.split('.');
         const hostname = siteParts.slice(-2).join('.');
         const stagingSiteVersion = (await gradingTools.readPageJson(`stage-pizza.${hostname}/version.json`)).version;
-        console.log('Staging site version:', stagingSiteVersion);
         // Check they match
         if (stagingReleaseVersion === stagingSiteVersion) {
           points += 20;
@@ -71,7 +69,7 @@ export class DeliverableSeven implements Grader {
           version: stagingReleaseVersion,
           description: 'Autograder Production Release',
         };
-        await github.triggerWorkflow('release.yml', inputs);
+        await github.triggerWorkflowAndWaitForCompletion('release.yml', inputs);
         // Need to wait for completion
         const productionRunSuccess = await github.checkRecentRunSuccess('release.yml');
         if (productionRunSuccess) {
@@ -79,8 +77,7 @@ export class DeliverableSeven implements Grader {
           rubric.triggeredProductionDeployment += 10;
 
           const productionReleaseJson = await github.getMostRecentRelease();
-          console.log('Production release:', productionReleaseJson);
-          console.log('Staging release:', stagingReleaseJson);
+
           if (productionReleaseJson.id !== stagingReleaseJson.id) {
             points += 10;
             rubric.githubReleases += 10;

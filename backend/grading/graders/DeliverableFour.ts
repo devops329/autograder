@@ -32,7 +32,7 @@ export class DeliverableFour implements Grader {
     const versionNumber = await github.getVersionNumber('frontend');
 
     // Run the workflow
-    await github.triggerWorkflow('ci.yml');
+    await github.triggerWorkflowAndWaitForCompletion('ci.yml');
 
     // Check for successful run
     const runSuccess = await github.checkRecentRunSuccess('ci.yml');
