@@ -13,14 +13,27 @@ export class ChaosService {
   async checkForChaosToBeTriggered() {
     // Check database for untriggered chaos
     const chaosEntries = await this.db.getUntriggeredChaos();
-    // Check if chaos time has passed, if so trigger chaos
     for (const entry of chaosEntries) {
+      // Check if chaos time has passed
       if (new Date() > new Date(entry.chaosTime)) {
         await this.triggerChaos(entry.netId);
         // update the triggered status in the database
-        await this.db.triggerChaos(entry.netId);
+        await this.db.updateChaosTriggeredStatus(entry.netId);
       }
     }
+  }
+
+  async addChaosToBeTriggered(netId: string) {
+    // Calculate random time up to 6 hours after 8am the following day
+    const chaosTime = new Date();
+    chaosTime.setHours(8);
+    chaosTime.setMinutes(0);
+    chaosTime.setDate(chaosTime.getDate() + 1);
+    chaosTime.setHours(chaosTime.getHours() + Math.floor(Math.random() * 6));
+    chaosTime.setMinutes(Math.floor(Math.random() * 60));
+    // Put user and chaos time into chaos db
+    await this.db.putChaos(netId, chaosTime);
+    logger.log('info', 'chaos_scheduled', { netId });
   }
 
   async triggerChaos(netId: string) {
