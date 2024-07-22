@@ -45,7 +45,11 @@ app.use(`/api`, apiRouter);
 const AUTH_COOKIE_NAME = 'token';
 
 apiRouter.get('/login', async function (req, res) {
-  const netId = (req.query.netId as string) ?? 'fakeNetId';
+  const netId = req.query.netId as string;
+  if (!netId) {
+    res.status(400).send({ msg: 'Missing required parameters' });
+    return;
+  }
   const token = await userService.login(netId);
   res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
   const redirectUrl = req.query.redirectUrl;
