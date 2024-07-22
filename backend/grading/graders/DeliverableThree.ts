@@ -3,21 +3,23 @@ import { Github } from '../tools/Github';
 import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
-interface Rubric {
+interface DeliverableThreeRubric {
   lintSuccess: number;
   testSuccess: number;
   versionIncrement: number;
   coverage: number;
+  comments: string;
 }
 
 export class DeliverableThree implements Grader {
-  async grade(user: User): Promise<[number, object]> {
+  async grade(user: User): Promise<[number, DeliverableThreeRubric]> {
     let score = 0;
-    const rubric: Rubric = {
+    const rubric: DeliverableThreeRubric = {
       testSuccess: 0,
       lintSuccess: 0,
       versionIncrement: 0,
       coverage: 0,
+      comments: '',
     };
     const tools = new GradingTools();
 
@@ -30,43 +32,51 @@ export class DeliverableThree implements Grader {
     if (runsLint) {
       score += 5;
       rubric.lintSuccess += 5;
+    } else {
+      rubric.comments += 'Linting is not included in the workflow.\n';
     }
-    const runsTest = workflowFile.includes('npm test');
+    const runsTest = workflowFile.includes('npm test') || workflowFile.includes('npm run test');
     if (runsTest) {
       score += 5;
       rubric.testSuccess += 5;
-    }
 
-    // Get current version
-    const versionNumber = await github.getVersionNumber('backend');
-    // Run the workflow
-    const triggeredWorkflow = await github.triggerWorkflowAndWaitForCompletion('ci.yml');
-    if (!triggeredWorkflow) {
-      return [score, rubric];
-    }
+      // Get current version
+      const versionNumber = await github.getVersionNumber('backend');
+      // Run the workflow
+      await github.triggerWorkflowAndWaitForCompletion('ci.yml');
 
-    // Check for successful run
-    const runSuccess = await github.checkRecentRunSuccess('ci.yml');
-    if (runsLint && runsTest && runSuccess) {
-      score += 10;
-      rubric.lintSuccess += 5;
-      rubric.testSuccess += 15;
-    }
+      // Check for successful run
+      const runSuccess = await github.checkRecentRunSuccess('ci.yml');
+      if (runSuccess) {
+        rubric.testSuccess += 15;
+        score += 15;
+        if (runsLint) {
+          score += 5;
+          rubric.lintSuccess += 5;
+        }
+        // Get new version number
+        const newVersionNumber = await github.getVersionNumber('backend');
+        if (newVersionNumber && newVersionNumber != versionNumber) {
+          score += 5;
+          rubric.versionIncrement += 5;
+        } else {
+          rubric.comments += 'Version number was not incremented.\n';
+        }
 
-    // Get new version number
-    const newVersionNumber = await github.getVersionNumber('backend');
-    if (newVersionNumber && newVersionNumber != versionNumber) {
-      score += 5;
-      rubric.versionIncrement += 5;
+        // Get coverage badge
+        const coverageBadge = await github.readCoverageBadge();
+        if (await tools.checkCoverage(coverageBadge, 80)) {
+          score += 65;
+          rubric.coverage += 65;
+        } else {
+          rubric.comments += 'Coverage did not exceed minimum threshold.\n';
+        }
+      } else {
+        rubric.comments += 'Workflow did not succeed.\n';
+      }
+    } else {
+      rubric.comments += 'Testing is not included in the workflow.\n';
     }
-
-    // Get coverage badge
-    const coverageBadge = await github.readCoverageBadge();
-    if (await tools.checkCoverage(coverageBadge, 55)) {
-      score += 65;
-      rubric.coverage += 65;
-    }
-
     return [score, rubric];
   }
 }

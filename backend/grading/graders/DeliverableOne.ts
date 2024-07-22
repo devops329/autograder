@@ -2,15 +2,15 @@ import { User } from '../../model/domain/User';
 import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
-interface Rubric {
+interface DeliverableOneRubric {
   customDomainName: number;
   githubPages: number;
   comments: string;
 }
 
 export class DeliverableOne implements Grader {
-  async grade(user: User): Promise<[number, object]> {
-    const rubric: Rubric = {
+  async grade(user: User): Promise<[number, DeliverableOneRubric]> {
+    const rubric: DeliverableOneRubric = {
       customDomainName: 0,
       githubPages: 0,
       comments: '',
