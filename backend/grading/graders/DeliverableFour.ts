@@ -1,21 +1,24 @@
+import e from 'express';
 import { User } from '../../model/domain/User';
 import { Github } from '../tools/Github';
 import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
-interface Rubric {
+interface DeliverableFourRubric {
   testSuccess: number;
   versionIncrement: number;
   coverage: number;
+  comments: string;
 }
 
 export class DeliverableFour implements Grader {
-  async grade(user: User): Promise<[number, object]> {
+  async grade(user: User): Promise<[number, DeliverableFourRubric]> {
     let score = 0;
-    const rubric: Rubric = {
+    const rubric: DeliverableFourRubric = {
       testSuccess: 0,
       versionIncrement: 0,
       coverage: 0,
+      comments: '',
     };
     const tools = new GradingTools();
     const github = new Github(user, 'jwt-pizza');
@@ -26,35 +29,42 @@ export class DeliverableFour implements Grader {
     if (runsTest) {
       score += 5;
       rubric.testSuccess = 5;
+
+      // Get current version
+      const versionNumber = await github.getVersionNumber('frontend');
+
+      // Run the workflow
+      await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+
+      // Check for successful run
+      const runSuccess = await github.checkRecentRunSuccess('ci.yml');
+      if (runSuccess) {
+        score += 15;
+        rubric.testSuccess += 15;
+
+        // Get new version number
+        const newVersionNumber = await github.getVersionNumber('frontend');
+        if (newVersionNumber && newVersionNumber != versionNumber) {
+          score += 10;
+          rubric.versionIncrement += 10;
+        } else {
+          rubric.comments += 'Version number was not incremented.\n';
+        }
+
+        // Get coverage badge
+        const coverageBadge = await github.readCoverageBadge();
+        if (await tools.checkCoverage(coverageBadge, 80)) {
+          score += 70;
+          rubric.coverage += 70;
+        } else {
+          rubric.comments += 'Coverage did not exceed minimum threshold.\n';
+        }
+      } else {
+        rubric.comments += 'Workflow did not run successfully.\n';
+      }
+    } else {
+      rubric.comments += 'Workflow does not run tests.\n';
     }
-
-    // Get current version
-    const versionNumber = await github.getVersionNumber('frontend');
-
-    // Run the workflow
-    await github.triggerWorkflowAndWaitForCompletion('ci.yml');
-
-    // Check for successful run
-    const runSuccess = await github.checkRecentRunSuccess('ci.yml');
-    if (runSuccess) {
-      score += 15;
-      rubric.testSuccess += 15;
-    }
-
-    // Get new version number
-    const newVersionNumber = await github.getVersionNumber('frontend');
-    if (newVersionNumber && newVersionNumber != versionNumber) {
-      score += 10;
-      rubric.versionIncrement += 10;
-    }
-
-    // Get coverage badge
-    const coverageBadge = await github.readCoverageBadge();
-    if (await tools.checkCoverage(coverageBadge, 55)) {
-      score += 70;
-      rubric.coverage += 70;
-    }
-
     return [score, rubric];
   }
 }
