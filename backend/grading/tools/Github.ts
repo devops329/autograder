@@ -9,11 +9,16 @@ export class Github {
     this.user = user;
     this.repo = repo;
   }
+
+  setRepo(repo: string) {
+    this.repo = repo;
+  }
+
   async readGithubFile(path: string): Promise<string> {
     const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/${path}`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      console.error('Error fetching version file:', response.status);
+      logger.log('error', 'github_file_fetch', { path, user: this.user.netId, status: response.status });
       return '';
     }
     // get the content and base 64 decode it
@@ -40,12 +45,11 @@ export class Github {
         }),
       });
       if (response.status !== 204) {
-        console.log(await response.text());
-        console.error('Error triggering the action:', response.status);
+        logger.log('error', 'github_action_trigger', { file, user: this.user.netId, status: response.status, body: await response.text() });
         return false;
       }
     } catch (error) {
-      console.error('Error triggering the action:', error);
+      logger.log('error', 'github_action_trigger', { file, user: this.user.netId, error });
     }
     // Wait a few seconds for the run to start
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -70,13 +74,13 @@ export class Github {
         },
       });
       if (!response.ok) {
-        console.error('Error fetching the most recent run:', response.status);
+        logger.log('error', 'github_run_fetch', { file, user: this.user.netId, status: response.status });
         return null;
       }
       const data = await response.json();
       return data.workflow_runs[0];
     } catch (error) {
-      console.error('Error fetching the most recent run:', error);
+      logger.log('error', 'github_run_fetch', { file, user: this.user.netId, error });
       return null;
     }
   }
@@ -92,7 +96,7 @@ export class Github {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       run = await this.getMostRecentRun(file);
       if (!run) {
-        console.error('No updated run found');
+        logger.log('error', 'github_run_fetch', { file, user: this.user.netId });
         return;
       }
     }
@@ -101,7 +105,7 @@ export class Github {
     const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/${app === 'frontend' ? 'public' : 'src'}/version.json`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      console.error('Error fetching version file:', response.status);
+      logger.log('error', 'github_file_fetch', { path: 'version.json', user: this.user.netId, status: response.status });
       return '';
     }
     // get the content and base 64 decode it
@@ -130,12 +134,12 @@ export class Github {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        console.error('Error fetching the most recent release:', response.status);
+        logger.log('error', 'github_release_fetch', { user: this.user.netId, status: response.status });
         return null;
       }
       return await response.json();
     } catch (error) {
-      console.error('Error fetching the most recent release:', error);
+      logger.log('error', 'github_release_fetch', { user: this.user.netId, error });
       return null;
     }
   }

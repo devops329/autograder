@@ -52,36 +52,42 @@ export class GradingTools {
   }
 
   async createUserAndLogin(serviceUrl: string): Promise<boolean> {
-    const response = await fetch(`${serviceUrl}/api/auth`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: 'test',
-        email: 'test@test',
-        password: 'test',
-      }),
-    });
-    if (!response.ok) {
-      console.error('Error creating user:', response.status);
+    try {
+      const response = await fetch(`${serviceUrl}/api/auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: 'test',
+          email: 'test@test',
+          password: 'test',
+        }),
+      });
+      if (!response.ok) {
+        console.error('Error creating user:', response.status);
+        return false;
+      }
+
+      const loginResponse = await fetch(`${serviceUrl}/api/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: 'test@test',
+          password: 'test',
+        }),
+      });
+      if (!loginResponse.ok) {
+        console.error('Error logging in:', loginResponse.status);
+        return false;
+      }
+    } catch (e) {
+      console.error('Error creating user:', e);
       return false;
     }
 
-    const loginResponse = await fetch(`${serviceUrl}/api/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: 'test@test',
-        password: 'test',
-      }),
-    });
-    if (!loginResponse.ok) {
-      console.error('Error logging in:', loginResponse.status);
-      return false;
-    }
     return true;
   }
 

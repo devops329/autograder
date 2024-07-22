@@ -1,3 +1,4 @@
+import logger from '../../logger';
 import { User } from '../../model/domain/User';
 import { Github } from '../tools/Github';
 import { GradingTools } from '../tools/GradingTools';
@@ -18,6 +19,7 @@ interface Rubric {
   mySQLDatabase: number;
   githubActionWorkflow: number;
   ownBackendCalledForFrontendRequests: number;
+  comments: string;
 }
 
 export class DeliverableSix implements Grader {
@@ -29,8 +31,9 @@ export class DeliverableSix implements Grader {
       mySQLDatabase: 0,
       githubActionWorkflow: 0,
       ownBackendCalledForFrontendRequests: 0,
+      comments: '',
     };
-    const github = new Github(user, 'jwt-pizza');
+    const github = new Github(user, 'jwt-pizza-service');
     const tools = new GradingTools();
 
     // Read workflow file
@@ -39,7 +42,7 @@ export class DeliverableSix implements Grader {
     const buildsAndPushesToECR = workflowFile.includes('docker build') && workflowFile.includes('$ECR_REGISTRY/$ECR_REPOSITORY --push');
 
     // Run the workflow
-    await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+    // await github.triggerWorkflowAndWaitForCompletion('ci.yml');
 
     // Check for successful run
     const runSuccess = await github.checkRecentRunSuccess('ci.yml');
@@ -47,6 +50,8 @@ export class DeliverableSix implements Grader {
       score += 20;
       rubric.ecrEcsFargateDeployment += 20;
       rubric.githubActionWorkflow += 20;
+    } else {
+      rubric.comments += 'Your GitHub Action workflow did not deploy to ECR and ECS successfully.\n';
     }
 
     // Check DNS
@@ -56,9 +61,14 @@ export class DeliverableSix implements Grader {
       rubric.awsLoadBalancer += 20;
     }
 
-    // Get service url
+    // Get service url from frontend
+    github.setRepo('jwt-pizza');
     const envFile = await github.readGithubFile('.env.production');
-    const serviceUrl = await tools.getEnvVariable(envFile, 'SERVICE_URL');
+    const serviceUrl = await tools.getEnvVariable(envFile, 'VITE_PIZZA_SERVICE_URL');
+    if (!serviceUrl) {
+      rubric.comments += 'Could not find VITE_PIZZA_SERVICE_URL in .env.production.\n';
+      return [score, rubric];
+    }
     const usingOwnService = !serviceUrl.includes('cs329.click');
 
     // Use curl to create a user and then login in as the user
@@ -69,6 +79,8 @@ export class DeliverableSix implements Grader {
         rubric.ownBackendCalledForFrontendRequests += 10;
         rubric.mySQLDatabase += 20;
       }
+    } else {
+      rubric.comments += 'You are using the provided service URL.';
     }
 
     return [score, rubric];
