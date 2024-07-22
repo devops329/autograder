@@ -61,9 +61,15 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'put_user', { netid: user.netId });
-      await connection.query(
-        `INSERT INTO user (name, netid, apiKey, website, github, email, isAdmin) VALUES ('${user.name}', '${user.netId}', '${user.apiKey}', '${user.website}', '${user.github}', '${user.email}', ${user.isAdmin})`
-      );
+      await connection.query(`INSERT INTO user (name, netid, apiKey, website, github, email, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+        user.name,
+        user.netId,
+        user.apiKey,
+        user.website,
+        user.github,
+        user.email,
+        user.isAdmin,
+      ]);
     } catch (err: any) {
       logger.log('error', 'put_user', { netid: user.netId, exception: err.message });
     } finally {
@@ -75,7 +81,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'update_user', { netid: netId });
-      await connection.query(`UPDATE user SET website = '${website}', github = '${github}', email = '${email}' WHERE netid = '${netId}'`);
+      await connection.query(`UPDATE user SET website = ?, github = ?, email = ? WHERE netid = ?`, [website, github, email, netId]);
     } catch (err: any) {
       logger.log('error', 'update_user', { netid: netId, exception: err.message });
     } finally {
@@ -87,7 +93,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'get_user_id', { netid: netId });
-      const [rows] = await connection.query(`SELECT id FROM user WHERE netid = '${netId}'`);
+      const [rows] = await connection.query(`SELECT id FROM user WHERE netid = ?`, [netId]);
       return ((rows as any)[0] as any).id || 0;
     } catch (err: any) {
       logger.log('error', 'get_user_id', { netid: netId, exception: err.message });
@@ -101,7 +107,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'get_user', { netid: netId });
-      const [rows] = await connection.query(`SELECT * FROM user WHERE netid = '${netId}'`);
+      const [rows] = await connection.query(`SELECT * FROM user WHERE netid = ?`, [netId]);
       const row = (rows as any[])[0];
       return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
     } catch (err: any) {
@@ -116,7 +122,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'get_user_by_api_key', { apiKey: apiKey });
-      const [rows] = await connection.query(`SELECT * FROM user WHERE apiKey = '${apiKey}'`);
+      const [rows] = await connection.query(`SELECT * FROM user WHERE apiKey = ?`, [apiKey]);
       const row = (rows as any[])[0];
       return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
     } catch (err: any) {
@@ -131,7 +137,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'update_api_key', { netid: netId });
-      await connection.query(`UPDATE user SET apiKey = '${apiKey}' WHERE netid = '${netId}'`);
+      await connection.query(`UPDATE user SET apiKey = ? WHERE netid = ?`, [apiKey, netId]);
     } catch (err: any) {
       logger.log('error', 'update_api_key', { netid: netId, exception: err.message });
     } finally {
@@ -144,9 +150,7 @@ export class DB {
     try {
       const userId = await this.getUserId(netId);
       // logger.log('info', 'put_submission', { netid: netId });
-      await connection.query(
-        `INSERT INTO submission (time, userId, phase, score, rubric) VALUES ('${submission.date}', ${userId}, '${submission.phase}', ${submission.score}, '${submission.rubric}')`
-      );
+      await connection.query(`INSERT INTO submission (time, userId, phase, score, rubric) VALUES (?, ?, ?, ?, ?)`, [submission.date, userId, submission.phase, submission.score, submission.rubric]);
     } catch (err: any) {
       logger.log('error', 'put_submission', { netid: netId, exception: err.message });
     } finally {
@@ -160,7 +164,7 @@ export class DB {
       const userId = await this.getUserId(netId);
       // logger.log('info', 'get_submissions', { netid: netId });
       // Get all submissions for the user, ordered by time
-      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ${userId} ORDER BY time DESC`);
+      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ? ORDER BY time DESC`, [userId]);
       return (rows as any[]).map((row) => {
         return new Submission(row.time, row.phase, row.score, row.rubric);
       });
@@ -177,7 +181,7 @@ export class DB {
     try {
       const userId = await this.getUserId(netId);
       // logger.log('info', 'get_most_recent_submission_other_deliverables', { netid: netId });
-      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ${userId} AND phase != 'Phase ${deliverable}' ORDER BY time DESC LIMIT 1`);
+      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ? AND phase != ? ORDER BY time DESC LIMIT 1`, [userId, `Phase ${deliverable}`]);
       const row = (rows as any[])[0];
       return new Submission(row.time, row.phase, row.score, row.rubric);
     } catch (err: any) {
@@ -192,7 +196,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'get_netid_by_token', token.substring(0, 5) + '...');
-      const [rows] = await connection.query(`SELECT netid FROM token WHERE authtoken = '${token}'`);
+      const [rows] = await connection.query(`SELECT netid FROM token WHERE authtoken = ?`, [token]);
       return ((rows as any)[0] as any).netid || '';
     } catch (err: any) {
       logger.log('error', 'get_netid_by_token', { exception: err.message });
@@ -206,7 +210,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'get_token', { netid: netId });
-      const [rows] = await connection.query(`SELECT authtoken FROM token WHERE netid = '${netId}'`);
+      const [rows] = await connection.query(`SELECT authtoken FROM token WHERE netid = ?`, [netId]);
       return ((rows as any)[0] as any).authToken || '';
     } catch (err: any) {
       logger.log('error', 'get_token', { netid: netId, exception: err.message });
@@ -220,7 +224,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'put_token', { netid: netId });
-      await connection.query(`INSERT INTO token (authtoken, netid) VALUES ('${token}', '${netId}')`);
+      await connection.query(`INSERT INTO token (authtoken, netid) VALUES (?, ?)`, [token, netId]);
     } catch (err: any) {
       logger.log('error', 'put_token', { netid: netId, exception: err.message });
     } finally {
@@ -232,7 +236,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'delete_token', token.substring(0, 5) + '...');
-      await connection.query(`DELETE FROM token WHERE authtoken = '${token}'`);
+      await connection.query(`DELETE FROM token WHERE authtoken = ?`, [token]);
     } catch (err: any) {
       logger.log('error', 'delete_token', { exception: err.message });
     } finally {
@@ -244,7 +248,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'put_pentest', { netid: netId });
-      await connection.query(`INSERT INTO pentest (netid) VALUES ('${netId}')`);
+      await connection.query(`INSERT INTO pentest (netid) VALUES (?)`, [netId]);
     } catch (err: any) {
       logger.log('error', 'put_pentest', { netid: netId, exception: err.message });
     } finally {
@@ -256,7 +260,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'get_pentest', { netid: netId });
-      const [rows] = await connection.query(`SELECT * FROM pentest WHERE netid = '${netId}'`);
+      const [rows] = await connection.query(`SELECT * FROM pentest WHERE netid = ?`, [netId]);
       const row = (rows as any[])[0];
       return { netId: row.netid, partnerId: row.partnerid };
     } catch (err: any) {
@@ -271,7 +275,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'get_pentest_partners', { netid: netId });
-      const [rows] = await connection.query(`SELECT * FROM pentest WHERE partnerid = '' AND netid != '${netId}'`);
+      const [rows] = await connection.query(`SELECT * FROM pentest WHERE partnerid = ? AND netid != ?`, ['', netId]);
       return (rows as any[]).map((row) => {
         return { netId: row.netid, partnerId: row.partnerid };
       });
@@ -287,7 +291,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'update_pentest_partner', { netid: netId });
-      await connection.query(`UPDATE pentest SET partnerid = '${partnerId}' WHERE netid = '${netId}'`);
+      await connection.query(`UPDATE pentest SET partnerid = ? WHERE netid = ?`, [partnerId, netId]);
     } catch (err: any) {
       logger.log('error', 'update_pentest_partner', { netid: netId, exception: err.message });
     } finally {
@@ -299,7 +303,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'put_chaos', { netid: netId });
-      await connection.query(`INSERT INTO chaos (netid, chaosTime) VALUES ('${netId}', '${chaosTime.toISOString()}')`);
+      await connection.query(`INSERT INTO chaos (netid, chaosTime) VALUES (?, ?)`, [netId, chaosTime.toISOString()]);
     } catch (err: any) {
       logger.log('error', 'put_chaos', { netid: netId, exception: err.message });
     } finally {
@@ -327,7 +331,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'trigger_chaos', { netid: netId });
-      await connection.query(`UPDATE chaos SET triggered = true WHERE netid = '${netId}'`);
+      await connection.query(`UPDATE chaos SET triggered = true WHERE netid = ?`, [netId]);
     } catch (err: any) {
       logger.log('error', 'trigger_chaos', { netid: netId, exception: err.message });
     } finally {
@@ -339,7 +343,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'get_chaos_time', { netid: netId });
-      const [rows] = await connection.query(`SELECT chaosTime FROM chaos WHERE netid = '${netId}'`);
+      const [rows] = await connection.query(`SELECT chaosTime FROM chaos WHERE netid = ?`, [netId]);
       return ((rows as any)[0] as any).chaosTime || '';
     } catch (err: any) {
       logger.log('error', 'get_chaos_time', { netid: netId, exception: err.message });
@@ -353,7 +357,7 @@ export class DB {
     const connection = await this.getConnection();
     try {
       // logger.log('info', 'delete_chaos', { netid: netId });
-      await connection.query(`DELETE FROM chaos WHERE netid = '${netId}'`);
+      await connection.query(`DELETE FROM chaos WHERE netid = ?`, [netId]);
     } catch (err: any) {
       logger.log('error', 'delete_chaos', { netid: netId, exception: err.message });
     } finally {
