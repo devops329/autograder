@@ -64,7 +64,7 @@ apiRouter.get('/login', async function (req, res) {
 app.get('/cas-callback', async (req, res) => {
   const ticket = req.query.ticket;
   const redirectUrl = req.query.redirectUrl;
-  const casValidateUrl = `https://cas.byu.edu/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(`${config.app.hostname}/cas-callback`)}`;
+  const casValidateUrl = `https://cas.byu.edu/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(`${config.app.host}/cas-callback`)}`;
 
   try {
     const response = await fetch(casValidateUrl);
