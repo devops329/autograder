@@ -46,10 +46,10 @@ const AUTH_COOKIE_NAME = 'token';
 
 apiRouter.get('/login', async function (req, res) {
   const redirectUrl = req.query.redirectUrl;
-  const casLoginUrl = 'https://cas.byu.edu/cas/login';
   const serviceUrl = encodeURIComponent(`${config.app.host}/api/cas-callback/?redirectUrl=${redirectUrl}`);
+  const casLoginUrl = `https://cas.byu.edu/cas/login?service=${serviceUrl}`;
   // Redirect the user to the CAS login page
-  res.redirect(`${casLoginUrl}?service=${serviceUrl}`);
+  res.redirect(casLoginUrl);
 });
 
 apiRouter.get('/cas-callback', async (req, res) => {
