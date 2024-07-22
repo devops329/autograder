@@ -14,14 +14,11 @@ export class AuthenticatePresenter {
     this.userService = new UserService();
   }
 
-  async login(netId: string) {
-    if (!netId) {
-      return;
-    }
+  async login() {
     const originalUrl = window.location.href;
     const baseUrl = originalUrl.substring(0, originalUrl.lastIndexOf('/'));
     const redirectUrl = `${baseUrl}/login`;
-    window.location.href = `/api/login?netId=${netId}&redirectUrl=${redirectUrl}`;
+    window.location.href = `/api/login?redirectUrl=${redirectUrl}`;
   }
 
   async getUserInfo() {

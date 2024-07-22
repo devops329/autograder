@@ -45,35 +45,41 @@ app.use(`/api`, apiRouter);
 const AUTH_COOKIE_NAME = 'token';
 
 apiRouter.get('/login', async function (req, res) {
-  const netId = (req.query.netId as string) ?? 'fakeNetId';
-  const token = await userService.login(netId);
-  res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
-  const redirectUrl = req.query.redirectUrl;
-  res.redirect(redirectUrl as string);
+  // const netId = (req.query.netId as string) ?? 'fakeNetId';
+  // const token = await userService.login(netId);
+  // res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
   // const redirectUrl = req.query.redirectUrl;
-  // const casLoginUrl = 'https://cas.byu.edu/cas/login';
-  // const serviceUrl = encodeURIComponent(`${config.app.hostname}/cas-callback?redirectUrl=${redirectUrl}`);
-  // // Redirect the user to the CAS login page
-  // res.redirect(`${casLoginUrl}?service=${serviceUrl}`);
+  // res.redirect(redirectUrl as string);
+  const redirectUrl = req.query.redirectUrl;
+  const casLoginUrl = 'https://cas.byu.edu/cas/login';
+  const serviceUrl = encodeURIComponent(`${config.app.host}/api/cas-callback/?redirectUrl=${redirectUrl}`);
+  // Redirect the user to the CAS login page
+  res.redirect(`${casLoginUrl}?service=${serviceUrl}`);
 });
 
-app.get('/cas-callback', async (req, res) => {
+apiRouter.get('/cas-callback', async (req, res) => {
   const ticket = req.query.ticket;
-  const redirectUrl = req.query.redirectUrl;
-  const casValidateUrl = `https://cas.byu.edu/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(`${config.app.hostname}/cas-callback`)}`;
+  const casValidateUrl = `https://cas.byu.edu/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(`${config.app.host}/api/cas-callback`)}`;
 
-  try {
-    const response = await fetch(casValidateUrl);
-    const data = await response.text();
-
-    // const user = await userService.login();
-    // const submissions = await gradeService.getSubmissions('fakeNetId');
-
-    res.redirect(redirectUrl as string);
-  } catch (error) {
-    console.error('CAS authentication failed', error);
-    res.status(500).send('Authentication failed');
-  }
+  // try {
+  const response = await fetch(casValidateUrl);
+  console.log(response);
+  const data = await response.text();
+  res.send(data);
+  //   console.log(data);
+  //   const netId = data.match(/<cas:user>(.*)<\/cas:user>/)?.[1];
+  //   if (!netId) {
+  //     res.status(401).send('Unauthorized');
+  //     return;
+  //   }
+  //   const token = await userService.login(netId);
+  //   res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
+  //   const redirectUrl = req.query.redirectUrl;
+  //   res.redirect(redirectUrl as string);
+  // } catch (error) {
+  //   console.error('CAS authentication failed', error);
+  //   res.status(500).send('Authentication failed');
+  // }
 });
 
 apiRouter.get('/report', async (req, res) => {

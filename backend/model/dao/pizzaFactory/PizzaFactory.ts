@@ -30,7 +30,7 @@ export class PizzaFactory {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${config.pizza_factory.authtoken}`,
         },
-        body: JSON.stringify({ chaos: { type: 'throttle', resolveUrl: `https://${config.app.hostname}/api/report` } }),
+        body: JSON.stringify({ chaos: { type: 'throttle', resolveUrl: `https://${config.app.host}/api/report` } }),
       });
       const data = await response.json();
       console.log('Attempted to trigger chaos. Response: ', data);
