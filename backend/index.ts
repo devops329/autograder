@@ -78,6 +78,13 @@ apiRouter.get('/cas-callback', async (req, res) => {
   }
 });
 
+apiRouter.get('/logout', async function (req, res) {
+  res.clearCookie(AUTH_COOKIE_NAME);
+  db.deleteToken(req.cookies[AUTH_COOKIE_NAME]);
+  const casLogoutUrl = `https://cas.byu.edu/cas/logout?service=${config.app.host}`;
+  res.redirect(casLogoutUrl);
+});
+
 apiRouter.get('/report', async (req, res) => {
   const apiKey = req.query.apiKey as string;
   const fixCode = req.query.fixCode as string;
@@ -140,12 +147,6 @@ secureApiRouter.post('/grade', async function (req, res) {
   const netId = req.body.netId;
   const [message, submissions, rubric] = await gradeService.grade(req.body.assignmentPhase, netId);
   res.send(JSON.stringify({ message, submissions, rubric }));
-});
-
-secureApiRouter.post('/logout', async function (req, res) {
-  res.clearCookie(AUTH_COOKIE_NAME);
-  db.deleteToken(req.cookies[AUTH_COOKIE_NAME]);
-  res.send({ msg: 'Logged out' });
 });
 
 // Return the application's default page if the path is unknown

@@ -1,9 +1,4 @@
 export class ClientCommunicator {
-  // private SERVER_URL: string;
-  // constructor(SERVER_URL: string) {
-  // 	this.SERVER_URL = SERVER_URL;
-  // }
-
   async doPost(body: unknown, endpoint: string): Promise<JSON> {
     const url = '/api/' + endpoint;
     const request = {

@@ -5,28 +5,6 @@ import { ClientCommunicator } from './ClientCommunicator';
 export class ServerFacade {
   private clientCommunicator = new ClientCommunicator();
 
-  async login(): Promise<[User, Submission[]]> {
-    const endpoint = 'login';
-    const response: { user: JSON; submissions: JSON[] } = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as {
-      user: JSON;
-      submissions: JSON[];
-    };
-
-    const user = User.fromJson(response.user);
-    const submissions: Submission[] = [];
-    for (const submission of response.submissions) {
-      submissions.push(Submission.fromJson(submission));
-    }
-
-    return [user, submissions];
-  }
-
-  async logout(): Promise<string> {
-    const endpoint = 'logout';
-    const response: { msg: string } = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as { msg: string };
-    return response.msg;
-  }
-
   async grade(netId: string, assignmentPhase: number): Promise<[string, Submission[], JSON]> {
     const endpoint = 'grade';
     const response: { message: string; submissions: JSON[]; rubric: JSON } = (await this.clientCommunicator.doPost({ assignmentPhase, netId }, endpoint)) as unknown as {

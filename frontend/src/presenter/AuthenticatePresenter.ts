@@ -40,8 +40,7 @@ export class AuthenticatePresenter {
     localStorage.removeItem('isAdmin');
     this.view.setUser(null);
     this.view.setSubmissions([]);
-    const response = await this.userService.logout();
-    console.log(response);
+    window.location.href = '/api/logout';
   }
 
   async impersonate(netId: string) {
