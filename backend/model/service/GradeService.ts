@@ -14,6 +14,7 @@ import { DeliverableEleven } from '../../grading/graders/DeliverableEleven';
 import { DeliverableTenPartTwo } from '../../grading/graders/DeliverableTenPartTwo';
 import { User } from '../domain/User';
 import { DeliverableSeven } from '../../grading/graders/DeliverableSeven';
+import logger from '../../logger';
 
 export class GradeService {
   private dao: DB;
@@ -79,27 +80,36 @@ export class GradeService {
     score = result[0] as number;
     const rubric = result[1] as object;
 
-    await this.submitScore(assignmentId, assignmentPhase, netid, score, rubric);
+    const submitScoreSuccess = await this.submitScoreToCanvas(assignmentId, netid, score);
+    if (!submitScoreSuccess) {
+      return ['Failed to submit score to Canvas', submissions, rubric];
+    }
+    await this.putSubmissionIntoDB(assignmentPhase, netid, score, rubric);
+
     submissions = await this.getSubmissions(netid);
     return [score, submissions, rubric];
   }
 
-  async submitScore(assignmentId: number, assignmentPhase: number, netid: string, score: number, rubric: object) {
+  async submitScoreToCanvas(assignmentId: number, netid: string, score: number) {
     let studentId = 135540;
     try {
       studentId = await this.canvas.getStudentId(netid);
+      await this.canvas.updateGrade(assignmentId, studentId, score);
     } catch (e) {
-      console.error(e);
+      logger.log('error', 'grade', `Failed to update student grade for ${netid}`);
+      return false;
     }
-    await this.canvas.updateGrade(assignmentId, studentId, score);
-    await this.putSubmissionIntoDB(assignmentPhase, netid, score, rubric);
+    return true;
   }
 
   async gradeDeliverableTen(user: User) {
     const grader = new DeliverableTenPartTwo();
     const score = (await grader.grade(user))[0];
     const rubric = {};
-    await this.submitScore(940837, 10, user.netId, score, rubric);
+    const submitScoreSuccess = await this.submitScoreToCanvas(940837, user.netId, score);
+    if (submitScoreSuccess) {
+      await this.putSubmissionIntoDB(10, user.netId, score, rubric);
+    }
   }
 
   async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number, rubric: object) {
