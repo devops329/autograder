@@ -33,7 +33,7 @@ export class DeliverableTwo implements Grader {
       return [score, rubric];
     }
     score += 30;
-    rubric.deployedToPages = 30;
+    rubric.deployedToPages += 30;
 
     await github.triggerWorkflowAndWaitForCompletion('ci.yml');
 
@@ -43,7 +43,7 @@ export class DeliverableTwo implements Grader {
     const deliverableOneRubric = (await deliverableOne.grade(user))[1];
     rubric.comments += deliverableOneRubric.comments;
     score += deployedScore;
-    rubric.deployedScore = deployedScore;
+    rubric.deployedScore += deployedScore;
 
     return [score, rubric];
   }
