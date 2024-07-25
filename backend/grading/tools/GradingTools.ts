@@ -2,7 +2,7 @@ import dns from 'dns';
 import logger from '../../logger';
 
 export class GradingTools {
-  async checkDNS(hostname: string, regex: RegExp): Promise<boolean> {
+  async checkDNS(hostname: string, regex: RegExp, gradeAttemptId: string): Promise<boolean> {
     try {
       const addresses = await new Promise<string[]>((resolve, reject) => {
         dns.resolveCname(hostname, (err, addresses) => {
@@ -21,7 +21,7 @@ export class GradingTools {
       });
       return matchesRegex;
     } catch (e) {
-      logger.log('error', 'dns_error', { hostname, error: e });
+      logger.log('error', [{ type: 'dns_error', gradeAttemptId }], { hostname, error: e });
       return false;
     }
   }

@@ -23,18 +23,18 @@ export class DeliverableFive implements Grader {
     const tools = new GradingTools();
 
     // Read workflow file
-    const workflowFile = await github.readWorkflowFile();
+    const workflowFile = await github.readWorkflowFile(gradeAttemptId);
     const pushesToS3 = workflowFile.includes('aws s3 cp');
     if (pushesToS3) {
       // Run the workflow
-      const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+      const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml', gradeAttemptId);
       if (!success) {
         rubric.comments += 'Workflow could not be triggered. Did you add byucs329ta as a collaborator?\n';
         return [score, rubric];
       }
 
       // Check for successful run
-      const runSuccess = await github.checkRecentRunSuccess('ci.yml');
+      const runSuccess = await github.checkRecentRunSuccess('ci.yml', gradeAttemptId);
       if (runSuccess) {
         rubric.pushesToS3 = 45;
         score += 45;
@@ -43,7 +43,7 @@ export class DeliverableFive implements Grader {
       }
 
       // Check cloudfront deployment
-      const cloudfrontDeployed = await tools.checkDNS(user.website, /cloudfront\.net/);
+      const cloudfrontDeployed = await tools.checkDNS(user.website, /cloudfront\.net/, gradeAttemptId);
       const pageExists = await tools.checkPageExistsAndContainsText(user.website, /JWT Pizza/g);
       if (cloudfrontDeployed && pageExists) {
         rubric.cloudfrontDeployment = 45;

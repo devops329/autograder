@@ -28,20 +28,20 @@ export class DeliverableSix implements Grader {
     const tools = new GradingTools();
 
     // Read workflow file
-    const workflowFile = await github.readWorkflowFile();
+    const workflowFile = await github.readWorkflowFile(gradeAttemptId);
     const pushesToECS = workflowFile.includes('aws-actions/amazon-ecs-deploy-task-definition');
     const buildsAndPushesToECR = workflowFile.includes('docker build') && workflowFile.includes('$ECR_REGISTRY/$ECR_REPOSITORY --push');
 
     if (pushesToECS && buildsAndPushesToECR) {
       // Run the workflow
-      const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+      const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml', gradeAttemptId);
       if (!success) {
         rubric.comments += 'Workflow could not be triggered. Did you add byucs329ta as a collaborator?\n';
         return [score, rubric];
       }
 
       // Check for successful run
-      const runSuccess = await github.checkRecentRunSuccess('ci.yml');
+      const runSuccess = await github.checkRecentRunSuccess('ci.yml', gradeAttemptId);
       if (runSuccess) {
         score += 50;
         rubric.ecrEcsFargateDeployment += 20;
@@ -51,7 +51,7 @@ export class DeliverableSix implements Grader {
       }
 
       // Check DNS
-      const deployedWithELB = await tools.checkDNS(user.website, /elb\.amazonaws\.com/);
+      const deployedWithELB = await tools.checkDNS(user.website, /elb\.amazonaws\.com/, gradeAttemptId);
       if (deployedWithELB) {
         score += 20;
         rubric.awsLoadBalancer += 20;
@@ -61,7 +61,7 @@ export class DeliverableSix implements Grader {
 
       // Get service url from frontend
       github.setRepo('jwt-pizza');
-      const envFile = await github.readGithubFile('.env.production');
+      const envFile = await github.readGithubFile('.env.production', gradeAttemptId);
       const serviceUrl = await tools.getEnvVariable(envFile, 'VITE_PIZZA_SERVICE_URL');
       if (!serviceUrl) {
         rubric.comments += 'Could not find VITE_PIZZA_SERVICE_URL in .env.production.\n';

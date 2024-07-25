@@ -3,7 +3,7 @@ import { DB } from '../dao/mysql/Database';
 import { PizzaFactory } from '../dao/pizzaFactory/PizzaFactory';
 import { User } from '../domain/User';
 import { v4 as uuidv4 } from 'uuid';
-import Logger from '../../logger';
+import logger from '../../logger';
 
 export class UserService {
   private dao: DB;
@@ -21,7 +21,7 @@ export class UserService {
     if (!token) {
       token = uuidv4();
       this.dao.putToken(token, netid);
-      Logger.log('info', 'new_token', { netid: netid });
+      logger.log('info', [{ type: 'new_token' }], { netid: netid });
     }
 
     let user = await this.dao.getUser(netid);
@@ -29,12 +29,12 @@ export class UserService {
       if (!user.apiKey) {
         const apiKey = await this.pizzaFactory.getApiKey(netid, user.name);
         this.dao.updateApiKey(netid, apiKey);
-        Logger.log('info', 'new_api_key', { netid: netid });
+        logger.log('info', [{ type: 'new_api_key' }], { netid: netid });
       }
       return token;
     } else {
       const studentInfo = await this.canvas.getStudentInfo(netid);
-      Logger.log('info', 'new_user', { netid: netid });
+      logger.log('info', [{ type: 'new_user' }], { netid: netid });
       let name = '';
       let email = '';
       try {

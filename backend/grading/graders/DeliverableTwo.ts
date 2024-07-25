@@ -26,7 +26,7 @@ export class DeliverableTwo implements Grader {
     }
 
     // Read workflow file
-    const workflowFileContents = await github.readWorkflowFile();
+    const workflowFileContents = await github.readWorkflowFile(gradeAttemptId);
     const deployedToPages = workflowFileContents.includes('actions/deploy-pages');
     if (!deployedToPages) {
       rubric.comments += 'Your GitHub Action workflow does not deploy to GitHub Pages.\n';
@@ -35,7 +35,7 @@ export class DeliverableTwo implements Grader {
     score += 30;
     rubric.deployedToPages += 30;
 
-    const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+    const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml', gradeAttemptId);
     if (!success) {
       rubric.comments += 'Workflow could not be triggered. Did you add byucs329ta as a collaborator?\n';
       return [score, rubric];

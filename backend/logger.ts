@@ -15,15 +15,15 @@ class Logger {
         resBody: JSON.stringify(resBody),
       };
       const level = this.statusToLogLevel(res.statusCode);
-      this.log(level, 'http', logData);
+      this.log(level, [{ type: 'http' }], logData);
       res.send = send;
       return res.send(resBody);
     };
     next();
   };
 
-  log(level: Level, type: string, logData: Object) {
-    const labels = { component: config.logging.source, level: level, type: type };
+  log(level: Level, labels: [{ [key: string]: string }], logData: Object) {
+    const stream = { component: config.logging.source, level: level, ...labels };
     const values = [this.nowString(), this.sanitize(logData)];
     const logEvent = { streams: [{ stream: labels, values: [values] }] };
 

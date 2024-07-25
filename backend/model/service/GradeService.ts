@@ -100,15 +100,16 @@ export class GradeService {
       studentId = await this.canvas.getStudentId(netid);
       await this.canvas.updateGrade(assignmentId, studentId, score);
     } catch (e) {
-      logger.log('error', 'grade', `Failed to update student grade for ${netid}`);
+      logger.log('error', [{ type: 'grade' }], `Failed to update student grade for ${netid}`);
       return false;
     }
     return true;
   }
 
   async gradeDeliverableTen(user: User) {
+    const gradeAttemptId = uuidv4();
     const grader = new DeliverableTenPartTwo();
-    const score = (await grader.grade(user))[0];
+    const score = (await grader.grade(user, gradeAttemptId))[0];
     const rubric = {};
     const submitScoreSuccess = await this.submitScoreToCanvas(940837, user.netId, score);
     if (submitScoreSuccess) {
