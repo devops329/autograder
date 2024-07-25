@@ -3,7 +3,7 @@ import { User } from '../../model/domain/User';
 import { Grader } from './Grader';
 
 export class DeliverableEleven implements Grader {
-  async grade(user: User): Promise<[string]> {
+  async grade(user: User, gradeAttemptId: string): Promise<[string]> {
     const db = new DB();
     let partner: User;
     let pentest = await db.getPentest(user.netId);

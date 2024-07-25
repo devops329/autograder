@@ -14,7 +14,7 @@ interface Rubric {
 }
 
 export class DeliverableSix implements Grader {
-  async grade(user: User): Promise<[number, object]> {
+  async grade(user: User, gradeAttemptId: string): Promise<[number, object]> {
     let score = 0;
     const rubric: Rubric = {
       ecrEcsFargateDeployment: 0,

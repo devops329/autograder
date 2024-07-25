@@ -15,6 +15,7 @@ import { DeliverableTenPartTwo } from '../../grading/graders/DeliverableTenPartT
 import { User } from '../domain/User';
 import { DeliverableSeven } from '../../grading/graders/DeliverableSeven';
 import logger from '../../logger';
+import { v4 as uuidv4 } from 'uuid';
 
 export class GradeService {
   private dao: DB;
@@ -31,6 +32,9 @@ export class GradeService {
     let assignmentId = 0;
     const assignmentIds = await this.getAssignmentIds();
     const user = await this.dao.getUser(netid);
+
+    const gradeAttemptId = uuidv4();
+
     let submissions: Submission[] = [];
 
     switch (assignmentPhase) {
@@ -64,19 +68,19 @@ export class GradeService {
         break;
       case 10:
         grader = new DeliverableTen();
-        const message = (await grader.grade(user!))[0];
+        const message = (await grader.grade(user!, gradeAttemptId))[0];
         submissions = await this.getSubmissions(netid);
         return [message, submissions];
       case 11:
         grader = new DeliverableEleven();
-        const partner = (await grader.grade(user!))[0];
+        const partner = (await grader.grade(user!, gradeAttemptId))[0];
         submissions = await this.getSubmissions(netid);
         return [partner, submissions];
       default:
         grader = new DefaultGrader();
         break;
     }
-    const result = await grader.grade(user!);
+    const result = await grader.grade(user!, gradeAttemptId);
     score = result[0] as number;
     const rubric = result[1] as object;
 

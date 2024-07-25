@@ -12,7 +12,7 @@ interface DeliverableFourRubric {
 }
 
 export class DeliverableFour implements Grader {
-  async grade(user: User): Promise<[number, DeliverableFourRubric]> {
+  async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableFourRubric]> {
     let score = 0;
     const rubric: DeliverableFourRubric = {
       testSuccess: 0,

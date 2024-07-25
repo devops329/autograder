@@ -9,7 +9,7 @@ interface DeliverableOneRubric {
 }
 
 export class DeliverableOne implements Grader {
-  async grade(user: User): Promise<[number, DeliverableOneRubric]> {
+  async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableOneRubric]> {
     const rubric: DeliverableOneRubric = {
       customDomainName: 0,
       githubPages: 0,

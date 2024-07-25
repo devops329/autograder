@@ -11,7 +11,7 @@ interface DeliverableFiveRubric {
 }
 
 export class DeliverableFive implements Grader {
-  async grade(user: User): Promise<[number, DeliverableFiveRubric]> {
+  async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableFiveRubric]> {
     let score = 0;
     const rubric: DeliverableFiveRubric = {
       pushesToS3: 0,

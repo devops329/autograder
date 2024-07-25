@@ -11,7 +11,7 @@ interface DeliverableSevenRubric {
   comments: string;
 }
 export class DeliverableSeven implements Grader {
-  async grade(user: User): Promise<[number | string, DeliverableSevenRubric]> {
+  async grade(user: User, gradeAttemptId: string): Promise<[number | string, DeliverableSevenRubric]> {
     let points = 0;
     let rubric: DeliverableSevenRubric = {
       versionArchiveInS3: 0,
