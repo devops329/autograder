@@ -21,7 +21,7 @@ export class GradingTools {
       });
       return matchesRegex;
     } catch (e) {
-      logger.log('error', [{ type: 'dns_error', gradeAttemptId }], { hostname, error: e });
+      logger.log('error', { type: 'dns_error', gradeAttemptId }, { hostname, error: e });
       return false;
     }
   }

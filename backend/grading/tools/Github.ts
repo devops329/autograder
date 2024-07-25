@@ -18,7 +18,7 @@ export class Github {
     const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/${path}`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      logger.log('error', [{ type: 'github_file_fetch', gradeAttemptId }], { path, user: this.user.netId, status: response.status });
+      logger.log('error', { type: 'github_file_fetch', gradeAttemptId }, { path, user: this.user.netId, status: response.status });
       return '';
     }
     // get the content and base 64 decode it
@@ -45,11 +45,11 @@ export class Github {
         }),
       });
       if (response.status !== 204) {
-        logger.log('error', [{ type: 'github_action_trigger', gradeAttemptId }], { file, user: this.user.netId, status: response.status, body: await response.text() });
+        logger.log('error', { type: 'github_action_trigger', gradeAttemptId }, { file, user: this.user.netId, status: response.status, body: await response.text() });
         return false;
       }
     } catch (error) {
-      logger.log('error', [{ type: 'github_action_trigger', gradeAttemptId }], { file, user: this.user.netId, error });
+      logger.log('error', { type: 'github_action_trigger', gradeAttemptId }, { file, user: this.user.netId, error });
     }
     // Wait a few seconds for the run to start
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -74,13 +74,13 @@ export class Github {
         },
       });
       if (!response.ok) {
-        logger.log('error', [{ type: 'github_run_fetch', gradeAttemptId }], { file, user: this.user.netId, status: response.status });
+        logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: this.user.netId, status: response.status });
         return null;
       }
       const data = await response.json();
       return data.workflow_runs[0];
     } catch (error) {
-      logger.log('error', [{ type: 'github_run_fetch', gradeAttemptId }], { file, user: this.user.netId, error });
+      logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: this.user.netId, error });
       return null;
     }
   }
@@ -96,7 +96,7 @@ export class Github {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       run = await this.getMostRecentRun(file, gradeAttemptId);
       if (!run) {
-        logger.log('error', [{ type: 'github_run_fetch', gradeAttemptId }], { file, user: this.user.netId });
+        logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: this.user.netId });
         return;
       }
     }
@@ -105,7 +105,7 @@ export class Github {
     const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/${app === 'frontend' ? 'public' : 'src'}/version.json`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      logger.log('error', [{ type: 'github_file_fetch', gradeAttemptId }], { path: 'version.json', user: this.user.netId, status: response.status });
+      logger.log('error', { type: 'github_file_fetch', gradeAttemptId }, { path: 'version.json', user: this.user.netId, status: response.status });
       return '';
     }
     // get the content and base 64 decode it
@@ -122,12 +122,12 @@ export class Github {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        logger.log('error', [{ type: 'github_release_fetch', gradeAttemptId }], { user: this.user.netId, status: response.status });
+        logger.log('error', { type: 'github_release_fetch', gradeAttemptId }, { user: this.user.netId, status: response.status });
         return null;
       }
       return await response.json();
     } catch (error) {
-      logger.log('error', [{ type: 'github_release_fetch', gradeAttemptId }], { user: this.user.netId, error });
+      logger.log('error', { type: 'github_release_fetch', gradeAttemptId }, { user: this.user.netId, error });
       return null;
     }
   }

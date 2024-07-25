@@ -45,7 +45,7 @@ export class DB {
         connection.end();
       }
     } catch (err: any) {
-      logger.log('error', [{ type: 'database_init' }], { message: 'Error initializing database', exception: err.message });
+      logger.log('error', { type: 'database_init' }, { message: 'Error initializing database', exception: err.message });
     }
   }
 
@@ -62,7 +62,7 @@ export class DB {
         user.isAdmin,
       ]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'put_user' }], { netid: user.netId, exception: err.message });
+      logger.log('error', { type: 'put_user' }, { netid: user.netId, exception: err.message });
     } finally {
       connection.end();
     }
@@ -73,7 +73,7 @@ export class DB {
     try {
       await connection.query(`UPDATE user SET website = ?, github = ?, email = ? WHERE netid = ?`, [website, github, email, netId]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'update_user' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'update_user' }, { netid: netId, exception: err.message });
     } finally {
       connection.end();
     }
@@ -85,7 +85,7 @@ export class DB {
       const [rows] = await connection.query(`SELECT id FROM user WHERE netid = ?`, [netId]);
       return ((rows as any)[0] as any).id || 0;
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_user_id' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'get_user_id' }, { netid: netId, exception: err.message });
       return 0;
     } finally {
       connection.end();
@@ -99,7 +99,7 @@ export class DB {
       const row = (rows as any[])[0];
       return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_user' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'get_user' }, { netid: netId, exception: err.message });
       return null;
     } finally {
       connection.end();
@@ -113,7 +113,7 @@ export class DB {
       const row = (rows as any[])[0];
       return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_user_by_api_key' }], { apiKey: apiKey, exception: err.message });
+      logger.log('error', { type: 'get_user_by_api_key' }, { apiKey: apiKey, exception: err.message });
       return null;
     } finally {
       connection.end();
@@ -125,7 +125,7 @@ export class DB {
     try {
       await connection.query(`UPDATE user SET apiKey = ? WHERE netid = ?`, [apiKey, netId]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'update_api_key' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'update_api_key' }, { netid: netId, exception: err.message });
     } finally {
       connection.end();
     }
@@ -137,7 +137,7 @@ export class DB {
       const userId = await this.getUserId(netId);
       await connection.query(`INSERT INTO submission (time, userId, phase, score, rubric) VALUES (?, ?, ?, ?, ?)`, [submission.date, userId, submission.phase, submission.score, submission.rubric]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'put_submission' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'put_submission' }, { netid: netId, exception: err.message });
     } finally {
       connection.end();
     }
@@ -153,7 +153,7 @@ export class DB {
         return new Submission(row.time, row.phase, row.score, row.rubric);
       });
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_submissions' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'get_submissions' }, { netid: netId, exception: err.message });
       return [];
     } finally {
       connection.end();
@@ -168,7 +168,7 @@ export class DB {
       const row = (rows as any[])[0];
       return new Submission(row.time, row.phase, row.score, row.rubric);
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_most_recent_submission_other_deliverables' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'get_most_recent_submission_other_deliverables' }, { netid: netId, exception: err.message });
       return null;
     } finally {
       connection.end();
@@ -181,7 +181,7 @@ export class DB {
       const [rows] = await connection.query(`SELECT netid FROM token WHERE authtoken = ?`, [token]);
       return ((rows as any)[0] as any).netid || '';
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_netid_by_token' }], { exception: err.message });
+      logger.log('error', { type: 'get_netid_by_token' }, { exception: err.message });
       return '';
     } finally {
       connection.end();
@@ -194,7 +194,7 @@ export class DB {
       const [rows] = await connection.query(`SELECT authtoken FROM token WHERE netid = ?`, [netId]);
       return ((rows as any)[0] as any).authToken || '';
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_token' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'get_token' }, { netid: netId, exception: err.message });
       return '';
     } finally {
       connection.end();
@@ -206,7 +206,7 @@ export class DB {
     try {
       await connection.query(`INSERT INTO token (authtoken, netid) VALUES (?, ?)`, [token, netId]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'put_token' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'put_token' }, { netid: netId, exception: err.message });
     } finally {
       connection.end();
     }
@@ -217,7 +217,7 @@ export class DB {
     try {
       await connection.query(`DELETE FROM token WHERE authtoken = ?`, [token]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'delete_token' }], { exception: err.message });
+      logger.log('error', { type: 'delete_token' }, { exception: err.message });
     } finally {
       connection.end();
     }
@@ -228,7 +228,7 @@ export class DB {
     try {
       await connection.query(`INSERT INTO pentest (netid) VALUES (?)`, [netId]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'put_pentest' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'put_pentest' }, { netid: netId, exception: err.message });
     } finally {
       connection.end();
     }
@@ -241,7 +241,7 @@ export class DB {
       const row = (rows as any[])[0];
       return { netId: row.netid, partnerId: row.partnerid };
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_pentest' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'get_pentest' }, { netid: netId, exception: err.message });
       return null;
     } finally {
       connection.end();
@@ -256,7 +256,7 @@ export class DB {
         return { netId: row.netid, partnerId: row.partnerid };
       });
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_pentest_partners' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'get_pentest_partners' }, { netid: netId, exception: err.message });
       return [];
     } finally {
       connection.end();
@@ -268,7 +268,7 @@ export class DB {
     try {
       await connection.query(`UPDATE pentest SET partnerid = ? WHERE netid = ?`, [partnerId, netId]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'update_pentest_partner' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'update_pentest_partner' }, { netid: netId, exception: err.message });
     } finally {
       connection.end();
     }
@@ -279,7 +279,7 @@ export class DB {
     try {
       await connection.query(`INSERT INTO chaos (netid, chaosTime) VALUES (?, ?)`, [netId, chaosTime.toISOString()]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'put_chaos' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'put_chaos' }, { netid: netId, exception: err.message });
     } finally {
       connection.end();
     }
@@ -293,7 +293,7 @@ export class DB {
         return { netId: row.netid, chaosTime: row.chaosTime };
       });
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_untriggered_chaos' }], { exception: err.message });
+      logger.log('error', { type: 'get_untriggered_chaos' }, { exception: err.message });
       return [];
     } finally {
       connection.end();
@@ -305,7 +305,7 @@ export class DB {
     try {
       await connection.query(`UPDATE chaos SET triggered = true WHERE netid = ?`, [netId]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'trigger_chaos' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'trigger_chaos' }, { netid: netId, exception: err.message });
     } finally {
       connection.end();
     }
@@ -317,7 +317,7 @@ export class DB {
       const [rows] = await connection.query(`SELECT chaosTime FROM chaos WHERE netid = ?`, [netId]);
       return ((rows as any)[0] as any).chaosTime || '';
     } catch (err: any) {
-      logger.log('error', [{ type: 'get_chaos_time' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'get_chaos_time' }, { netid: netId, exception: err.message });
       return '';
     } finally {
       connection.end();
@@ -329,7 +329,7 @@ export class DB {
     try {
       await connection.query(`DELETE FROM chaos WHERE netid = ?`, [netId]);
     } catch (err: any) {
-      logger.log('error', [{ type: 'delete_chaos' }], { netid: netId, exception: err.message });
+      logger.log('error', { type: 'delete_chaos' }, { netid: netId, exception: err.message });
     } finally {
       connection.end();
     }

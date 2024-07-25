@@ -44,7 +44,7 @@ export class PizzaFactory {
     try {
       const response = await fetch(`${config.pizza_factory.url}/api/support/${apiKey}/report/${fixCode}`);
       const data = await response.json();
-      logger.log('info', [{ type: 'chaos_resolve' }], data);
+      logger.log('info', { type: 'chaos_resolve' }, data);
       return response.ok;
     } catch (error) {
       console.error(error);

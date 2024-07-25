@@ -21,7 +21,7 @@ export class UserService {
     if (!token) {
       token = uuidv4();
       this.dao.putToken(token, netid);
-      logger.log('info', [{ type: 'new_token' }], { netid: netid });
+      logger.log('info', { type: 'new_token' }, { netid: netid });
     }
 
     let user = await this.dao.getUser(netid);
@@ -29,12 +29,12 @@ export class UserService {
       if (!user.apiKey) {
         const apiKey = await this.pizzaFactory.getApiKey(netid, user.name);
         this.dao.updateApiKey(netid, apiKey);
-        logger.log('info', [{ type: 'new_api_key' }], { netid: netid });
+        logger.log('info', { type: 'new_api_key' }, { netid: netid });
       }
       return token;
     } else {
       const studentInfo = await this.canvas.getStudentInfo(netid);
-      logger.log('info', [{ type: 'new_user' }], { netid: netid });
+      logger.log('info', { type: 'new_user' }, { netid: netid });
       let name = '';
       let email = '';
       try {

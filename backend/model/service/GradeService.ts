@@ -100,7 +100,7 @@ export class GradeService {
       studentId = await this.canvas.getStudentId(netid);
       await this.canvas.updateGrade(assignmentId, studentId, score);
     } catch (e) {
-      logger.log('error', [{ type: 'grade' }], `Failed to update student grade for ${netid}`);
+      logger.log('error', { type: 'grade' }, `Failed to update student grade for ${netid}`);
       return false;
     }
     return true;

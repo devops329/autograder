@@ -15,17 +15,17 @@ class Logger {
         resBody: JSON.stringify(resBody),
       };
       const level = this.statusToLogLevel(res.statusCode);
-      this.log(level, [{ type: 'http' }], logData);
+      this.log(level, { type: 'http' }, logData);
       res.send = send;
       return res.send(resBody);
     };
     next();
   };
 
-  log(level: Level, labels: [{ [key: string]: string }], logData: Object) {
+  log(level: Level, labels: { [key: string]: string }, logData: Object) {
     const stream = { component: config.logging.source, level: level, ...labels };
     const values = [this.nowString(), this.sanitize(logData)];
-    const logEvent = { streams: [{ stream: labels, values: [values] }] };
+    const logEvent = { streams: [{ stream: stream, values: [values] }] };
 
     this.sendLogToGrafana(logEvent);
   }

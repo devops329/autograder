@@ -34,20 +34,20 @@ export class ChaosService {
     chaosTime.setMinutes(Math.floor(Math.random() * 60));
     // Put user and chaos time into chaos db
     await this.db.putChaos(netId, chaosTime);
-    logger.log('info', [{ type: 'chaos_scheduled' }], { netId });
+    logger.log('info', { type: 'chaos_scheduled' }, { netId });
   }
 
   async triggerChaos(netId: string) {
     const apiKey = (await this.db.getUser(netId))!.apiKey;
     await this.pizzaFactory.triggerChaos(apiKey);
-    logger.log('info', [{ type: 'chaos_triggered' }], { netId });
+    logger.log('info', { type: 'chaos_triggered' }, { netId });
   }
 
   async resolveChaos(apiKey: string, fixCode: string) {
     const chaosResolved = await this.pizzaFactory.resolveChaos(apiKey, fixCode);
     if (chaosResolved) {
       const user = await this.db.getUserByApiKey(apiKey);
-      logger.log('info', [{ type: 'chaos_resolved' }], { netId: user?.netId ?? 'unknown' });
+      logger.log('info', { type: 'chaos_resolved' }, { netId: user?.netId ?? 'unknown' });
       const gradeAttemptId = uuidv4();
       const deliverableTenPartTwo = new DeliverableTenPartTwo();
       await deliverableTenPartTwo.grade(user!, gradeAttemptId);
