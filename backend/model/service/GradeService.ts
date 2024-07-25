@@ -84,26 +84,26 @@ export class GradeService {
     score = result[0] as number;
     const rubric = result[1] as object;
 
-    const submitScoreSuccess = await this.submitScoreToCanvas(assignmentId, netid, score);
-    if (!submitScoreSuccess) {
-      return ['Failed to submit score to Canvas', submissions, rubric];
+    const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentId, netid, score, gradeAttemptId);
+    if (submitScoreErrorMessage) {
+      return [submitScoreErrorMessage, submissions, rubric];
     }
     await this.putSubmissionIntoDB(assignmentPhase, netid, score, rubric);
 
     submissions = await this.getSubmissions(netid);
-    return [score, submissions, rubric];
+    return [`Score: ${score}`, submissions, rubric];
   }
 
-  async submitScoreToCanvas(assignmentId: number, netid: string, score: number) {
+  async submitScoreToCanvas(assignmentId: number, netid: string, score: number, gradeAttemptId: string): Promise<string | void> {
     let studentId = 135540;
     try {
       studentId = await this.canvas.getStudentId(netid);
-      await this.canvas.updateGrade(assignmentId, studentId, score);
+      const submitScoreErrorMessage = await this.canvas.updateGrade(assignmentId, studentId, score, gradeAttemptId);
+      return submitScoreErrorMessage;
     } catch (e) {
       logger.log('error', { type: 'grade' }, `Failed to update student grade for ${netid}`);
-      return false;
+      return 'Failed to update grade';
     }
-    return true;
   }
 
   async gradeDeliverableTen(user: User) {
@@ -111,8 +111,8 @@ export class GradeService {
     const grader = new DeliverableTenPartTwo();
     const score = (await grader.grade(user, gradeAttemptId))[0];
     const rubric = {};
-    const submitScoreSuccess = await this.submitScoreToCanvas(940837, user.netId, score);
-    if (submitScoreSuccess) {
+    const submitScoreErrorMessage = await this.submitScoreToCanvas(940837, user.netId, score, gradeAttemptId);
+    if (!submitScoreErrorMessage) {
       await this.putSubmissionIntoDB(10, user.netId, score, rubric);
     }
   }

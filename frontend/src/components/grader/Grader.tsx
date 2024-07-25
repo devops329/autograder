@@ -40,6 +40,17 @@ export function Grader(props: Props) {
     setRubric(null);
   }
 
+  function gradingMessage(assignment: number) {
+    switch (assignment) {
+      case 1:
+      case 10:
+      case 11:
+        return '';
+      default:
+        return 'Triggering workflow. This may take several minutes to complete.';
+    }
+  }
+
   // Replace with getAssignments() from the backend
   const assignmentPhases: number[] = presenter.assignmentPhases;
   return (
@@ -67,15 +78,14 @@ export function Grader(props: Props) {
         </Button>
       )}
       {grading && (
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
+        <>
+          <p>{gradingMessage(selectedAssignment!)}</p>
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </>
       )}
-      {gradeMessage && (
-        <h3>
-          {selectedAssignment! >= 10 ? '' : 'Score: '} {gradeMessage}
-        </h3>
-      )}
+      {gradeMessage && <h3>{gradeMessage}</h3>}
       {rubric && (
         <Table striped bordered hover>
           <thead>

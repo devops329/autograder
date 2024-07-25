@@ -24,25 +24,53 @@ export class Canvas {
     return data[0];
   }
 
-  async updateGrade(assignmentId: number, studentId: number, score: number): Promise<void> {
+  async updateGrade(assignmentId: number, studentId: number, score: number, gradeAttemptId: string): Promise<string | void> {
     const url = config.canvas.base_url + '/assignments/' + assignmentId + '/submissions/' + studentId;
-    const data = {
-      submission: {
-        posted_grade: score,
-      },
-    };
-    logger.log('info', { type: 'update_grade' }, { studentId, score });
-    const response = await fetch(url, {
-      method: 'PUT',
+
+    // Fetch the current grade
+    const currentGradeResponse = await fetch(url, {
+      method: 'GET',
       headers: {
         Authorization: `Bearer ${config.canvas.token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
     });
-    if (!response.ok) {
-      const message = await response.json();
-      logger.log('error', { type: 'update_grade_failed' }, { message: message });
+
+    if (!currentGradeResponse.ok) {
+      const message = await currentGradeResponse.json();
+      logger.log('error', { type: 'fetch_grade_failed', gradeAttemptId: gradeAttemptId }, { message });
+      return;
+    }
+
+    const currentGradeData = await currentGradeResponse.json();
+    console.log('Current grade data:', currentGradeData);
+    const currentScore = currentGradeData.score;
+    console.log('Current score:', currentScore);
+
+    // Compare the current grade with the new grade
+    if (score > currentScore) {
+      const data = {
+        submission: {
+          posted_grade: score,
+        },
+      };
+      logger.log('info', { type: 'update_grade', gradeAttemptId: gradeAttemptId }, { studentId, score });
+
+      const updateResponse = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${config.canvas.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!updateResponse.ok) {
+        const message = await updateResponse.json();
+        logger.log('error', { type: 'update_grade_failed' }, { message });
+        return 'Failed to update grade';
+      }
+    } else {
+      return 'Did not update grade, score is not higher than current grade.';
     }
   }
 
