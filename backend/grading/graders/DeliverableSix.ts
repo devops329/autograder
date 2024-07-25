@@ -34,7 +34,11 @@ export class DeliverableSix implements Grader {
 
     if (pushesToECS && buildsAndPushesToECR) {
       // Run the workflow
-      await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+      const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+      if (!success) {
+        rubric.comments += 'Workflow could not be triggered. Did you add byucs329ta as a collaborator?\n';
+        return [score, rubric];
+      }
 
       // Check for successful run
       const runSuccess = await github.checkRecentRunSuccess('ci.yml');

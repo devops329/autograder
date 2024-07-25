@@ -35,7 +35,11 @@ export class DeliverableTwo implements Grader {
     score += 30;
     rubric.deployedToPages += 30;
 
-    await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+    const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+    if (!success) {
+      rubric.comments += 'Workflow could not be triggered. Did you add byucs329ta as a collaborator?\n';
+      return [score, rubric];
+    }
 
     // Check for successful deployment
     const deliverableOne = new DeliverableOne();

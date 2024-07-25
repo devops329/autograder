@@ -27,7 +27,11 @@ export class DeliverableFive implements Grader {
     const pushesToS3 = workflowFile.includes('aws s3 cp');
     if (pushesToS3) {
       // Run the workflow
-      await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+      const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+      if (!success) {
+        rubric.comments += 'Workflow could not be triggered. Did you add byucs329ta as a collaborator?\n';
+        return [score, rubric];
+      }
 
       // Check for successful run
       const runSuccess = await github.checkRecentRunSuccess('ci.yml');
