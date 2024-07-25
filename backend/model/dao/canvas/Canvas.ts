@@ -19,7 +19,7 @@ export class Canvas {
     });
     const data = await response.json();
     if (data.length === 0) {
-      logger.log('error', 'student_not_found', { netId });
+      logger.log('error', [{ type: 'student_not_found' }], { netId });
     }
     return data[0];
   }
@@ -31,7 +31,7 @@ export class Canvas {
         posted_grade: score,
       },
     };
-    logger.log('info', 'update_grade', { studentId, score });
+    logger.log('info', [{ type: 'update_grade' }], { studentId, score });
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -42,7 +42,7 @@ export class Canvas {
     });
     if (!response.ok) {
       const message = await response.json();
-      logger.log('error', 'update_grade_failed', { message: message });
+      logger.log('error', [{ type: 'update_grade_failed' }], { message: message });
     }
   }
 
@@ -86,7 +86,7 @@ export class Canvas {
       }
     }
     if (Object.keys(assignmentIds).length < 12) {
-      logger.log('error', 'missing_assignments', { assignmentIds });
+      logger.log('error', [{ type: 'missing_assignments' }], { assignmentIds });
     }
     return assignmentIds;
   }
