@@ -3,7 +3,6 @@ import { GradeService } from './model/service/GradeService';
 import { UserService } from './model/service/UserService';
 import { DB } from './model/dao/mysql/Database';
 import { Canvas } from './model/dao/canvas/Canvas';
-import { config } from './config';
 import cookieParser from 'cookie-parser';
 import { PizzaFactory } from './model/dao/pizzaFactory/PizzaFactory';
 import { ChaosService } from './model/service/ChaosService';
@@ -24,11 +23,12 @@ const chaosService = new ChaosService(db, pizzaFactory);
 
 // SAML setup
 // Service provider
+const private_key = fs.readFileSync(path.resolve(__dirname, 'certs/sp.key')).toString();
 const sp = new saml2.ServiceProvider({
-  entity_id: `${config.app.host}/api/metadata.xml`,
-  private_key: fs.readFileSync(path.resolve(__dirname, 'certs/sp.key')).toString(),
+  entity_id: 'https://cs329.cs.byu.edu/api/metadata.xml',
+  private_key,
   certificate: fs.readFileSync(path.resolve(__dirname, 'certs/sp.crt')).toString(),
-  assert_endpoint: `${config.app.host}/api/assert`,
+  assert_endpoint: 'https://cs329.cs.byu.edu/api/assert',
 });
 // Identity provider
 const idp = new saml2.IdentityProvider({
@@ -46,6 +46,9 @@ app.use(express.static('public'));
 
 // JSON body parsing using built-in middleware
 app.use(express.json());
+
+// Middleware to parse application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
 
 // Use the cookie parser middleware for tracking authentication tokens
 app.use(cookieParser());
@@ -67,6 +70,7 @@ apiRouter.get('/metadata.xml', function (req, res) {
 });
 
 apiRouter.get('/login', function (req, res) {
+  res.cookie('redirectUrl', req.query.redirectUrl as string);
   sp.create_login_request_url(idp, {}, function (err, login_url, request_id) {
     if (err != null) return res.send(500);
     res.redirect(login_url);
@@ -74,51 +78,28 @@ apiRouter.get('/login', function (req, res) {
 });
 
 // Assert endpoint for when login completes
-apiRouter.post('/assert', function (req, res) {
-  const options = { request_body: req.body };
-  sp.post_assert(idp, options, function (err, saml_response) {
+apiRouter.post('/assert', async (req, res) => {
+  const options = { request_body: req.body, allow_unencrypted_assertion: true };
+  sp.post_assert(idp, options, async function (err, saml_response) {
     if (err != null) return res.send(500);
 
-    // Save name_id and session_index for logout
-    // Note:  In practice these should be saved in the user session, not globally.
-    const name_id = saml_response.user.name_id;
-    const session_index = saml_response.user.session_index;
-
-    res.send(`Hello ${name_id}! session_index: ${session_index}.`);
-  });
-});
-
-apiRouter.get('/cas-callback', async (req, res) => {
-  const ticket = req.query.ticket;
-  const redirectUrl = req.query.redirectUrl;
-  const serviceUrl = encodeURIComponent(`${config.app.host}/api/cas-callback/?redirectUrl=${redirectUrl}`);
-  const casValidateUrl = `https://cas.byu.edu/cas/validate?service=${serviceUrl}&ticket=${ticket}`;
-
-  try {
-    // Validate the ticket with the CAS server
-    const response = await fetch(casValidateUrl);
-    const data = await response.text();
-    // The response is a multi-line string, the second line contains the username if the ticket is valid
-    const [_, responseLine2] = data.trim().split('\n');
-    const username = responseLine2 === 'no' ? null : responseLine2;
-    if (!username) {
+    const netId = saml_response.user.attributes!.net_id;
+    if (!netId) {
       res.status(401).send('Unauthorized');
       return;
     }
-    const token = await userService.login(username);
+
+    const token = await userService.login(netId as string);
     res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
-    res.redirect(redirectUrl as string);
-  } catch (error) {
-    console.error('CAS authentication failed', error);
-    res.status(500).send('Authentication failed');
-  }
+    const redirectUrl = req.cookies.redirectUrl;
+    res.redirect(redirectUrl);
+  });
 });
 
-apiRouter.get('/logout', async function (req, res) {
+apiRouter.post('/logout', async function (req, res) {
   res.clearCookie(AUTH_COOKIE_NAME);
   db.deleteToken(req.cookies[AUTH_COOKIE_NAME]);
-  const casLogoutUrl = `https://cas.byu.edu/cas/logout?service=${config.app.host}`;
-  res.redirect(casLogoutUrl);
+  res.send({ msg: 'Logged out' });
 });
 
 apiRouter.get('/report', async (req, res) => {

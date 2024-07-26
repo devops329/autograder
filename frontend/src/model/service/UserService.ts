@@ -12,4 +12,8 @@ export class UserService {
   async updateUserInfo(netId: string, website: string, github: string, email: string): Promise<User> {
     return this.serverFacade.updateUserInfo(netId, website, github, email);
   }
+
+  async logOut(): Promise<void> {
+    return this.serverFacade.logOut();
+  }
 }

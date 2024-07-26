@@ -62,12 +62,12 @@ export function NavBar(props: Props) {
                   )}
                 </InputGroup>
               )}
-              <Button variant="outline-danger" onClick={() => presenter.logout()}>
+              <Button variant="outline-danger" onClick={() => presenter.logOut()}>
                 Logout
               </Button>
             </>
           ) : (
-            <Button onClick={() => presenter.login()}>Login</Button>
+            <Button onClick={() => presenter.logIn()}>Login</Button>
           )}
         </Navbar.Collapse>
       </Container>

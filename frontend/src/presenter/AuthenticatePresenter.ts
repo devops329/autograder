@@ -14,7 +14,7 @@ export class AuthenticatePresenter {
     this.userService = new UserService();
   }
 
-  async login() {
+  async logIn() {
     const originalUrl = window.location.href;
     const baseUrl = originalUrl.substring(0, originalUrl.lastIndexOf('/'));
     const redirectUrl = `${baseUrl}/login`;
@@ -32,7 +32,7 @@ export class AuthenticatePresenter {
     localStorage.setItem('submissions', JSON.stringify(submissions));
   }
 
-  async logout() {
+  async logOut() {
     localStorage.removeItem('impersonatedUser');
     localStorage.removeItem('impersonatedSubmissions');
     localStorage.removeItem('user');
@@ -40,7 +40,7 @@ export class AuthenticatePresenter {
     localStorage.removeItem('isAdmin');
     this.view.setUser(null);
     this.view.setSubmissions([]);
-    window.location.href = '/api/logout';
+    this.userService.logOut();
   }
 
   async impersonate(netId: string) {

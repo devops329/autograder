@@ -5,6 +5,11 @@ import { ClientCommunicator } from './ClientCommunicator';
 export class ServerFacade {
   private clientCommunicator = new ClientCommunicator();
 
+  async logOut(): Promise<void> {
+    const endpoint = 'logout';
+    await this.clientCommunicator.doPost({}, endpoint);
+  }
+
   async grade(netId: string, assignmentPhase: number): Promise<[string, Submission[], JSON]> {
     const endpoint = 'grade';
     const response: { message: string; submissions: JSON[]; rubric: JSON } = (await this.clientCommunicator.doPost({ assignmentPhase, netId }, endpoint)) as unknown as {
