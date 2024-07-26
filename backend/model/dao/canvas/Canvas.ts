@@ -44,9 +44,7 @@ export class Canvas {
     }
 
     const currentGradeData = await currentGradeResponse.json();
-    console.log('Current grade data:', currentGradeData);
     const currentScore = currentGradeData.score;
-    console.log('Current score:', currentScore);
 
     // Compare the current grade with the new grade
     if (score > currentScore) {
