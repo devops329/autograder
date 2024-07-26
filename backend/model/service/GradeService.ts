@@ -1,5 +1,4 @@
 import { Grader } from '../../grading/graders/Grader';
-import { DefaultGrader } from '../../grading/graders/Default';
 import { DeliverableOne } from '../../grading/graders/DeliverableOne';
 import { Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
@@ -14,6 +13,8 @@ import { DeliverableEleven } from '../../grading/graders/DeliverableEleven';
 import { DeliverableTenPartTwo } from '../../grading/graders/DeliverableTenPartTwo';
 import { User } from '../domain/User';
 import { DeliverableSeven } from '../../grading/graders/DeliverableSeven';
+import logger from '../../logger';
+import { v4 as uuidv4 } from 'uuid';
 
 export class GradeService {
   private dao: DB;
@@ -30,6 +31,9 @@ export class GradeService {
     let assignmentId = 0;
     const assignmentIds = await this.getAssignmentIds();
     const user = await this.dao.getUser(netid);
+
+    const gradeAttemptId = uuidv4();
+
     let submissions: Submission[] = [];
 
     switch (assignmentPhase) {
@@ -63,43 +67,52 @@ export class GradeService {
         break;
       case 10:
         grader = new DeliverableTen();
-        const message = (await grader.grade(user!))[0];
+        const message = (await grader.grade(user!, gradeAttemptId))[0];
         submissions = await this.getSubmissions(netid);
         return [message, submissions];
       case 11:
         grader = new DeliverableEleven();
-        const partner = (await grader.grade(user!))[0];
+        const partner = (await grader.grade(user!, gradeAttemptId))[0];
         submissions = await this.getSubmissions(netid);
         return [partner, submissions];
       default:
-        grader = new DefaultGrader();
-        break;
+        return ['Invalid assignment phase', submissions];
     }
-    const result = await grader.grade(user!);
+    const result = await grader.grade(user!, gradeAttemptId);
     score = result[0] as number;
     const rubric = result[1] as object;
 
-    await this.submitScore(assignmentId, assignmentPhase, netid, score, rubric);
+    const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentId, netid, score, gradeAttemptId);
+    if (submitScoreErrorMessage) {
+      return [submitScoreErrorMessage, submissions, rubric];
+    }
+    await this.putSubmissionIntoDB(assignmentPhase, netid, score, rubric);
+
     submissions = await this.getSubmissions(netid);
-    return [score, submissions, rubric];
+    return [`Score: ${score}`, submissions, rubric];
   }
 
-  async submitScore(assignmentId: number, assignmentPhase: number, netid: string, score: number, rubric: object) {
+  async submitScoreToCanvas(assignmentId: number, netid: string, score: number, gradeAttemptId: string): Promise<string | void> {
     let studentId = 135540;
     try {
       studentId = await this.canvas.getStudentId(netid);
+      const submitScoreErrorMessage = await this.canvas.updateGrade(netid, assignmentId, studentId, score, gradeAttemptId);
+      return submitScoreErrorMessage;
     } catch (e) {
-      console.error(e);
+      logger.log('error', { type: 'grade' }, `Failed to update student grade for ${netid}`);
+      return 'Failed to update grade';
     }
-    await this.canvas.updateGrade(assignmentId, studentId, score);
-    await this.putSubmissionIntoDB(assignmentPhase, netid, score, rubric);
   }
 
   async gradeDeliverableTen(user: User) {
+    const gradeAttemptId = uuidv4();
     const grader = new DeliverableTenPartTwo();
-    const score = (await grader.grade(user))[0];
+    const score = (await grader.grade(user, gradeAttemptId))[0];
     const rubric = {};
-    await this.submitScore(940837, 10, user.netId, score, rubric);
+    const submitScoreErrorMessage = await this.submitScoreToCanvas(940837, user.netId, score, gradeAttemptId);
+    if (!submitScoreErrorMessage) {
+      await this.putSubmissionIntoDB(10, user.netId, score, rubric);
+    }
   }
 
   async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number, rubric: object) {

@@ -11,7 +11,7 @@ interface DeliverableSevenRubric {
   comments: string;
 }
 export class DeliverableSeven implements Grader {
-  async grade(user: User): Promise<[number | string, DeliverableSevenRubric]> {
+  async grade(user: User, gradeAttemptId: string): Promise<[number | string, DeliverableSevenRubric]> {
     let points = 0;
     let rubric: DeliverableSevenRubric = {
       versionArchiveInS3: 0,
@@ -23,9 +23,9 @@ export class DeliverableSeven implements Grader {
     const github = new Github(user, 'jwt-pizza');
     const gradingTools = new GradingTools();
     // Read ci file
-    const ci = await github.readWorkflowFile();
+    const ci = await github.readWorkflowFile(gradeAttemptId);
     // Get most recent release
-    const oldReleaseJson = await github.getMostRecentRelease();
+    const oldReleaseJson = await github.getMostRecentRelease(gradeAttemptId);
     // Check it has 'push:'
     const onPush = ci.includes('push:');
     // Check that it copies to the version directory in s3
@@ -37,10 +37,10 @@ export class DeliverableSeven implements Grader {
 
       // Trigger it and wait for completion
       // Run the workflow
-      await github.triggerWorkflowAndWaitForCompletion('ci.yml');
+      await github.triggerWorkflowAndWaitForCompletion('ci.yml', gradeAttemptId);
 
       // Check for successful run
-      const stagingRunSuccess = await github.checkRecentRunSuccess('ci.yml');
+      const stagingRunSuccess = await github.checkRecentRunSuccess('ci.yml', gradeAttemptId);
       if (stagingRunSuccess) {
         points += 10;
         rubric.versionArchiveInS3 += 10;
@@ -52,7 +52,7 @@ export class DeliverableSeven implements Grader {
           rubric.comments += 'Staging workflow does not run on push.\n';
         }
         // Check for new release created in github
-        const stagingReleaseJson = await github.getMostRecentRelease();
+        const stagingReleaseJson = await github.getMostRecentRelease(gradeAttemptId);
         if (stagingReleaseJson.id !== oldReleaseJson.id) {
           points += 10;
           rubric.githubReleases += 10;
@@ -74,14 +74,14 @@ export class DeliverableSeven implements Grader {
             version: stagingReleaseVersion,
             description: 'Autograder Production Release',
           };
-          await github.triggerWorkflowAndWaitForCompletion('release.yml', inputs);
+          await github.triggerWorkflowAndWaitForCompletion('release.yml', gradeAttemptId, inputs);
           // Need to wait for completion
-          const productionRunSuccess = await github.checkRecentRunSuccess('release.yml');
+          const productionRunSuccess = await github.checkRecentRunSuccess('release.yml', gradeAttemptId);
           if (productionRunSuccess) {
             points += 10;
             rubric.triggeredProductionDeployment += 10;
 
-            const productionReleaseJson = await github.getMostRecentRelease();
+            const productionReleaseJson = await github.getMostRecentRelease(gradeAttemptId);
 
             if (productionReleaseJson.id !== stagingReleaseJson.id) {
               points += 10;

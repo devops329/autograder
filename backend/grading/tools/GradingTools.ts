@@ -2,7 +2,7 @@ import dns from 'dns';
 import logger from '../../logger';
 
 export class GradingTools {
-  async checkDNS(hostname: string, regex: RegExp): Promise<boolean> {
+  async checkDNS(hostname: string, regex: RegExp, gradeAttemptId: string): Promise<boolean> {
     try {
       const addresses = await new Promise<string[]>((resolve, reject) => {
         dns.resolveCname(hostname, (err, addresses) => {
@@ -21,7 +21,7 @@ export class GradingTools {
       });
       return matchesRegex;
     } catch (e) {
-      logger.log('error', 'dns_error', { hostname, error: e });
+      logger.log('error', { type: 'dns_error', gradeAttemptId }, { hostname, error: e });
       return false;
     }
   }
@@ -51,7 +51,7 @@ export class GradingTools {
     return variableValue;
   }
 
-  async createUserAndLogin(serviceUrl: string): Promise<boolean> {
+  async createUserAndLogin(serviceUrl: string, gradeAttemptId: string): Promise<boolean> {
     try {
       const response = await fetch(`${serviceUrl}/api/auth`, {
         method: 'POST',
@@ -59,18 +59,18 @@ export class GradingTools {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: 'test',
+          name: 'test',
           email: 'test@test',
           password: 'test',
         }),
       });
       if (!response.ok) {
-        console.error('Error creating user:', response.status);
+        logger.log('error', { type: 'create_user_error', gradeAttemptId }, { status: response.status });
         return false;
       }
 
-      const loginResponse = await fetch(`${serviceUrl}/api/login`, {
-        method: 'POST',
+      const loginResponse = await fetch(`${serviceUrl}/api/auth`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -80,7 +80,7 @@ export class GradingTools {
         }),
       });
       if (!loginResponse.ok) {
-        console.error('Error logging in:', loginResponse.status);
+        logger.log('error', { type: 'login_error', gradeAttemptId }, { status: loginResponse.status });
         return false;
       }
     } catch (e) {

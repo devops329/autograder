@@ -9,7 +9,7 @@ interface DeliverableOneRubric {
 }
 
 export class DeliverableOne implements Grader {
-  async grade(user: User): Promise<[number, DeliverableOneRubric]> {
+  async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableOneRubric]> {
     const rubric: DeliverableOneRubric = {
       customDomainName: 0,
       githubPages: 0,
@@ -30,14 +30,14 @@ export class DeliverableOne implements Grader {
 
     try {
       customDomainNameSuccess = await tools.checkPageExistsAndContainsText(hostname, /JWT Pizza/g);
-      githubPagesSuccess = await tools.checkDNS(hostname, /github\.io/);
+      githubPagesSuccess = await tools.checkDNS(hostname, /github\.io/, gradeAttemptId);
     } catch (e) {
       console.error(e);
     }
 
     if (customDomainNameSuccess) {
       score += 30;
-      rubric.customDomainName = 30;
+      rubric.customDomainName += 30;
     } else {
       rubric.comments += 'JWT Pizza is not functional at the provided website.\n';
     }
@@ -45,12 +45,12 @@ export class DeliverableOne implements Grader {
     if (githubPagesSuccess) {
       if (customDomainNameSuccess) {
         score += 40;
-        rubric.githubPages = 40;
+        rubric.githubPages += 40;
       } else {
         rubric.comments += 'Your website is hosted by GitHub Pages, but JWT Pizza is not functional.\n';
       }
       score += 30;
-      rubric.githubPages = 30;
+      rubric.githubPages += 30;
     } else {
       rubric.comments += 'Your website is not hosted by GitHub Pages.\n';
     }

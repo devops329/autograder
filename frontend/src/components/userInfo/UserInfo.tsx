@@ -18,7 +18,7 @@ export function UserInfo(props: Props) {
   const [github, setGithub] = useState(props.user.github);
   const [updated, setUpdated] = useState(false);
 
-  const presenter = new UserInfoPresenter({ setUpdated, setUser: props.setUser });
+  const presenter = new UserInfoPresenter({ setUpdated, setUser: props.setUser, setWebsite });
 
   function copy() {
     navigator.clipboard.writeText(props.user.apiKey);
