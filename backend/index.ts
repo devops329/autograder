@@ -23,10 +23,9 @@ const chaosService = new ChaosService(db, pizzaFactory);
 
 // SAML setup
 // Service provider
-const private_key = fs.readFileSync(path.resolve(__dirname, 'certs/sp.key')).toString();
 const sp = new saml2.ServiceProvider({
   entity_id: 'https://cs329.cs.byu.edu/api/metadata.xml',
-  private_key,
+  private_key: fs.readFileSync(path.resolve(__dirname, 'certs/sp.key')).toString(),
   certificate: fs.readFileSync(path.resolve(__dirname, 'certs/sp.crt')).toString(),
   assert_endpoint: 'https://cs329.cs.byu.edu/api/assert',
 });
