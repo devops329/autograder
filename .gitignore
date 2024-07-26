@@ -28,3 +28,4 @@ config.*.js
 dist
 gradingStrategies.md
 output.txt
+**/*.key
