@@ -5,14 +5,6 @@ import { User } from '../domain/User';
 export class UserService {
   private serverFacade = new ServerFacade();
 
-  async login(): Promise<[User, Submission[]]> {
-    return this.serverFacade.login();
-  }
-
-  async logout(): Promise<string> {
-    return this.serverFacade.logout();
-  }
-
   async getUserInfo(netId?: string): Promise<[User, Submission[]]> {
     return this.serverFacade.getUserInfo(netId);
   }

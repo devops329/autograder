@@ -8,6 +8,9 @@ import cookieParser from 'cookie-parser';
 import { PizzaFactory } from './model/dao/pizzaFactory/PizzaFactory';
 import { ChaosService } from './model/service/ChaosService';
 import logger from './logger';
+import saml2 from 'saml2-js';
+import fs from 'fs';
+import path from 'path';
 
 const app = express();
 
@@ -19,6 +22,20 @@ const gradeService = new GradeService(db, canvas);
 const userService = new UserService(db, pizzaFactory, canvas);
 const chaosService = new ChaosService(db, pizzaFactory);
 
+// SAML setup
+// Service provider
+const sp = new saml2.ServiceProvider({
+  entity_id: `${config.app.host}/api/metadata.xml`,
+  private_key: fs.readFileSync(path.resolve(__dirname, 'certs/sp.key')).toString(),
+  certificate: fs.readFileSync(path.resolve(__dirname, 'certs/sp.crt')).toString(),
+  assert_endpoint: `${config.app.host}/api/assert`,
+});
+// Identity provider
+const idp = new saml2.IdentityProvider({
+  sso_login_url: 'https://cas.byu.edu/cas/idp/profile/SAML2/Redirect/SSO',
+  sso_logout_url: 'https://cas.byu.edu/cas/idp/profile/SAML2/POST/SLO',
+  certificates: [fs.readFileSync(path.resolve(__dirname, 'certs/byu.crt')).toString()],
+});
 // every 10 minutes, check for chaos to be triggered
 setInterval(async () => {
   await chaosService.checkForChaosToBeTriggered();
@@ -44,12 +61,31 @@ app.use(`/api`, apiRouter);
 
 const AUTH_COOKIE_NAME = 'token';
 
-apiRouter.get('/login', async function (req, res) {
-  const redirectUrl = req.query.redirectUrl;
-  const serviceUrl = encodeURIComponent(`${config.app.host}/api/cas-callback/?redirectUrl=${redirectUrl}`);
-  const casLoginUrl = `https://cas.byu.edu/cas/login?service=${serviceUrl}`;
-  // Redirect the user to the CAS login page
-  res.redirect(casLoginUrl);
+apiRouter.get('/metadata.xml', function (req, res) {
+  res.type('application/xml');
+  res.send(sp.create_metadata());
+});
+
+apiRouter.get('/login', function (req, res) {
+  sp.create_login_request_url(idp, {}, function (err, login_url, request_id) {
+    if (err != null) return res.send(500);
+    res.redirect(login_url);
+  });
+});
+
+// Assert endpoint for when login completes
+apiRouter.post('/assert', function (req, res) {
+  const options = { request_body: req.body };
+  sp.post_assert(idp, options, function (err, saml_response) {
+    if (err != null) return res.send(500);
+
+    // Save name_id and session_index for logout
+    // Note:  In practice these should be saved in the user session, not globally.
+    const name_id = saml_response.user.name_id;
+    const session_index = saml_response.user.session_index;
+
+    res.send(`Hello ${name_id}! session_index: ${session_index}.`);
+  });
 });
 
 apiRouter.get('/cas-callback', async (req, res) => {
