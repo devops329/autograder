@@ -34,6 +34,13 @@ export class UserService {
       return token;
     } else {
       const studentInfo = await this.canvas.getStudentInfo(netid);
+
+      // If student not found in canvas, return null
+      if (!studentInfo) {
+        logger.log('error', { type: 'student_not_found' }, { netid: netid });
+        return null;
+      }
+
       logger.log('info', { type: 'new_user' }, { netid: netid });
       let name = '';
       let email = '';

@@ -20,6 +20,7 @@ export class Canvas {
     const data = await response.json();
     if (data.length === 0) {
       logger.log('error', { type: 'student_not_found' }, { netId });
+      return false;
     }
     return data[0];
   }

@@ -51,6 +51,10 @@ apiRouter.get('/login', async function (req, res) {
     return;
   }
   const token = await userService.login(netId);
+  if (!token) {
+    res.status(404).send({ msg: 'Student not found' });
+    return;
+  }
   res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
   const redirectUrl = req.query.redirectUrl;
   res.redirect(redirectUrl as string);
