@@ -1,5 +1,4 @@
 import { Grader } from '../../grading/graders/Grader';
-import { DefaultGrader } from '../../grading/graders/Default';
 import { DeliverableOne } from '../../grading/graders/DeliverableOne';
 import { Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
@@ -77,8 +76,7 @@ export class GradeService {
         submissions = await this.getSubmissions(netid);
         return [partner, submissions];
       default:
-        grader = new DefaultGrader();
-        break;
+        return ['Invalid assignment phase', submissions];
     }
     const result = await grader.grade(user!, gradeAttemptId);
     score = result[0] as number;
@@ -98,7 +96,7 @@ export class GradeService {
     let studentId = 135540;
     try {
       studentId = await this.canvas.getStudentId(netid);
-      const submitScoreErrorMessage = await this.canvas.updateGrade(assignmentId, studentId, score, gradeAttemptId);
+      const submitScoreErrorMessage = await this.canvas.updateGrade(netid, assignmentId, studentId, score, gradeAttemptId);
       return submitScoreErrorMessage;
     } catch (e) {
       logger.log('error', { type: 'grade' }, `Failed to update student grade for ${netid}`);

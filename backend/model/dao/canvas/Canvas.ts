@@ -24,7 +24,7 @@ export class Canvas {
     return data[0];
   }
 
-  async updateGrade(assignmentId: number, studentId: number, score: number, gradeAttemptId: string): Promise<string | void> {
+  async updateGrade(netId: string, assignmentId: number, studentId: number, score: number, gradeAttemptId: string): Promise<string | void> {
     const url = config.canvas.base_url + '/assignments/' + assignmentId + '/submissions/' + studentId;
 
     // Fetch the current grade
@@ -54,7 +54,7 @@ export class Canvas {
           posted_grade: score,
         },
       };
-      logger.log('info', { type: 'update_grade', gradeAttemptId: gradeAttemptId }, { studentId, score });
+      logger.log('info', { type: 'update_grade', gradeAttemptId: gradeAttemptId }, { studentId, score, netId });
 
       const updateResponse = await fetch(url, {
         method: 'PUT',
