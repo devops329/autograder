@@ -18,18 +18,17 @@ export class UserService {
 
   async login(netid: string) {
     let token = await this.dao.getToken(netid);
-    if (!token) {
-      token = uuidv4();
-      this.dao.putToken(token, netid);
-      logger.log('info', { type: 'new_token' }, { netid: netid });
-    }
-
     let user = await this.dao.getUser(netid);
     if (user) {
       if (!user.apiKey) {
         const apiKey = await this.pizzaFactory.getApiKey(netid, user.name);
         this.dao.updateApiKey(netid, apiKey);
         logger.log('info', { type: 'new_api_key' }, { netid: netid });
+      }
+      if (!token) {
+        token = uuidv4();
+        this.dao.putToken(token, netid);
+        logger.log('info', { type: 'new_token' }, { netid: netid });
       }
       return token;
     } else {
@@ -53,6 +52,13 @@ export class UserService {
       const apiKey = await this.pizzaFactory.getApiKey(netid, name);
       user = new User(name, netid, apiKey, '', '', email, false);
       await this.dao.putUser(user);
+
+      if (!token) {
+        token = uuidv4();
+        this.dao.putToken(token, netid);
+        logger.log('info', { type: 'new_token' }, { netid: netid });
+      }
+
       return token;
     }
   }

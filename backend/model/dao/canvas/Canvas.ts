@@ -18,7 +18,7 @@ export class Canvas {
       },
     });
     const data = await response.json();
-    if (data.length === 0) {
+    if (!data?.short_name) {
       logger.log('error', { type: 'student_not_found' }, { netId });
       return false;
     }

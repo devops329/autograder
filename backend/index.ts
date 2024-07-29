@@ -82,13 +82,17 @@ apiRouter.post('/assert', async (req, res) => {
   sp.post_assert(idp, options, async function (err, saml_response) {
     if (err != null) return res.send(500);
 
-    const netId = saml_response.user.attributes!.net_id;
+    const netId = saml_response.user.attributes!.net_id[0];
     if (!netId) {
       res.status(401).send('Unauthorized');
       return;
     }
 
     const token = await userService.login(netId as string);
+    if (!token) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
     res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
     const redirectUrl = req.cookies.redirectUrl;
     res.redirect(redirectUrl);
