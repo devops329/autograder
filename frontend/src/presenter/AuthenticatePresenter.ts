@@ -5,6 +5,7 @@ import { UserService } from '../model/service/UserService';
 export interface AuthenticateView {
   setUser(user: User | null): void;
   setSubmissions(submissions: Submission[]): void;
+  setErrorMessage(errorMessage: string | null): void;
 }
 export class AuthenticatePresenter {
   private userService: UserService;
@@ -22,7 +23,11 @@ export class AuthenticatePresenter {
   }
 
   async getUserInfo() {
-    const [user, submissions] = await this.userService.getUserInfo();
+    const data = await this.userService.getUserInfo();
+    if (!data) {
+      return;
+    }
+    const [user, submissions] = data;
     this.view.setUser(user);
     if (user.isAdmin) {
       localStorage.setItem('isAdmin', 'true');
@@ -47,7 +52,12 @@ export class AuthenticatePresenter {
     if (!netId) {
       return;
     }
-    const [user, submissions] = await this.userService.getUserInfo(netId);
+    const data = await this.userService.getUserInfo(netId);
+    if (!data) {
+      this.view.setErrorMessage('Student not found');
+      return;
+    }
+    const [user, submissions] = data;
     this.view.setUser(user);
     this.view.setSubmissions(submissions);
     localStorage.setItem('impersonatedUser', JSON.stringify(user));
@@ -57,7 +67,11 @@ export class AuthenticatePresenter {
 
   async stopImpersonating() {
     const netId = User.fromJson(JSON.parse(localStorage.getItem('user')!)).netId;
-    const [user, submissions] = await this.userService.getUserInfo(netId);
+    const data = await this.userService.getUserInfo(netId);
+    if (!data) {
+      return;
+    }
+    const [user, submissions] = data;
     this.view.setUser(user);
     this.view.setSubmissions(submissions);
     localStorage.removeItem('impersonatedUser');

@@ -9,8 +9,10 @@ import { User } from './model/domain/User';
 import { Submission } from './model/domain/Submission';
 import { Login } from './components/login/Login';
 import Cookies from 'js-cookie';
+import { ErrorModal } from './components/errorModal/ErrorModal';
 
 function App() {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(!!localStorage.getItem('isAdmin'));
   const [impersonating, setImpersonating] = useState<boolean>(!!localStorage.getItem('impersonatedUser'));
   const [user, setUser] = useState<User | null>(
@@ -31,6 +33,7 @@ function App() {
       ? JSON.parse(localStorage.getItem('submissions')!).map((item: JSON) => Submission.fromJson(item))
       : []
   );
+  const handleClose = () => setErrorMessage(null);
 
   useEffect(() => {
     // If front end thinks logged in but has no token
@@ -47,10 +50,20 @@ function App() {
 
   return (
     <>
+      {errorMessage && <ErrorModal errorMessage={errorMessage} handleClose={handleClose} />}
       <BrowserRouter>
-        <NavBar impersonating={impersonating} setImpersonating={setImpersonating} user={user} setUser={setUser} setSubmissions={setSubmissions} isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
+        <NavBar
+          setErrorMessage={setErrorMessage}
+          impersonating={impersonating}
+          setImpersonating={setImpersonating}
+          user={user}
+          setUser={setUser}
+          setSubmissions={setSubmissions}
+          isAdmin={isAdmin}
+          setIsAdmin={setIsAdmin}
+        />
         <Routes>
-          <Route path="/login" element={<Login setUser={setUser} setSubmissions={setSubmissions} setIsAdmin={setIsAdmin} />} />
+          <Route path="/login" element={<Login setErrorMessage={setErrorMessage} setUser={setUser} setSubmissions={setSubmissions} setIsAdmin={setIsAdmin} />} />
         </Routes>
         {user ? (
           <Routes>

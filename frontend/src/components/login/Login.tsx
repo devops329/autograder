@@ -8,12 +8,14 @@ interface Props {
   setUser: (user: User | null) => void;
   setSubmissions: (submissions: Submission[]) => void;
   setIsAdmin: (isAdmin: boolean) => void;
+  setErrorMessage: (errorMessage: string | null) => void;
 }
 export function Login(props: Props) {
   useEffect(() => {
     const presenter = new AuthenticatePresenter({
       setUser: props.setUser,
       setSubmissions: props.setSubmissions,
+      setErrorMessage: props.setErrorMessage,
     });
 
     const checkUser = async () => {

@@ -24,15 +24,21 @@ export class ServerFacade {
     return [response.message, submissions, response.rubric];
   }
 
-  async getUserInfo(netId?: string): Promise<[User, Submission[]]> {
+  async getUserInfo(netId?: string): Promise<[User, Submission[]] | null> {
     const endpoint = 'user';
-    const response: { user: JSON; submissions: JSON[] } = (await this.clientCommunicator.doPost({ netId }, endpoint)) as unknown as { user: JSON; submissions: JSON[] };
-    const user = User.fromJson(response.user);
-    const submissions: Submission[] = [];
-    for (const submission of response.submissions) {
-      submissions.push(Submission.fromJson(submission));
+    let response: { user: JSON; submissions: JSON[] };
+    try {
+      response = (await this.clientCommunicator.doPost({ netId }, endpoint)) as unknown as { user: JSON; submissions: JSON[] };
+      const user = User.fromJson(response.user);
+      const submissions: Submission[] = [];
+      for (const submission of response.submissions) {
+        submissions.push(Submission.fromJson(submission));
+      }
+      return [user, submissions];
+    } catch (error) {
+      console.error('Error getting user info:', error);
+      return null;
     }
-    return [user, submissions];
   }
 
   async updateUserInfo(netId: string, website: string, github: string, email: string): Promise<User> {

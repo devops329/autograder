@@ -5,7 +5,7 @@ import { User } from '../domain/User';
 export class UserService {
   private serverFacade = new ServerFacade();
 
-  async getUserInfo(netId?: string): Promise<[User, Submission[]]> {
+  async getUserInfo(netId?: string): Promise<[User, Submission[]] | null> {
     return this.serverFacade.getUserInfo(netId);
   }
 
