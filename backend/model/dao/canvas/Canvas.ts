@@ -4,12 +4,16 @@ import logger from '../../../logger';
 export class Canvas {
   async getStudentId(netid: string): Promise<number> {
     const data = await this.getStudentInfo(netid);
+    if (!data) {
+      throw new Error('Student not found');
+    }
     const id = data.id;
     return id;
   }
 
   async getStudentInfo(netId: string): Promise<any> {
     const url = config.canvas.base_url + '/users?search_term=' + netId;
+    logger.log('info', { type: 'get_student_info' }, { url });
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -18,9 +22,9 @@ export class Canvas {
       },
     });
     const data = await response.json();
-    if (!data?.short_name) {
+    if (!data[0]?.id) {
       logger.log('error', { type: 'student_not_found' }, { netId });
-      return false;
+      throw new Error('Student not found');
     }
     return data[0];
   }
@@ -40,7 +44,7 @@ export class Canvas {
     if (!currentGradeResponse.ok) {
       const message = await currentGradeResponse.json();
       logger.log('error', { type: 'fetch_grade_failed', gradeAttemptId: gradeAttemptId }, { message });
-      return;
+      return 'Failed to update grade';
     }
 
     const currentGradeData = await currentGradeResponse.json();

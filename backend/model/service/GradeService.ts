@@ -84,18 +84,16 @@ export class GradeService {
 
     const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentId, netid, score, gradeAttemptId);
     if (submitScoreErrorMessage) {
+      submissions = await this.getSubmissions(netid);
       return [submitScoreErrorMessage, submissions, rubric];
     }
-    await this.putSubmissionIntoDB(assignmentPhase, netid, score, rubric);
-
-    submissions = await this.getSubmissions(netid);
+    submissions = await this.putSubmissionIntoDB(assignmentPhase, netid, score, rubric);
     return [`Score: ${score}`, submissions, rubric];
   }
 
   async submitScoreToCanvas(assignmentId: number, netid: string, score: number, gradeAttemptId: string): Promise<string | void> {
-    let studentId = 135540;
     try {
-      studentId = await this.canvas.getStudentId(netid);
+      const studentId = await this.canvas.getStudentId(netid);
       const submitScoreErrorMessage = await this.canvas.updateGrade(netid, assignmentId, studentId, score, gradeAttemptId);
       return submitScoreErrorMessage;
     } catch (e) {
@@ -119,6 +117,7 @@ export class GradeService {
     const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const submission = new Submission(date, `Phase ${assignmentPhase}`, score, JSON.stringify(rubric));
     await this.dao.putSubmission(submission, netId);
+    return this.dao.getSubmissions(netId);
   }
 
   async getSubmissions(netId: string) {

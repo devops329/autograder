@@ -47,7 +47,7 @@ export class ChaosService {
     const chaosResolved = await this.pizzaFactory.resolveChaos(apiKey, fixCode);
     if (chaosResolved) {
       const user = await this.db.getUserByApiKey(apiKey);
-      logger.log('info', { type: 'chaos_resolved' }, { netId: user?.netId ?? 'unknown' });
+      logger.log('info', { type: 'chaos_resolved' }, { netId: user?.netId });
       const gradeAttemptId = uuidv4();
       const deliverableTenPartTwo = new DeliverableTenPartTwo();
       await deliverableTenPartTwo.grade(user!, gradeAttemptId);
