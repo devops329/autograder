@@ -68,6 +68,17 @@ export class DB {
     }
   }
 
+  async deleteUser(netId: string) {
+    const connection = await this.getConnection();
+    try {
+      await connection.query(`DELETE FROM user WHERE netid = ?`, [netId]);
+    } catch (err: any) {
+      logger.log('warn', { type: 'delete_user' }, { netid: netId, exception: err.message });
+    } finally {
+      connection.end();
+    }
+  }
+
   async updateUserInfo(netId: string, website: string, github: string, email: string) {
     const connection = await this.getConnection();
     try {
