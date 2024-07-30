@@ -1,0 +1,5 @@
+{
+  "preset": "ts-jest",
+  "collectCoverage": true,
+  "coverageReporters": ["json-summary", "text"]
+}

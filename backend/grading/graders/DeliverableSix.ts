@@ -1,4 +1,3 @@
-import logger from '../../logger';
 import { User } from '../../model/domain/User';
 import { Github } from '../tools/Github';
 import { GradingTools } from '../tools/GradingTools';

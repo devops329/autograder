@@ -3,6 +3,8 @@ import logger from '../../logger';
 import { DB } from '../dao/mysql/Database';
 import { PizzaFactory } from '../dao/pizzaFactory/PizzaFactory';
 import { v4 as uuidv4 } from 'uuid';
+import { GradeService } from './GradeService';
+import { Canvas } from '../dao/canvas/Canvas';
 
 export class ChaosService {
   private db: DB;
@@ -47,10 +49,9 @@ export class ChaosService {
     const chaosResolved = await this.pizzaFactory.resolveChaos(apiKey, fixCode);
     if (chaosResolved) {
       const user = await this.db.getUserByApiKey(apiKey);
-      logger.log('info', { type: 'chaos_resolved' }, { netId: user?.netId });
-      const gradeAttemptId = uuidv4();
-      const deliverableTenPartTwo = new DeliverableTenPartTwo();
-      await deliverableTenPartTwo.grade(user!, gradeAttemptId);
+      logger.log('info', { type: 'chaos_resolved' }, { netId: user!.netId });
+      const service = new GradeService(this.db, new Canvas());
+      await service.gradeDeliverableTen(user!);
       return true;
     }
   }

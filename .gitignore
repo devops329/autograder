@@ -29,3 +29,4 @@ dist
 gradingStrategies.md
 output.txt
 **/*.key
+coverage

@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 
 type Level = 'info' | 'warn' | 'error';
 
-class Logger {
+export class Logger {
   httpLogger = (req: Request, res: Response, next: NextFunction): void => {
     let send = res.send;
     res.send = (resBody: any): any => {
