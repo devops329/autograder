@@ -15,8 +15,14 @@ const db = new DB();
 let testToken: string;
 let adminToken: string;
 beforeAll(async () => {
-  //
-  logger.log('info', { type: 'test_start' }, 'Starting tests');
+  // Mock fetch
+  global.fetch = jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ data: 'mocked data' }),
+    })
+  );
+
   // Add a test user to the database
   const testUser = await db.getUser('test');
   if (!testUser) {
@@ -46,7 +52,6 @@ afterAll(async () => {
   // Remove admin user from database
   await db.deleteUser('admin');
   await db.deleteToken('admin');
-  logger.log('info', { type: 'test_end' }, 'Ending tests');
 });
 
 test('secure routes reject if no authtoken', async () => {
