@@ -143,7 +143,7 @@ secureApiRouter.use(async (req, res, next) => {
   }
 });
 
-// Get user's information
+// Get user's data
 secureApiRouter.post('/user', async function (req, res) {
   let netId = req.body.netId ?? (await db.getNetIdByToken(req.cookies[AUTH_COOKIE_NAME]));
   const user = await userService.getUser(netId);
@@ -162,7 +162,7 @@ secureApiRouter.post('/update', async function (req, res) {
   res.send(JSON.stringify(user));
 });
 
-// Grade an assignment
+// Grade a deliverable assignment
 secureApiRouter.post('/grade', async function (req, res) {
   const netId = req.body.netId;
   const [message, submissions, rubric] = await gradeService.grade(req.body.assignmentPhase, netId);
