@@ -2,7 +2,7 @@ import { config } from '../../../config';
 import logger from '../../../logger';
 import { DB } from '../../../model/dao/mysql/Database';
 import mysql from 'mysql2/promise';
-import { mockStudent, mockSubmissions } from '../mockValues';
+import { mockNetId, mockStudent, mockSubmissions, mockToken } from '../mockValues';
 import { Submission } from '../../../model/domain/Submission';
 
 // This class overwrites the query method on the connection.
@@ -115,7 +115,7 @@ export class MockDB extends DB {
     const connection = await this.getConnection();
     try {
       const [rows] = await connection.query(`SELECT netid FROM token WHERE authtoken = ?`, [token]);
-      return 'mockNetId';
+      return mockNetId;
     } catch (err: any) {
       return '';
     } finally {
@@ -127,7 +127,7 @@ export class MockDB extends DB {
     const connection = await this.getConnection();
     try {
       const [rows] = await connection.query(`SELECT authtoken FROM token WHERE netid = ?`, [netId]);
-      return 'mockToken';
+      return mockToken;
     } catch (err: any) {
       return '';
     } finally {

@@ -8,3 +8,7 @@ export const mockSubmissions: Submission[] = [mockSubmission];
 export const mockStudent = new User('student', 'student', 'student', 'student', 'student', 'student', false);
 
 export const mockAdmin = new User('admin', 'admin', 'admin', 'admin', 'admin', 'admin', true);
+
+export const mockToken = 'mockToken';
+
+export const mockNetId = 'mockNetId';
