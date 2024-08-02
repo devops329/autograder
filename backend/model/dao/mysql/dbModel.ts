@@ -15,7 +15,7 @@ export const tableCreateStatements = [
   id INT AUTO_INCREMENT PRIMARY KEY,
   time DATETIME NOT NULL,
   userId INT NOT NULL,
-  phase VARCHAR(255) NOT NULL,
+  phase INT NOT NULL,
   score INT NOT NULL,
   rubric JSON,
   FOREIGN KEY (userId) REFERENCES user(id)

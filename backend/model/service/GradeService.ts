@@ -115,7 +115,7 @@ export class GradeService {
 
   private async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number, rubric: object) {
     const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const submission = new Submission(date, `Phase ${assignmentPhase}`, score, JSON.stringify(rubric));
+    const submission = new Submission(date, assignmentPhase, score, JSON.stringify(rubric));
     await this.dao.putSubmission(submission, netId);
     return this.dao.getSubmissions(netId);
   }

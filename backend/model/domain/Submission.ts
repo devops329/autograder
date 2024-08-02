@@ -1,10 +1,10 @@
 export class Submission {
   private _date: string;
-  private _phase: string;
+  private _phase: number;
   private _score: number;
   private _rubric: string;
 
-  constructor(date: string, phase: string, score: number, rubric: string) {
+  constructor(date: string, phase: number, score: number, rubric: string) {
     this._date = date;
     this._phase = phase;
     this._score = score;
@@ -15,7 +15,7 @@ export class Submission {
     return this._date;
   }
 
-  get phase(): string {
+  get phase(): number {
     return this._phase;
   }
 
@@ -30,7 +30,7 @@ export class Submission {
   static fromJson(json: string): Submission {
     interface SubmissionJson {
       _date: string;
-      _phase: string;
+      _phase: number;
       _score: number;
       _rubric: string;
     }
