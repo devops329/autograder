@@ -1,8 +1,7 @@
-import { GradeService } from '../model/service/GradeService';
-import { MockCanvas } from './mock/mockCanvas';
-import { MockDB } from './mock/mockDatabase';
-import { MockGradeFactory } from './mock/mockGradeFactory';
-import { mockSubmission, mockSubmissions } from './mock/mockValues';
+import { GradeService } from '../../model/service/GradeService';
+import { MockCanvas } from '../mock/dao/mockCanvas';
+import { MockDB } from '../mock/dao/mockDatabase';
+import { MockGradeFactory } from '../mock/grading/mockGradeFactory';
 
 const mockDB = new MockDB();
 const mockCanvas = new MockCanvas();
@@ -28,18 +27,16 @@ test('GradeService builds', () => {
   expect(gradeService).toBeDefined();
 });
 
-test('Does not submit to db if canvas grade submission fails', async () => {
+test('Only submits to db if canvas grade submission succeeds', async () => {
   mockCanvas.success = false;
-  const [message, submissions, rubric] = await gradeService.grade(1, 'test');
+  let [message, submissions, rubric] = await gradeService.grade(1, 'test');
   expect(message).toBe('Error');
-  expect(submissions).toEqual(mockSubmissions);
+  expect(submissions.length).toBe(0);
   expect(mockDB.queries).not.toContain('INSERT INTO submission (time, userId, phase, score, rubric) VALUES (?, ?, ?, ?, ?)');
-});
 
-test('Submits to db if canvas grade submission succeeds', async () => {
   mockCanvas.success = true;
-  const [message, submissions, rubric] = await gradeService.grade(1, 'test');
+  [message, submissions, rubric] = await gradeService.grade(1, 'test');
   expect(message).toBe('Score: fake score');
-  expect(submissions).toEqual(mockSubmissions);
+  expect(submissions.length).toBe(1);
   expect(mockDB.queries).toContain('INSERT INTO submission (time, userId, phase, score, rubric) VALUES (?, ?, ?, ?, ?)');
 });

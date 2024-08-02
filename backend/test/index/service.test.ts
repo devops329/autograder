@@ -1,7 +1,7 @@
-import app from '../service';
-import { DB } from '../model/dao/mysql/Database';
 import request from 'supertest';
-import { User } from '../model/domain/User';
+import { DB } from '../../model/dao/mysql/Database';
+import { User } from '../../model/domain/User';
+import app from '../../service';
 
 function createUser(isAdmin: boolean) {
   if (isAdmin) {

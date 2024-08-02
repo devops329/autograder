@@ -1,5 +1,5 @@
-import { GradeFactory } from '../../grading/GradeFactory';
-import { Grader } from '../../grading/graders/Grader';
+import { GradeFactory } from '../../../grading/GradeFactory';
+import { Grader } from '../../../grading/graders/Grader';
 import { MockGrader } from './mockGrader';
 
 export class MockGradeFactory implements GradeFactory {

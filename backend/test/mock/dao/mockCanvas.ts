@@ -1,4 +1,4 @@
-import { Canvas } from '../../model/dao/canvas/Canvas';
+import { Canvas } from '../../../model/dao/canvas/Canvas';
 
 export class MockCanvas implements Canvas {
   private _success = true;
