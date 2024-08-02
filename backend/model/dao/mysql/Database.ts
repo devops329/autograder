@@ -11,7 +11,7 @@ export class DB {
     this.initialized = this.initializeDatabase();
   }
 
-  async getConnection() {
+  async getConnection(): Promise<mysql.Connection> {
     // Make sure the database is initialized before trying to get a connection.
     await this.initialized;
     return this._getConnection();
@@ -166,21 +166,6 @@ export class DB {
     } catch (err: any) {
       logger.log('warn', { type: 'get_submissions' }, { netid: netId, exception: err.message });
       return [];
-    } finally {
-      connection.end();
-    }
-  }
-
-  async getMostRecentSubmissionOtherDeliverables(netId: string, deliverable: number) {
-    const connection = await this.getConnection();
-    try {
-      const userId = await this.getUserId(netId);
-      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ? AND phase != ? ORDER BY time DESC LIMIT 1`, [userId, `Phase ${deliverable}`]);
-      const row = (rows as any[])[0];
-      return new Submission(row.time, row.phase, row.score, row.rubric);
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_most_recent_submission_other_deliverables' }, { netid: netId, exception: err.message });
-      return null;
     } finally {
       connection.end();
     }
