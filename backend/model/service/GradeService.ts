@@ -1,28 +1,21 @@
 import { Grader } from '../../grading/graders/Grader';
-import { DeliverableOne } from '../../grading/graders/DeliverableOne';
 import { Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
 import { Submission } from '../domain/Submission';
-import { DeliverableTwo } from '../../grading/graders/DeliverableTwo';
-import { DeliverableThree } from '../../grading/graders/DeliverableThree';
-import { DeliverableFour } from '../../grading/graders/DeliverableFour';
-import { DeliverableFive } from '../../grading/graders/DeliverableFive';
-import { DeliverableSix } from '../../grading/graders/DeliverableSix';
-import { DeliverableElevenPartOne } from '../../grading/graders/DeliverableElevenPartOne';
-import { DeliverableTwelve } from '../../grading/graders/DeliverableTwelve';
-import { DeliverableElevenPartTwo } from '../../grading/graders/DeliverableElevenPartTwo';
 import { User } from '../domain/User';
-import { DeliverableSeven } from '../../grading/graders/DeliverableSeven';
 import logger from '../../logger';
 import { v4 as uuidv4 } from 'uuid';
+import { GradeFactory } from '../../grading/GradeFactory';
 
 export class GradeService {
   private dao: DB;
   private canvas: Canvas;
+  private gradeFactory: GradeFactory;
 
-  constructor(dao: DB, canvas: Canvas) {
+  constructor(dao: DB, canvas: Canvas, gradeFactory: GradeFactory) {
     this.dao = dao;
     this.canvas = canvas;
+    this.gradeFactory = gradeFactory;
   }
 
   async grade(assignmentPhase: number, netid: string): Promise<[number | string, Submission[], object?]> {
@@ -38,40 +31,40 @@ export class GradeService {
 
     switch (assignmentPhase) {
       case 1:
-        grader = new DeliverableOne();
+        grader = this.gradeFactory.deliverableOne;
         assignmentId = assignmentIds['1'];
         break;
       case 2:
-        grader = new DeliverableTwo();
+        grader = this.gradeFactory.deliverableTwo;
         assignmentId = assignmentIds['2'];
         break;
       case 3:
-        grader = new DeliverableThree();
+        grader = this.gradeFactory.deliverableThree;
         assignmentId = assignmentIds['3'];
         break;
       case 4:
-        grader = new DeliverableFour();
+        grader = this.gradeFactory.deliverableFour;
         assignmentId = assignmentIds['4'];
         break;
       case 5:
-        grader = new DeliverableFive();
+        grader = this.gradeFactory.deliverableFive;
         assignmentId = assignmentIds['5'];
         break;
       case 6:
-        grader = new DeliverableSix();
+        grader = this.gradeFactory.deliverableSix;
         assignmentId = assignmentIds['6'];
         break;
       case 7:
-        grader = new DeliverableSeven();
+        grader = this.gradeFactory.deliverableSeven;
         assignmentId = assignmentIds['7'];
         break;
       case 11:
-        grader = new DeliverableElevenPartOne();
+        grader = this.gradeFactory.deliverableElevenPartOne;
         const message = (await grader.grade(user!, gradeAttemptId))[0];
         submissions = await this.getSubmissions(netid);
         return [message, submissions];
       case 12:
-        grader = new DeliverableTwelve();
+        grader = this.gradeFactory.deliverableTwelve;
         const partner = (await grader.grade(user!, gradeAttemptId))[0];
         submissions = await this.getSubmissions(netid);
         return [partner, submissions];
@@ -104,8 +97,8 @@ export class GradeService {
 
   async gradeDeliverableEleven(user: User) {
     const gradeAttemptId = uuidv4();
-    const grader = new DeliverableElevenPartTwo();
-    const score = (await grader.grade(user, gradeAttemptId))[0];
+    const grader = this.gradeFactory.deliverableElevenPartTwo;
+    const score = (await grader.grade(user, gradeAttemptId))[0] as number;
     const rubric = {};
     const submitScoreErrorMessage = await this.submitScoreToCanvas(940837, user.netId, score, gradeAttemptId);
     if (!submitScoreErrorMessage) {

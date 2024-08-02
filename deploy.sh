@@ -27,11 +27,13 @@ cp ../config.prod.js dist/config.js # copy the production config file to the dis
 cp -r dist/* ../build # move the back end service to the target distribution
 openssl genrsa -out ../build/certs/sp.key 2048 # generate a private key
 cp package.json ../build
+rm -rf dist
 
 cd ../frontend
 rm -rf dist
 npm run build # build the React front end
 cp -rf dist ../build/public # move the React front end to the target distribution
+rm -rf dist
 cd ../
 
 

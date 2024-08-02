@@ -10,14 +10,16 @@ import logger from './logger';
 import saml2 from 'saml2-js';
 import fs from 'fs';
 import path from 'path';
+import { DeliverableGradeFactory } from './grading/graders/DeliverableGradeFactory';
 
 const app = express();
 
 const db = new DB();
 const canvas = new Canvas();
 const pizzaFactory = new PizzaFactory();
+const gradeFactory = new DeliverableGradeFactory();
 // Build services
-const gradeService = new GradeService(db, canvas);
+const gradeService = new GradeService(db, canvas, gradeFactory);
 const userService = new UserService(db, pizzaFactory, canvas);
 const chaosService = new ChaosService(db, pizzaFactory);
 

@@ -1,10 +1,9 @@
-import { DeliverableElevenPartTwo } from '../../grading/graders/DeliverableElevenPartTwo';
 import logger from '../../logger';
 import { DB } from '../dao/mysql/Database';
 import { PizzaFactory } from '../dao/pizzaFactory/PizzaFactory';
-import { v4 as uuidv4 } from 'uuid';
 import { GradeService } from './GradeService';
 import { Canvas } from '../dao/canvas/Canvas';
+import { DeliverableGradeFactory } from '../../grading/graders/DeliverableGradeFactory';
 
 export class ChaosService {
   private db: DB;
@@ -50,7 +49,8 @@ export class ChaosService {
     if (chaosResolved) {
       const user = await this.db.getUserByApiKey(apiKey);
       logger.log('info', { type: 'chaos_resolved' }, { netId: user!.netId });
-      const service = new GradeService(this.db, new Canvas());
+      const gradeFactory = new DeliverableGradeFactory();
+      const service = new GradeService(this.db, new Canvas(), gradeFactory);
       await service.gradeDeliverableEleven(user!);
       return true;
     }
