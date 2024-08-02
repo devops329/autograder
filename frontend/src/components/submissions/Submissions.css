@@ -1,5 +1,5 @@
 .submissions {
   overflow-y: scroll;
   max-height: 65vh;
-  width: 40rem;
+  max-width: 40rem;
 }
