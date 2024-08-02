@@ -99,4 +99,10 @@ export class GradingTools {
     }
     return false;
   }
+
+  getHostnameFromWebsite(website: string): string {
+    const siteParts = website.split('.');
+    const hostname = siteParts.slice(-2).join('.');
+    return hostname;
+  }
 }

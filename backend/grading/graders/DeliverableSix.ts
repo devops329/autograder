@@ -13,6 +13,10 @@ interface Rubric {
 }
 
 export class DeliverableSix implements Grader {
+  private tools: GradingTools;
+  constructor() {
+    this.tools = new GradingTools();
+  }
   async grade(user: User, gradeAttemptId: string): Promise<[number, object]> {
     let score = 0;
     const rubric: Rubric = {
@@ -24,7 +28,6 @@ export class DeliverableSix implements Grader {
       comments: '',
     };
     const github = new Github(user, 'jwt-pizza-service');
-    const tools = new GradingTools();
 
     // Read workflow file
     const workflowFile = await github.readWorkflowFile(gradeAttemptId);
@@ -49,10 +52,23 @@ export class DeliverableSix implements Grader {
         rubric.comments += 'Your GitHub Action workflow did not complete successfully.\n';
       }
 
+      // Assumes that their service follows format 'pizza-service.hostname.tld'
+      const hostname = this.tools.getHostnameFromWebsite(user.website);
+      let serviceUrl = `pizza-service.${hostname}`;
+
+      // Check if service deployed with load balancer
+      const deployedWithELB = await this.checkServiceDeployedWithELB(serviceUrl, gradeAttemptId);
+      if (deployedWithELB) {
+        score += 20;
+        rubric.awsLoadBalancer += 20;
+      } else {
+        rubric.comments += 'Your service is not deployed with a load balancer.\n';
+      }
+
       // Get service url from frontend
       github.setRepo('jwt-pizza');
       const envFile = await github.readGithubFile('.env.production', gradeAttemptId);
-      const serviceUrl = await tools.getEnvVariable(envFile, 'VITE_PIZZA_SERVICE_URL');
+      serviceUrl = await this.tools.getEnvVariable(envFile, 'VITE_PIZZA_SERVICE_URL');
       if (!serviceUrl) {
         rubric.comments += 'Could not find VITE_PIZZA_SERVICE_URL in .env.production.\n';
         return [score, rubric];
@@ -60,17 +76,8 @@ export class DeliverableSix implements Grader {
       const usingOwnService = !serviceUrl.includes('cs329.click');
 
       if (usingOwnService) {
-        // Check if service deployed with load balancer
-        const service = serviceUrl.replace('https://', '');
-        const deployedWithELB = await tools.checkDNS(service, /elb\.amazonaws\.com/, gradeAttemptId);
-        if (deployedWithELB) {
-          score += 20;
-          rubric.awsLoadBalancer += 20;
-        } else {
-          rubric.comments += 'Your website is not deployed with an AWS Load Balancer.\n';
-        }
         // Check that service is functional
-        const serviceWorks = await tools.createUserAndLogin(serviceUrl, gradeAttemptId);
+        const serviceWorks = await this.tools.createUserAndLogin(serviceUrl, gradeAttemptId);
         if (serviceWorks) {
           score += 30;
           rubric.frontendCallsOwnFunctionalService += 10;
@@ -86,5 +93,11 @@ export class DeliverableSix implements Grader {
     }
 
     return [score, rubric];
+  }
+
+  async checkServiceDeployedWithELB(serviceUrl: string, gradeAttemptId: string): Promise<boolean> {
+    const service = serviceUrl.replace('https://', '');
+    const deployedWithELB = await this.tools.checkDNS(service, /elb\.amazonaws\.com/, gradeAttemptId);
+    return deployedWithELB;
   }
 }
