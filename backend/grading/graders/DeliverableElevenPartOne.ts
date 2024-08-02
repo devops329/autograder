@@ -4,7 +4,7 @@ import { User } from '../../model/domain/User';
 import { ChaosService } from '../../model/service/ChaosService';
 import { Grader } from './Grader';
 
-export class DeliverableTen implements Grader {
+export class DeliverableElevenPartOne implements Grader {
   async grade(user: User, gradeAttemptId: string): Promise<[string]> {
     const chaosService = new ChaosService(new DB(), new PizzaFactory());
     await chaosService.addChaosToBeTriggered(user.netId);

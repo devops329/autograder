@@ -8,9 +8,9 @@ import { DeliverableThree } from '../../grading/graders/DeliverableThree';
 import { DeliverableFour } from '../../grading/graders/DeliverableFour';
 import { DeliverableFive } from '../../grading/graders/DeliverableFive';
 import { DeliverableSix } from '../../grading/graders/DeliverableSix';
-import { DeliverableTen } from '../../grading/graders/DeliverableTen';
-import { DeliverableEleven } from '../../grading/graders/DeliverableEleven';
-import { DeliverableTenPartTwo } from '../../grading/graders/DeliverableTenPartTwo';
+import { DeliverableElevenPartOne } from '../../grading/graders/DeliverableElevenPartOne';
+import { DeliverableTwelve } from '../../grading/graders/DeliverableTwelve';
+import { DeliverableElevenPartTwo } from '../../grading/graders/DeliverableElevenPartTwo';
 import { User } from '../domain/User';
 import { DeliverableSeven } from '../../grading/graders/DeliverableSeven';
 import logger from '../../logger';
@@ -65,13 +65,13 @@ export class GradeService {
         grader = new DeliverableSeven();
         assignmentId = assignmentIds['7'];
         break;
-      case 10:
-        grader = new DeliverableTen();
+      case 11:
+        grader = new DeliverableElevenPartOne();
         const message = (await grader.grade(user!, gradeAttemptId))[0];
         submissions = await this.getSubmissions(netid);
         return [message, submissions];
-      case 11:
-        grader = new DeliverableEleven();
+      case 12:
+        grader = new DeliverableTwelve();
         const partner = (await grader.grade(user!, gradeAttemptId))[0];
         submissions = await this.getSubmissions(netid);
         return [partner, submissions];
@@ -102,9 +102,9 @@ export class GradeService {
     }
   }
 
-  async gradeDeliverableTen(user: User) {
+  async gradeDeliverableEleven(user: User) {
     const gradeAttemptId = uuidv4();
-    const grader = new DeliverableTenPartTwo();
+    const grader = new DeliverableElevenPartTwo();
     const score = (await grader.grade(user, gradeAttemptId))[0];
     const rubric = {};
     const submitScoreErrorMessage = await this.submitScoreToCanvas(940837, user.netId, score, gradeAttemptId);

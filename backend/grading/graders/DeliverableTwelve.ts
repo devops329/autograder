@@ -2,7 +2,7 @@ import { DB } from '../../model/dao/mysql/Database';
 import { User } from '../../model/domain/User';
 import { Grader } from './Grader';
 
-export class DeliverableEleven implements Grader {
+export class DeliverableTwelve implements Grader {
   async grade(user: User, gradeAttemptId: string): Promise<[string]> {
     const db = new DB();
     let partner: User;

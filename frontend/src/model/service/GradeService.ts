@@ -1,7 +1,7 @@
 import { ServerFacade } from '../../network/ServerFacade';
 
 export class GradeService {
-  readonly _assignmentPhases: number[] = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11];
+  readonly _assignmentPhases: number[] = [1, 2, 3, 4, 5, 6, 7, 11, 12];
 
   get assignmentPhases(): number[] {
     return this._assignmentPhases;
