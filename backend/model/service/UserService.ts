@@ -16,31 +16,30 @@ export class UserService {
     this.canvas = canvas;
   }
 
-  async login(netid: string) {
-    let token = await this.dao.getToken(netid);
-    let user = await this.dao.getUser(netid);
+  async login(netId: string) {
+    let token = await this.dao.getToken(netId);
+    let user = await this.dao.getUser(netId);
     if (user) {
       if (!user.apiKey) {
-        const apiKey = await this.pizzaFactory.getApiKey(netid, user.name);
-        this.dao.updateApiKey(netid, apiKey);
-        logger.log('info', { type: 'new_api_key' }, { netid: netid });
+        const apiKey = await this.pizzaFactory.getApiKey(netId, user.name);
+        this.dao.updateApiKey(netId, apiKey);
+        logger.log('info', { type: 'new_api_key' }, { netid: netId });
       }
       if (!token) {
         token = uuidv4();
-        this.dao.putToken(token, netid);
-        logger.log('info', { type: 'new_token' }, { netid: netid });
+        this.dao.putToken(token, netId);
       }
       return token;
     } else {
-      const studentInfo = await this.canvas.getStudentInfo(netid);
+      const studentInfo = await this.canvas.getStudentInfo(netId);
 
-      // If student not found in canvas, return null
+      // If student not found in canvas, return null. This will result in a 401 response
       if (!studentInfo) {
-        logger.log('error', { type: 'student_not_found' }, { netid: netid });
+        logger.log('error', { type: 'student_not_found' }, { netid: netId });
         return null;
       }
 
-      logger.log('info', { type: 'new_user' }, { netid: netid });
+      logger.log('info', { type: 'new_user' }, { netid: netId });
       let name = '';
       let email = '';
       try {
@@ -49,15 +48,13 @@ export class UserService {
       } catch (e) {
         name = 'Message TA to update name';
       }
-      const apiKey = await this.pizzaFactory.getApiKey(netid, name);
-      user = new User(name, netid, apiKey, '', '', email, false);
+      // Get API key from pizza factory
+      const apiKey = await this.pizzaFactory.getApiKey(netId, name);
+      user = new User(name, netId, apiKey, '', '', email, false);
       await this.dao.putUser(user);
-
-      if (!token) {
-        token = uuidv4();
-        this.dao.putToken(token, netid);
-        logger.log('info', { type: 'new_token' }, { netid: netid });
-      }
+      // Create token
+      token = uuidv4();
+      this.dao.putToken(token, netId);
 
       return token;
     }

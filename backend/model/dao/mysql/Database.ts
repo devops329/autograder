@@ -142,7 +142,7 @@ export class DB {
     if (!rows.length) {
       return '';
     }
-    return ((rows as any)[0] as any).authToken || '';
+    return ((rows as any)[0] as any).authtoken || '';
   }
 
   async putToken(token: string, netId: string) {
