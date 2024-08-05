@@ -30,6 +30,10 @@ The running service is managed on the server using [pm2](https://www.npmjs.com/p
 
 This app uses the SAML protocol for authentication with BYU CAS as the service provider, using the [saml2-js](https://www.npmjs.com/package/saml2-js) library to abstract most of the implementation. The certificates (`byu.crt` and `sp.crt`) for this are kept in the `certs` directory and are non-confidential. The `sp.key` file should not be publicly visible, hence it is created in the [deployment script](deploy.sh).
 
+### Authenticating Locally
+
+Because `localhost` is not authorized to use CAS with SAML, you cannot log in this way when running the application locally. Instead, there is a page at the `/admin` path through which you can log in. The service maintains a separate admin table in which it keeps the netId and encrypted password of admin users. You will need to add yourself to the local db to log in this way.
+
 ## Configuration
 
 This is an example config file. It should never be committed.

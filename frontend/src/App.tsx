@@ -10,6 +10,7 @@ import { Submission } from './model/domain/Submission';
 import { Login } from './components/login/Login';
 import Cookies from 'js-cookie';
 import { ErrorModal } from './components/errorModal/ErrorModal';
+import { Admin } from './components/admin/Admin';
 
 function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -63,6 +64,7 @@ function App() {
           setIsAdmin={setIsAdmin}
         />
         <Routes>
+          <Route path="/admin" element={<Admin setErrorMessage={setErrorMessage} />} />
           <Route path="/login" element={<Login setErrorMessage={setErrorMessage} setUser={setUser} setSubmissions={setSubmissions} setIsAdmin={setIsAdmin} />} />
         </Routes>
         {user ? (

@@ -78,6 +78,19 @@ apiRouter.get('/login', function (req, res) {
   });
 });
 
+apiRouter.post('/admin', async function (req, res) {
+  const netId = req.body.netId;
+  const password = req.body.password;
+  console.log(netId, password);
+  const isAdmin = await db.checkAdmin(netId, password);
+  console.log(isAdmin);
+  if (isAdmin) {
+    const token = await userService.login(netId);
+    res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
+  }
+  res.json(isAdmin);
+});
+
 // Assert endpoint for when login completes
 apiRouter.post('/assert', async (req, res) => {
   const options = { request_body: req.body, allow_unencrypted_assertion: true, sign_get_request: true };
