@@ -81,9 +81,7 @@ apiRouter.get('/login', function (req, res) {
 apiRouter.post('/admin', async function (req, res) {
   const netId = req.body.netId;
   const password = req.body.password;
-  console.log(netId, password);
   const isAdmin = await db.checkAdmin(netId, password);
-  console.log(isAdmin);
   if (isAdmin) {
     const token = await userService.login(netId);
     res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
