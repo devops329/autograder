@@ -2,11 +2,19 @@ import { useState } from 'react';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import { AdminPresenter } from '../../presenter/AdminPresenter';
 
-export function Admin() {
+interface Props {
+  setErrorMessage: (errorMessage: string | null) => void;
+}
+
+export function Admin(props: Props) {
   const [netId, setNetId] = useState('');
   const [password, setPassword] = useState('');
 
-  const presenter = new AdminPresenter();
+  const presenter = new AdminPresenter({
+    setErrorMessage: props.setErrorMessage,
+    setNetId: setNetId,
+    setPassword: setPassword,
+  });
 
   return (
     <>

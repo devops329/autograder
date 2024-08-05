@@ -64,7 +64,7 @@ function App() {
           setIsAdmin={setIsAdmin}
         />
         <Routes>
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin" element={<Admin setErrorMessage={setErrorMessage} />} />
           <Route path="/login" element={<Login setErrorMessage={setErrorMessage} setUser={setUser} setSubmissions={setSubmissions} setIsAdmin={setIsAdmin} />} />
         </Routes>
         {user ? (
