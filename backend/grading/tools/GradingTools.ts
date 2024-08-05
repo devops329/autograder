@@ -3,13 +3,20 @@ import logger from '../../logger';
 
 export class GradingTools {
   async checkDNS(hostname: string, regex: RegExp, gradeAttemptId: string): Promise<boolean> {
+    const timeout = (ms: number) => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
+
     try {
-      const addresses = await new Promise<string[]>((resolve, reject) => {
-        dns.resolveCname(hostname, (err, addresses) => {
-          if (err) reject(err);
-          else resolve(addresses);
-        });
-      });
+      // Resolve CNAME records
+      // Error if check takes longer than 5 seconds
+      const addresses = await Promise.race([
+        new Promise<string[]>((resolve, reject) => {
+          dns.resolveCname(hostname, (err, addresses) => {
+            if (err) reject(err);
+            else resolve(addresses);
+          });
+        }),
+        timeout(5000), // Set timeout duration as needed
+      ]);
 
       let matchesRegex = false;
       addresses.forEach((address) => {
@@ -27,11 +34,26 @@ export class GradingTools {
   }
 
   async checkPageExistsAndContainsText(hostname: string, regex: RegExp): Promise<boolean> {
-    const response = await fetch(`https://${hostname}`);
-    const body = await response.text();
+    const fetchWithTimeout = async (url: string, timeout: number) => {
+      const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout));
 
-    const matches = body.match(regex);
-    return !!matches;
+      const fetchPromise = fetch(url);
+
+      return Promise.race([fetchPromise, timeoutPromise]);
+    };
+
+    try {
+      const response = await fetchWithTimeout(`https://${hostname}`, 5000); // 5 seconds timeout
+      const body = await response.text();
+
+      const matches = body.match(regex);
+      return !!matches;
+      // Handle the response here
+    } catch (error) {
+      // Handle the error here
+      logger.log('error', { type: 'fetch_error' }, { hostname, error });
+      return false;
+    }
   }
 
   async readPageJson(hostname: string): Promise<any> {
