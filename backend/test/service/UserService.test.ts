@@ -32,7 +32,14 @@ test('logout deletes authtoken from db', async () => {
   expect(mockDB.queries).toContain('DELETE FROM token WHERE authtoken = ?');
 });
 
-test('login returns token if user exists', async () => {
+test('login returns existing token if found in db', async () => {
   const token = await userService.login('test');
   expect(token).toBe(mockToken);
+});
+
+test('login creates new token if not found in db', async () => {
+  mockDB.setTokenExists(false);
+  const token = await userService.login('test');
+  expect(token).not.toBe(mockToken);
+  expect(token).toBeDefined();
 });

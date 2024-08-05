@@ -10,6 +10,8 @@ import { Submission } from '../../../model/domain/Submission';
 export class MockDB extends DB {
   private _queries: string[] = [];
   private _submissions: Submission[] = [];
+  private tokenExists = true;
+
   constructor() {
     super();
   }
@@ -20,6 +22,10 @@ export class MockDB extends DB {
 
   get submissions() {
     return this._submissions;
+  }
+
+  setTokenExists(tokenExists: boolean) {
+    this.tokenExists = tokenExists;
   }
 
   clearQueries() {
@@ -78,7 +84,7 @@ export class MockDB extends DB {
 
   async getToken(netId: string) {
     await this.executeQuery('get_token', `SELECT authtoken FROM token WHERE netid = ?`, [netId]);
-    return mockToken;
+    return this.tokenExists ? mockToken : null;
   }
 
   async getPentest(netId: string) {
