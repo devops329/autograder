@@ -17,6 +17,19 @@ export class DB {
     return this._getConnection();
   }
 
+  private async executeQuery(operation: string, query: string, params: any[]) {
+    let result;
+    const connection = await this.getConnection();
+    try {
+      result = await connection.query(query, params);
+      return result as any;
+    } catch (err: any) {
+      logger.log('warn', { type: operation }, { exception: err.message });
+    } finally {
+      connection.end();
+    }
+  }
+
   async _getConnection(setUse = true) {
     const connection = await mysql.createConnection({
       host: config.db.connection.host,
@@ -50,284 +63,150 @@ export class DB {
   }
 
   async putUser(user: User) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`INSERT INTO user (name, netid, apiKey, website, github, email, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?)`, [
-        user.name,
-        user.netId,
-        user.apiKey,
-        user.website,
-        user.github,
-        user.email,
-        user.isAdmin,
-      ]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'put_user' }, { netid: user.netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('put_user', 'INSERT INTO user (name, netid, apiKey, website, github, email, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?)', [
+      user.name,
+      user.netId,
+      user.apiKey,
+      user.website,
+      user.github,
+      user.email,
+      user.isAdmin,
+    ]);
   }
 
   async deleteUser(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`DELETE FROM user WHERE netid = ?`, [netId]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'delete_user' }, { netid: netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('delete_user', 'DELETE FROM user WHERE netid = ?', [netId]);
   }
 
   async updateUserInfo(netId: string, website: string, github: string, email: string) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`UPDATE user SET website = ?, github = ?, email = ? WHERE netid = ?`, [website, github, email, netId]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'update_user' }, { netid: netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('update_user', 'UPDATE user SET website = ?, github = ?, email = ? WHERE netid = ?', [website, github, email, netId]);
   }
 
   async getUserId(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT id FROM user WHERE netid = ?`, [netId]);
-      return ((rows as any)[0] as any).id || 0;
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_user_id' }, { netid: netId, exception: err.message });
-      return 0;
-    } finally {
-      connection.end();
-    }
+    const [rows] = await this.executeQuery('get_user_id', `SELECT id FROM user WHERE netid = ?`, [netId]);
+    return ((rows as any)[0] as any).id || 0;
   }
 
   async getUser(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT * FROM user WHERE netid = ?`, [netId]);
-      const row = (rows as any[])[0];
-      return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_user' }, { netid: netId, exception: err.message });
+    const [rows] = await this.executeQuery('get_user', `SELECT * FROM user WHERE netid = ?`, [netId]);
+    if (!rows) {
       return null;
-    } finally {
-      connection.end();
     }
+    const row = (rows as any[])[0];
+    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
   }
 
   async getUserByApiKey(apiKey: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT * FROM user WHERE apiKey = ?`, [apiKey]);
-      const row = (rows as any[])[0];
-      return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_user_by_api_key' }, { apiKey: apiKey, exception: err.message });
+    const [rows] = await this.executeQuery('get_user_by_api_key', `SELECT * FROM user WHERE apiKey = ?`, [apiKey]);
+    if (!rows) {
       return null;
-    } finally {
-      connection.end();
     }
+    const row = (rows as any[])[0];
+    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
   }
 
   async updateApiKey(netId: string, apiKey: string) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`UPDATE user SET apiKey = ? WHERE netid = ?`, [apiKey, netId]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'update_api_key' }, { netid: netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('update_api_key', 'UPDATE user SET apiKey = ? WHERE netid = ?', [apiKey, netId]);
   }
 
   async putSubmission(submission: Submission, netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const userId = await this.getUserId(netId);
-      await connection.query(`INSERT INTO submission (time, userId, phase, score, rubric) VALUES (?, ?, ?, ?, ?)`, [submission.date, userId, submission.phase, submission.score, submission.rubric]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'put_submission' }, { netid: netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('put_submission', 'INSERT INTO submission (time, userId, phase, score, rubric) VALUES (?, ?, ?, ?, ?)', [
+      submission.date,
+      await this.getUserId(netId),
+      submission.phase,
+      submission.score,
+      submission.rubric,
+    ]);
   }
 
   async getSubmissions(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const userId = await this.getUserId(netId);
-      // Get all submissions for the user, ordered by time
-      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ? ORDER BY time DESC`, [userId]);
-      return (rows as any[]).map((row) => {
-        return new Submission(row.time, row.phase, row.score, row.rubric);
-      });
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_submissions' }, { netid: netId, exception: err.message });
+    const [rows] = await this.executeQuery('get_submissions', `SELECT * FROM submission WHERE userId = ? ORDER BY time DESC`, [await this.getUserId(netId)]);
+    if (!rows) {
       return [];
-    } finally {
-      connection.end();
     }
+    return (rows as any[]).map((row) => {
+      return new Submission(row.time, row.phase, row.score, row.rubric);
+    });
   }
 
   async getNetIdByToken(token: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT netid FROM token WHERE authtoken = ?`, [token]);
-      return ((rows as any)[0] as any).netid || '';
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_netid_by_token' }, { exception: err.message });
+    const [rows] = await this.executeQuery('get_netid_by_token', `SELECT netid FROM token WHERE authtoken = ?`, [token]);
+    if (!rows) {
       return '';
-    } finally {
-      connection.end();
     }
+    return ((rows as any)[0] as any).netid || '';
   }
 
   async getToken(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT authtoken FROM token WHERE netid = ?`, [netId]);
-      return ((rows as any)[0] as any).authToken || '';
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_token' }, { netid: netId, exception: err.message });
+    const [rows] = await this.executeQuery('get_token', `SELECT authtoken FROM token WHERE netid = ?`, [netId]);
+    if (!rows) {
       return '';
-    } finally {
-      connection.end();
     }
+    return ((rows as any)[0] as any).authToken || '';
   }
 
   async putToken(token: string, netId: string) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`INSERT INTO token (authtoken, netid) VALUES (?, ?)`, [token, netId]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'put_token' }, { netid: netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('put_token', 'INSERT INTO token (authtoken, netid) VALUES (?, ?)', [token, netId]);
   }
 
   async deleteToken(token: string) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`DELETE FROM token WHERE authtoken = ?`, [token]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'delete_token' }, { exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('delete_token', 'DELETE FROM token WHERE authtoken = ?', [token]);
   }
 
   async putPentest(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`INSERT INTO pentest (netid) VALUES (?)`, [netId]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'put_pentest' }, { netid: netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('put_pentest', 'INSERT INTO pentest (netid) VALUES (?)', [netId]);
   }
 
   async getPentest(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT * FROM pentest WHERE netid = ?`, [netId]);
-      const row = (rows as any[])[0];
-      return { netId: row.netid, partnerId: row.partnerid };
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_pentest' }, { netid: netId, exception: err.message });
+    const [rows] = await this.executeQuery('get_pentest', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
+    if (!rows) {
       return null;
-    } finally {
-      connection.end();
     }
+    const row = (rows as any[])[0];
+    return { netId: row.netid, partnerId: row.partnerid };
   }
 
   async getPentestPartners(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT * FROM pentest WHERE partnerid = ? AND netid != ?`, ['', netId]);
-      return (rows as any[]).map((row) => {
-        return { netId: row.netid, partnerId: row.partnerid };
-      });
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_pentest_partners' }, { netid: netId, exception: err.message });
+    const [rows] = await this.executeQuery('get_pentest_partners', `SELECT * FROM pentest WHERE partnerid = ? AND netid != ?`, ['', netId]);
+    if (!rows) {
       return [];
-    } finally {
-      connection.end();
     }
+    return (rows as any[]).map((row) => {
+      return { netId: row.netid, partnerId: row.partnerid };
+    });
   }
 
   async updatePentestPartner(netId: string, partnerId: string) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`UPDATE pentest SET partnerid = ? WHERE netid = ?`, [partnerId, netId]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'update_pentest_partner' }, { netid: netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('update_pentest_partner', 'UPDATE pentest SET partnerid = ? WHERE netid = ?', [partnerId, netId]);
   }
 
   async putChaos(netId: string, chaosTime: Date) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`INSERT INTO chaos (netid, chaosTime) VALUES (?, ?)`, [netId, chaosTime.toISOString()]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'put_chaos' }, { netid: netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('put_chaos', 'INSERT INTO chaos (netid, chaosTime) VALUES (?, ?)', [netId, chaosTime.toISOString()]);
   }
 
   async getUntriggeredChaos() {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT * FROM chaos WHERE triggered = false`);
-      return (rows as any[]).map((row) => {
-        return { netId: row.netid, chaosTime: row.chaosTime };
-      });
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_untriggered_chaos' }, { exception: err.message });
+    const [rows] = await this.executeQuery('get_untriggered_chaos', `SELECT * FROM chaos WHERE triggered = false`, []);
+    if (!rows) {
       return [];
-    } finally {
-      connection.end();
     }
+    return (rows as any[]).map((row) => {
+      return { netId: row.netid, chaosTime: row.chaosTime };
+    });
   }
 
   async updateChaosTriggeredStatus(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`UPDATE chaos SET triggered = true WHERE netid = ?`, [netId]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'trigger_chaos' }, { netid: netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('trigger_chaos', 'UPDATE chaos SET triggered = true WHERE netid = ?', [netId]);
   }
 
   async getChaosTime(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT chaosTime FROM chaos WHERE netid = ?`, [netId]);
-      return ((rows as any)[0] as any).chaosTime || '';
-    } catch (err: any) {
-      logger.log('warn', { type: 'get_chaos_time' }, { netid: netId, exception: err.message });
+    const [rows] = await this.executeQuery('get_chaos_time', `SELECT chaosTime FROM chaos WHERE netid = ?`, [netId]);
+    if (!rows) {
       return '';
-    } finally {
-      connection.end();
     }
+    return ((rows as any)[0] as any).chaosTime || '';
   }
 
   async deleteChaos(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`DELETE FROM chaos WHERE netid = ?`, [netId]);
-    } catch (err: any) {
-      logger.log('warn', { type: 'delete_chaos' }, { netid: netId, exception: err.message });
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('delete_chaos', 'DELETE FROM chaos WHERE netid = ?', [netId]);
   }
 }
