@@ -4,6 +4,7 @@ import { Submission } from '../../domain/Submission';
 import { tableCreateStatements } from './dbModel';
 import { config } from '../../../config';
 import logger from '../../../logger';
+import bcrypt from 'bcrypt';
 
 export class DB {
   private initialized: Promise<void>;
@@ -62,6 +63,16 @@ export class DB {
     }
   }
 
+  async checkAdmin(netId: string, password: string) {
+    const [rows] = await this.executeQuery('check_admin', `SELECT * FROM admin WHERE netid = ?`, [netId]);
+    if (!rows.length) {
+      return false;
+    }
+    const admin = rows[0];
+    const passwordMatch = await bcrypt.compare(password, admin.password);
+    return passwordMatch;
+  }
+
   async putUser(user: User) {
     await this.executeQuery('put_user', 'INSERT INTO user (name, netid, apiKey, website, github, email, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?)', [
       user.name,
@@ -84,7 +95,7 @@ export class DB {
 
   async getUserId(netId: string) {
     const [rows] = await this.executeQuery('get_user_id', `SELECT id FROM user WHERE netid = ?`, [netId]);
-    return ((rows as any)[0] as any).id || 0;
+    return rows[0].id || 0;
   }
 
   async getUser(netId: string) {
@@ -92,7 +103,7 @@ export class DB {
     if (!rows.length) {
       return null;
     }
-    const row = (rows as any[])[0];
+    const row = rows[0];
     return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
   }
 
@@ -101,7 +112,7 @@ export class DB {
     if (!rows.length) {
       return null;
     }
-    const row = (rows as any[])[0];
+    const row = rows[0];
     return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
   }
 
@@ -124,7 +135,7 @@ export class DB {
     if (!rows.length) {
       return [];
     }
-    return (rows as any[]).map((row) => {
+    return rows.map((row: any) => {
       return new Submission(row.time, row.phase, row.score, row.rubric);
     });
   }
@@ -162,7 +173,7 @@ export class DB {
     if (!rows.length) {
       return null;
     }
-    const row = (rows as any[])[0];
+    const row = rows[0];
     return { netId: row.netid, partnerId: row.partnerid };
   }
 
@@ -171,7 +182,7 @@ export class DB {
     if (!rows.length) {
       return [];
     }
-    return (rows as any[]).map((row) => {
+    return rows.map((row: any) => {
       return { netId: row.netid, partnerId: row.partnerid };
     });
   }
@@ -189,7 +200,7 @@ export class DB {
     if (!rows.length) {
       return [];
     }
-    return (rows as any[]).map((row) => {
+    return rows.map((row: any) => {
       return { netId: row.netid, chaosTime: row.chaosTime };
     });
   }

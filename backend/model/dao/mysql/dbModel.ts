@@ -46,4 +46,12 @@ export const tableCreateStatements = [
   partnerid VARCHAR(255) NOT NULL DEFAULT ''
   )
   `,
+
+  `
+  CREATE TABLE IF NOT EXISTS admin (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  netid VARCHAR(255) NOT NULL,
+  password VARCHAR(255) NOT NULL
+  )
+  `,
 ];

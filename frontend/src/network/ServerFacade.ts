@@ -5,9 +5,9 @@ import { ClientCommunicator } from './ClientCommunicator';
 export class ServerFacade {
   private clientCommunicator = new ClientCommunicator();
 
-  async adminLogin(username: string, password: string): Promise<boolean> {
+  async adminLogin(netId: string, password: string): Promise<boolean> {
     const endpoint = 'admin';
-    const success: boolean = (await this.clientCommunicator.doPost({ username, password }, endpoint)) as unknown as boolean;
+    const success: boolean = (await this.clientCommunicator.doPost({ netId, password }, endpoint)) as unknown as boolean;
     return success;
   }
 

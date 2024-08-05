@@ -79,10 +79,16 @@ apiRouter.get('/login', function (req, res) {
 });
 
 apiRouter.post('/admin', async function (req, res) {
-  const username = req.body.username;
+  const netId = req.body.netId;
   const password = req.body.password;
-  console.log(username, password);
-  res.json(true);
+  console.log(netId, password);
+  const isAdmin = await db.checkAdmin(netId, password);
+  console.log(isAdmin);
+  if (isAdmin) {
+    const token = await userService.login(netId);
+    res.cookie(AUTH_COOKIE_NAME, token, { secure: true, sameSite: 'none' });
+  }
+  res.json(isAdmin);
 });
 
 // Assert endpoint for when login completes

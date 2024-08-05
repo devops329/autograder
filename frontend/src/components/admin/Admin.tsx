@@ -3,7 +3,7 @@ import { Button, Form, InputGroup } from 'react-bootstrap';
 import { AdminPresenter } from '../../presenter/AdminPresenter';
 
 export function Admin() {
-  const [username, setUsername] = useState('');
+  const [netId, setNetId] = useState('');
   const [password, setPassword] = useState('');
 
   const presenter = new AdminPresenter();
@@ -14,12 +14,12 @@ export function Admin() {
         <InputGroup className="mb-3">
           <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
           <Form.Control
-            value={username}
+            value={netId}
             onChange={(event) => {
-              setUsername(event.target.value);
+              setNetId(event.target.value);
             }}
-            placeholder="Username"
-            aria-label="Username"
+            placeholder="NetId"
+            aria-label="NetId"
             aria-describedby="basic-addon1"
           />
         </InputGroup>
@@ -37,7 +37,7 @@ export function Admin() {
           />
         </InputGroup>
 
-        <Button variant="primary" type="submit" onClick={() => presenter.login(username, password)}>
+        <Button variant="primary" type="submit" onClick={() => presenter.login(netId, password)}>
           Login
         </Button>
       </div>
