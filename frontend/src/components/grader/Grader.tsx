@@ -97,8 +97,8 @@ export function Grader(props: Props) {
           <tbody>
             {Object.entries(rubric).map(([category, points]) => (
               <tr key={category}>
-                <td>{category}</td>
-                <td>{points}</td>
+                <td style={{ wordWrap: 'break-word' }}>{category}</td>
+                <td style={{ wordWrap: 'break-word' }}>{points}</td>
               </tr>
             ))}
           </tbody>
