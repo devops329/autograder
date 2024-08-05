@@ -30,156 +30,74 @@ export class MockDB extends DB {
     this._submissions = [];
   }
 
-  async getConnection() {
-    // Make sure the database is initialized before trying to get a connection.
-    return this._getConnection();
+  async initializeDatabase(): Promise<void> {
+    return;
   }
 
-  async _getConnection(setUse = true) {
-    const connection = {
-      query: async (sql: string, values?: any) => {
-        this._queries.push(sql);
-        return [[], []];
-      },
-      end: () => {},
-    } as any as mysql.Connection;
-    if (setUse) {
-      await connection.query(`USE ${config.db.connection.database}`);
-    }
-    return connection;
+  async executeQuery(operation: string, query: string, params: any[]) {
+    this._queries.push(query);
+    return true;
   }
 
   async getUserId(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT id FROM user WHERE netid = ?`, [netId]);
-      return 12345;
-    } catch (err: any) {
-      return 0;
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('get_user_id', 'SELECT id FROM user WHERE netid = ?', [netId]);
+    return 12345;
   }
 
   async getUser(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT * FROM user WHERE netid = ?`, [netId]);
-      return mockStudent;
-    } catch (err: any) {
-      return null;
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('get_user_id', `SELECT id FROM user WHERE netid = ?`, [netId]);
+    return mockStudent;
   }
 
   async getUserByApiKey(apiKey: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT * FROM user WHERE apiKey = ?`, [apiKey]);
-      return mockStudent;
-    } catch (err: any) {
-      return null;
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('get_user_by_api_key', `SELECT * FROM user WHERE apiKey = ?`, [apiKey]);
+    return mockStudent;
   }
 
   async putSubmission(submission: Submission, netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const userId = await this.getUserId(netId);
-      await connection.query(`INSERT INTO submission (time, userId, phase, score, rubric) VALUES (?, ?, ?, ?, ?)`, [submission.date, userId, submission.phase, submission.score, submission.rubric]);
-      this._submissions.push(submission);
-    } catch (err: any) {
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('put_submission', 'INSERT INTO submission (time, userId, phase, score, rubric) VALUES (?, ?, ?, ?, ?)', [
+      submission.date,
+      await this.getUserId(netId),
+      submission.phase,
+      submission.score,
+      submission.rubric,
+    ]);
+    this._submissions.push(submission);
   }
 
   async getSubmissions(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const userId = await this.getUserId(netId);
-      // Get all submissions for the user, ordered by time
-      const [rows] = await connection.query(`SELECT * FROM submission WHERE userId = ? ORDER BY time DESC`, [userId]);
-      return this.submissions;
-    } catch (err: any) {
-      return [];
-    } finally {
-      connection.end();
-    }
+    // Get all submissions for the user, ordered by time
+    await this.executeQuery('get_submissions', `SELECT * FROM submission WHERE userId = ? ORDER BY time DESC`, [await this.getUserId(netId)]);
+    return this.submissions;
   }
 
   async getNetIdByToken(token: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT netid FROM token WHERE authtoken = ?`, [token]);
-      return mockNetId;
-    } catch (err: any) {
-      return '';
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('get_netid_by_token', `SELECT netid FROM token WHERE authtoken = ?`, [token]);
+    return mockNetId;
   }
 
   async getToken(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT authtoken FROM token WHERE netid = ?`, [netId]);
-      return mockToken;
-    } catch (err: any) {
-      return '';
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('get_token', `SELECT authtoken FROM token WHERE netid = ?`, [netId]);
+    return mockToken;
   }
 
   async getPentest(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT * FROM pentest WHERE netid = ?`, [netId]);
-      return { netId: 'student', partnerId: 'anotherStudent' };
-    } catch (err: any) {
-      return null;
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('get_pentest', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
+    return { netId: 'student', partnerId: 'anotherStudent' };
   }
 
   async getPentestPartners(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT * FROM pentest WHERE partnerid = ? AND netid != ?`, ['', netId]);
-      return [];
-    } catch (err: any) {
-      return [];
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('get_pentest_partners', `SELECT * FROM pentest WHERE partnerid = ? AND netid != ?`, ['', netId]);
+    return [];
   }
 
   async getUntriggeredChaos() {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT * FROM chaos WHERE triggered = false`);
-      return [];
-    } catch (err: any) {
-      return [];
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('get_untriggered_chaos', `SELECT * FROM chaos WHERE triggered = false`, []);
+    return [];
   }
 
   async getChaosTime(netId: string) {
-    const connection = await this.getConnection();
-    try {
-      const [rows] = await connection.query(`SELECT chaosTime FROM chaos WHERE netid = ?`, [netId]);
-      return '';
-    } catch (err: any) {
-      return '';
-    } finally {
-      connection.end();
-    }
+    await this.executeQuery('get_chaos_time', `SELECT chaosTime FROM chaos WHERE netid = ?`, [netId]);
+    return '';
   }
 }

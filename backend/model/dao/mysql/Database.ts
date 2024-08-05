@@ -18,7 +18,7 @@ export class DB {
     return this._getConnection();
   }
 
-  private async executeQuery(operation: string, query: string, params: any[]) {
+  async executeQuery(operation: string, query: string, params: any[]) {
     let result;
     const connection = await this.getConnection();
     try {
