@@ -89,7 +89,7 @@ export class DB {
 
   async getUser(netId: string) {
     const [rows] = await this.executeQuery('get_user', `SELECT * FROM user WHERE netid = ?`, [netId]);
-    if (!rows) {
+    if (!rows.length) {
       return null;
     }
     const row = (rows as any[])[0];
@@ -98,7 +98,7 @@ export class DB {
 
   async getUserByApiKey(apiKey: string) {
     const [rows] = await this.executeQuery('get_user_by_api_key', `SELECT * FROM user WHERE apiKey = ?`, [apiKey]);
-    if (!rows) {
+    if (!rows.length) {
       return null;
     }
     const row = (rows as any[])[0];
@@ -121,7 +121,7 @@ export class DB {
 
   async getSubmissions(netId: string) {
     const [rows] = await this.executeQuery('get_submissions', `SELECT * FROM submission WHERE userId = ? ORDER BY time DESC`, [await this.getUserId(netId)]);
-    if (!rows) {
+    if (!rows.length) {
       return [];
     }
     return (rows as any[]).map((row) => {
@@ -131,7 +131,7 @@ export class DB {
 
   async getNetIdByToken(token: string) {
     const [rows] = await this.executeQuery('get_netid_by_token', `SELECT netid FROM token WHERE authtoken = ?`, [token]);
-    if (!rows) {
+    if (!rows.length) {
       return '';
     }
     return ((rows as any)[0] as any).netid || '';
@@ -139,7 +139,7 @@ export class DB {
 
   async getToken(netId: string) {
     const [rows] = await this.executeQuery('get_token', `SELECT authtoken FROM token WHERE netid = ?`, [netId]);
-    if (!rows) {
+    if (!rows.length) {
       return '';
     }
     return ((rows as any)[0] as any).authToken || '';
@@ -159,7 +159,7 @@ export class DB {
 
   async getPentest(netId: string) {
     const [rows] = await this.executeQuery('get_pentest', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
-    if (!rows) {
+    if (!rows.length) {
       return null;
     }
     const row = (rows as any[])[0];
@@ -168,7 +168,7 @@ export class DB {
 
   async getPentestPartners(netId: string) {
     const [rows] = await this.executeQuery('get_pentest_partners', `SELECT * FROM pentest WHERE partnerid = ? AND netid != ?`, ['', netId]);
-    if (!rows) {
+    if (!rows.length) {
       return [];
     }
     return (rows as any[]).map((row) => {
@@ -186,7 +186,7 @@ export class DB {
 
   async getUntriggeredChaos() {
     const [rows] = await this.executeQuery('get_untriggered_chaos', `SELECT * FROM chaos WHERE triggered = false`, []);
-    if (!rows) {
+    if (!rows.length) {
       return [];
     }
     return (rows as any[]).map((row) => {
@@ -200,7 +200,7 @@ export class DB {
 
   async getChaosTime(netId: string) {
     const [rows] = await this.executeQuery('get_chaos_time', `SELECT chaosTime FROM chaos WHERE netid = ?`, [netId]);
-    if (!rows) {
+    if (!rows.length) {
       return '';
     }
     return ((rows as any)[0] as any).chaosTime || '';
