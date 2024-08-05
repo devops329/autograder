@@ -78,6 +78,13 @@ apiRouter.get('/login', function (req, res) {
   });
 });
 
+apiRouter.post('/admin', async function (req, res) {
+  const username = req.body.username;
+  const password = req.body.password;
+  console.log(username, password);
+  res.json(true);
+});
+
 // Assert endpoint for when login completes
 apiRouter.post('/assert', async (req, res) => {
   const options = { request_body: req.body, allow_unencrypted_assertion: true, sign_get_request: true };
