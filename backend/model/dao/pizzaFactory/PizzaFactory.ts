@@ -23,7 +23,7 @@ export class PizzaFactory {
   }
 
   async triggerChaos(apiKey: string) {
-    let chaosType: 'badjwt' | 'throttle' | 'fail' = Math.random() < 0.33 ? 'badjwt' : Math.random() < 0.66 ? 'throttle' : 'fail';
+    let chaosType: 'throttle' | 'fail' = Math.random() < 0.5 ? 'throttle' : 'fail';
     try {
       const response = await fetch(`${config.pizza_factory.url}/api/admin/vendor/${apiKey}`, {
         method: 'PUT',
