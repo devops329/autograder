@@ -4,6 +4,7 @@ import { PizzaFactory } from '../dao/pizzaFactory/PizzaFactory';
 import { GradeService } from './GradeService';
 import { Canvas } from '../dao/canvas/Canvas';
 import { DeliverableGradeFactory } from '../../grading/graders/DeliverableGradeFactory';
+import { DateTime } from 'luxon';
 
 export class ChaosService {
   private db: DB;
@@ -26,15 +27,17 @@ export class ChaosService {
   }
 
   async addChaosToBeTriggered(netId: string) {
-    // Calculate random time up to 6 hours after 8am the following day
-    const chaosTime = new Date();
-    chaosTime.setUTCHours(15); // MST is UTC-7, so 8am MST is 15:00 UTC
-    chaosTime.setUTCMinutes(0);
-    chaosTime.setUTCDate(chaosTime.getUTCDate() + 1);
-    chaosTime.setUTCHours(chaosTime.getUTCHours() + Math.floor(Math.random() * 6));
-    chaosTime.setUTCMinutes(Math.floor(Math.random() * 60));
+    const randomHours = 8 + Math.floor(Math.random() * 6);
+    const randomMinutes = Math.floor(Math.random() * 60);
+    const chaosTime = DateTime.now()
+      .setZone('America/Denver')
+      .plus({ days: 1 })
+      .startOf('day')
+      .plus({ hours: randomHours, minutes: randomMinutes })
+      .toISO();
+
     // Put user and chaos time into chaos db
-    await this.db.putChaos(netId, chaosTime);
+    await this.db.putChaos(netId, chaosTime!);
     logger.log('info', { type: 'chaos_scheduled' }, { netId });
   }
 

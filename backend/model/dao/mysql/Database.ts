@@ -131,7 +131,9 @@ export class DB {
   }
 
   async getSubmissions(netId: string) {
-    const [rows] = await this.executeQuery('get_submissions', `SELECT * FROM submission WHERE userId = ? ORDER BY time DESC`, [await this.getUserId(netId)]);
+    const [rows] = await this.executeQuery('get_submissions', `SELECT * FROM submission WHERE userId = ? ORDER BY time DESC`, [
+      await this.getUserId(netId),
+    ]);
     if (!rows.length) {
       return [];
     }
@@ -191,8 +193,8 @@ export class DB {
     await this.executeQuery('update_pentest_partner', 'UPDATE pentest SET partnerid = ? WHERE netid = ?', [partnerId, netId]);
   }
 
-  async putChaos(netId: string, chaosTime: Date) {
-    await this.executeQuery('put_chaos', 'INSERT INTO chaos (netid, chaosTime) VALUES (?, ?)', [netId, chaosTime.toISOString()]);
+  async putChaos(netId: string, chaosTime: string) {
+    await this.executeQuery('put_chaos', 'INSERT INTO chaos (netid, chaosTime) VALUES (?, ?)', [netId, chaosTime]);
   }
 
   async getUntriggeredChaos() {

@@ -5,7 +5,7 @@ import { Grader } from './Grader';
 export class DeliverableElevenPartTwo implements Grader {
   async grade(user: User, gradeAttemptId: string): Promise<[number]> {
     const db = new DB();
-    let score = 100;
+    let score = 80;
 
     // get chaos time from chaos db
     const chaosTime = await db.getChaosTime(user.netId);
