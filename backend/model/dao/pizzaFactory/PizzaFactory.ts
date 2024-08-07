@@ -17,8 +17,8 @@ export class PizzaFactory {
       });
       const data = await response.json();
       return data.apiKey;
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      logger.log('error', { type: 'get_api_key' }, { error: error.message });
     }
   }
 
@@ -33,22 +33,18 @@ export class PizzaFactory {
         },
         body: JSON.stringify({ chaos: { type: chaosType, resolveUrl: `${config.app.host}/api/report` } }),
       });
-      const data = await response.json();
-      console.log('Attempted to trigger chaos. Response: ', data);
       return response.ok;
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      logger.log('error', { type: 'chaos_trigger' }, { error: error.message });
     }
   }
 
   async resolveChaos(apiKey: string, fixCode: string) {
     try {
       const response = await fetch(`${config.pizza_factory.url}/api/support/${apiKey}/report/${fixCode}`);
-      const data = await response.json();
-      logger.log('info', { type: 'chaos_resolve' }, data);
       return response.ok;
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      logger.log('error', { type: 'chaos_resolve' }, { error: error.message });
     }
   }
 }

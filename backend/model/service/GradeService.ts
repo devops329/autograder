@@ -96,13 +96,14 @@ export class GradeService {
   }
 
   async gradeDeliverableEleven(user: User) {
+    const assignmentIds = await this.getAssignmentIds();
     const gradeAttemptId = uuidv4();
     const grader = this.gradeFactory.deliverableElevenPartTwo;
     const score = (await grader.grade(user, gradeAttemptId))[0] as number;
     const rubric = {};
-    const submitScoreErrorMessage = await this.submitScoreToCanvas(940837, user.netId, score, gradeAttemptId);
+    const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentIds['11'], user.netId, score, gradeAttemptId);
     if (!submitScoreErrorMessage) {
-      await this.putSubmissionIntoDB(10, user.netId, score, rubric);
+      await this.putSubmissionIntoDB(11, user.netId, score, rubric);
     }
   }
 
