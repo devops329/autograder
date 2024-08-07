@@ -74,7 +74,7 @@ export function Grader(props: Props) {
             clearDisplay();
             doGrade(selectedAssignment);
           }}>
-          {selectedAssignment === 10 ? "I'm ready for some chaos!" : selectedAssignment === 11 ? 'Find me a partner' : 'Grade'}
+          {selectedAssignment === 11 ? "I'm ready for some chaos!" : selectedAssignment === 12 ? 'Find me a partner' : 'Grade'}
         </Button>
       )}
       {grading && (

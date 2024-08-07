@@ -28,11 +28,11 @@ export class ChaosService {
   async addChaosToBeTriggered(netId: string) {
     // Calculate random time up to 6 hours after 8am the following day
     const chaosTime = new Date();
-    chaosTime.setHours(8);
-    chaosTime.setMinutes(0);
-    chaosTime.setDate(chaosTime.getDate() + 1);
-    chaosTime.setHours(chaosTime.getHours() + Math.floor(Math.random() * 6));
-    chaosTime.setMinutes(Math.floor(Math.random() * 60));
+    chaosTime.setUTCHours(15); // MST is UTC-7, so 8am MST is 15:00 UTC
+    chaosTime.setUTCMinutes(0);
+    chaosTime.setUTCDate(chaosTime.getUTCDate() + 1);
+    chaosTime.setUTCHours(chaosTime.getUTCHours() + Math.floor(Math.random() * 6));
+    chaosTime.setUTCMinutes(Math.floor(Math.random() * 60));
     // Put user and chaos time into chaos db
     await this.db.putChaos(netId, chaosTime);
     logger.log('info', { type: 'chaos_scheduled' }, { netId });
