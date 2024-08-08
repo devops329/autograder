@@ -45,6 +45,7 @@ export function Grader(props: Props) {
       case 1:
       case 10:
       case 11:
+      case 12:
         return '';
       default:
         return 'Triggering workflow. This may take several minutes to complete.';
@@ -55,7 +56,10 @@ export function Grader(props: Props) {
   const assignmentPhases: number[] = presenter.assignmentPhases;
   return (
     <>
-      <DropdownButton id="dropdown-basic-button" variant="secondary" title={selectedAssignment ? `Deliverable ${selectedAssignment}` : 'Select Assignment'}>
+      <DropdownButton
+        id="dropdown-basic-button"
+        variant="secondary"
+        title={selectedAssignment ? `Deliverable ${selectedAssignment}` : 'Select Assignment'}>
         {assignmentPhases.map((assigmentPhase) => (
           <Dropdown.Item
             key={assigmentPhase}
