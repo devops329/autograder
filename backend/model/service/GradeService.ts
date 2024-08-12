@@ -90,7 +90,7 @@ export class GradeService {
       const submitScoreErrorMessage = await this.canvas.updateGrade(netid, assignmentId, studentId, score, gradeAttemptId);
       return submitScoreErrorMessage;
     } catch (e) {
-      logger.log('error', { type: 'grade' }, `Failed to update student grade for ${netid}`);
+      logger.log('error', { type: 'grade' }, { netid, error: e });
       return 'Failed to update grade';
     }
   }

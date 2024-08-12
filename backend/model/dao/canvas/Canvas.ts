@@ -23,7 +23,6 @@ export class Canvas {
     });
     const data = await response.json();
     if (!data[0]?.id) {
-      logger.log('error', { type: 'student_not_found' }, { netId });
       throw new Error('Student not found');
     }
     return data[0];
