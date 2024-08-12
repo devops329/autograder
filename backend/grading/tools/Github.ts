@@ -45,7 +45,11 @@ export class Github {
         }),
       });
       if (response.status !== 204) {
-        logger.log('error', { type: 'github_action_trigger', gradeAttemptId }, { file, user: this.user.netId, status: response.status, body: await response.text() });
+        logger.log(
+          'error',
+          { type: 'github_action_trigger', gradeAttemptId },
+          { file, user: this.user.netId, status: response.status, body: await response.text() }
+        );
         return false;
       }
     } catch (error) {
@@ -88,7 +92,7 @@ export class Github {
   async waitForCompletion(file: string, gradeAttemptId: string): Promise<void> {
     let run = await this.getMostRecentRun(file, gradeAttemptId);
     if (!run) {
-      console.error('No run found');
+      logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: this.user.netId });
       return;
     }
 

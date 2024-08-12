@@ -106,7 +106,7 @@ export class GradingTools {
         return false;
       }
     } catch (e) {
-      console.error('Error creating user:', e);
+      logger.log('error', { type: 'create_user_and_login_error', gradeAttemptId }, { error: e });
       return false;
     }
 

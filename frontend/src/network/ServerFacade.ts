@@ -18,7 +18,10 @@ export class ServerFacade {
 
   async grade(netId: string, assignmentPhase: number): Promise<[string, Submission[], JSON]> {
     const endpoint = 'grade';
-    const response: { message: string; submissions: JSON[]; rubric: JSON } = (await this.clientCommunicator.doPost({ assignmentPhase, netId }, endpoint)) as unknown as {
+    const response: { message: string; submissions: JSON[]; rubric: JSON } = (await this.clientCommunicator.doPost(
+      { assignmentPhase, netId },
+      endpoint
+    )) as unknown as {
       message: string;
       submissions: JSON[];
       rubric: JSON;
