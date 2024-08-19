@@ -11,6 +11,12 @@ interface DeliverableSevenRubric {
   comments: string;
 }
 export class DeliverableSeven implements Grader {
+  private tools: GradingTools;
+
+  constructor(tools: GradingTools) {
+    this.tools = tools;
+  }
+
   async grade(user: User, gradeAttemptId: string): Promise<[number | string, DeliverableSevenRubric]> {
     let points = 0;
     let rubric: DeliverableSevenRubric = {
@@ -21,7 +27,7 @@ export class DeliverableSeven implements Grader {
       comments: '',
     };
     const github = new Github(user, 'jwt-pizza');
-    const tools = new GradingTools();
+
     // Read ci file
     const ci = await github.readWorkflowFile(gradeAttemptId);
     // Get most recent release
@@ -59,8 +65,8 @@ export class DeliverableSeven implements Grader {
           // Fetch version number from release
           const stagingReleaseVersion = stagingReleaseJson.name.match(/\d{8}\.\d{6}/)?.[0];
           // Fetch version number from staging site
-          const hostname = tools.getHostnameFromWebsite(user.website);
-          const stagingSiteVersion = (await tools.readPageJson(`stage-pizza.${hostname}/version.json`)).version;
+          const hostname = this.tools.getHostnameFromWebsite(user.website);
+          const stagingSiteVersion = (await this.tools.readPageJson(`stage-pizza.${hostname}/version.json`)).version;
           // Check they match
           if (stagingReleaseVersion === stagingSiteVersion) {
             points += 20;
@@ -88,7 +94,7 @@ export class DeliverableSeven implements Grader {
               // Fetch version number from release
               const productionReleaseVersion = productionReleaseJson.name.match(/\d{8}\.\d{6}/)?.[0];
               // Check production site for valid version (matches release)
-              const productionSiteVersion = (await tools.readPageJson(`${user.website}/version.json`)).version;
+              const productionSiteVersion = (await this.tools.readPageJson(`${user.website}/version.json`)).version;
               if (productionReleaseVersion === productionSiteVersion) {
                 points += 20;
                 rubric.triggeredProductionDeployment += 20;

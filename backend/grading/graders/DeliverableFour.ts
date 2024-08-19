@@ -12,6 +12,12 @@ interface DeliverableFourRubric {
 }
 
 export class DeliverableFour implements Grader {
+  private tools: GradingTools;
+
+  constructor(tools: GradingTools) {
+    this.tools = tools;
+  }
+
   async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableFourRubric]> {
     let score = 0;
     const rubric: DeliverableFourRubric = {
@@ -20,7 +26,6 @@ export class DeliverableFour implements Grader {
       coverage: 0,
       comments: '',
     };
-    const tools = new GradingTools();
     const github = new Github(user, 'jwt-pizza');
 
     // Read workflow file
@@ -57,7 +62,7 @@ export class DeliverableFour implements Grader {
 
         // Get coverage badge
         const coverageBadge = await github.readCoverageBadge(gradeAttemptId);
-        if (await tools.checkCoverage(coverageBadge, 80)) {
+        if (await this.tools.checkCoverage(coverageBadge, 80)) {
           score += 70;
           rubric.coverage += 70;
         } else {

@@ -60,12 +60,12 @@ export class GradeService {
         break;
       case 11:
         grader = this.gradeFactory.deliverableElevenPartOne;
-        const message = (await grader.grade(user!, gradeAttemptId))[0];
+        const message = (await grader.grade(user!))[0];
         submissions = await this.getSubmissions(netid);
         return [message, submissions];
       case 12:
         grader = this.gradeFactory.deliverableTwelve;
-        const partner = (await grader.grade(user!, gradeAttemptId))[0];
+        const partner = (await grader.grade(user!))[0];
         submissions = await this.getSubmissions(netid);
         return [partner, submissions];
       default:

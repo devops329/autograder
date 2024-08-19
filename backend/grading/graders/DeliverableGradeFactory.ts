@@ -14,13 +14,14 @@ import { DeliverableTwo } from './DeliverableTwo';
 import { Grader } from './Grader';
 
 export class DeliverableGradeFactory implements GradeFactory {
-  deliverableOne: Grader = new DeliverableOne(new GradingTools());
+  private tools: GradingTools = new GradingTools();
+  deliverableOne: Grader = new DeliverableOne(this.tools);
   deliverableTwo: Grader = new DeliverableTwo(this.deliverableOne as DeliverableOne);
-  deliverableThree: Grader = new DeliverableThree();
-  deliverableFour: Grader = new DeliverableFour();
-  deliverableFive: Grader = new DeliverableFive();
-  deliverableSix: Grader = new DeliverableSix();
-  deliverableSeven: Grader = new DeliverableSeven();
+  deliverableThree: Grader = new DeliverableThree(this.tools);
+  deliverableFour: Grader = new DeliverableFour(this.tools);
+  deliverableFive: Grader = new DeliverableFive(this.tools);
+  deliverableSix: Grader = new DeliverableSix(this.tools);
+  deliverableSeven: Grader = new DeliverableSeven(this.tools);
   deliverableElevenPartOne: Grader = new DeliverableElevenPartOne();
   deliverableElevenPartTwo: Grader = new DeliverableElevenPartTwo();
   deliverableTwelve: Grader = new DeliverableTwelve();

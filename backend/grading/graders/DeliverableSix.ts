@@ -14,9 +14,10 @@ interface Rubric {
 
 export class DeliverableSix implements Grader {
   private tools: GradingTools;
-  constructor() {
-    this.tools = new GradingTools();
+  constructor(tools: GradingTools) {
+    this.tools = tools;
   }
+
   async grade(user: User, gradeAttemptId: string): Promise<[number, object]> {
     let score = 0;
     const rubric: Rubric = {

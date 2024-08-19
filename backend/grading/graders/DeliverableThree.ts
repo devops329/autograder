@@ -12,6 +12,12 @@ interface DeliverableThreeRubric {
 }
 
 export class DeliverableThree implements Grader {
+  private tools: GradingTools;
+
+  constructor(tools: GradingTools) {
+    this.tools = tools;
+  }
+
   async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableThreeRubric]> {
     let score = 0;
     const rubric: DeliverableThreeRubric = {
@@ -21,7 +27,6 @@ export class DeliverableThree implements Grader {
       coverage: 0,
       comments: '',
     };
-    const tools = new GradingTools();
 
     // Check commit history
     const github = new Github(user, 'jwt-pizza-service');
@@ -69,7 +74,7 @@ export class DeliverableThree implements Grader {
 
         // Get coverage badge
         const coverageBadge = await github.readCoverageBadge(gradeAttemptId);
-        if (await tools.checkCoverage(coverageBadge, 80)) {
+        if (await this.tools.checkCoverage(coverageBadge, 80)) {
           score += 65;
           rubric.coverage += 65;
         } else {

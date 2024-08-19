@@ -7,7 +7,7 @@ interface DeliverableElevenRubric {
   comments: string;
 }
 export class DeliverableElevenPartTwo implements Grader {
-  async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableElevenRubric]> {
+  async grade(user: User): Promise<[number, DeliverableElevenRubric]> {
     const db = new DB();
     const rubric: DeliverableElevenRubric = {
       issueResolvedInTime: 0,

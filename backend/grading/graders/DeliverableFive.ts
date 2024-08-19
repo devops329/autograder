@@ -11,6 +11,12 @@ interface DeliverableFiveRubric {
 }
 
 export class DeliverableFive implements Grader {
+  private tools: GradingTools;
+
+  constructor(tools: GradingTools) {
+    this.tools = tools;
+  }
+
   async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableFiveRubric]> {
     let score = 0;
     const rubric: DeliverableFiveRubric = {
@@ -20,7 +26,6 @@ export class DeliverableFive implements Grader {
       comments: '',
     };
     const github = new Github(user, 'jwt-pizza');
-    const tools = new GradingTools();
 
     // Read workflow file
     const workflowFile = await github.readWorkflowFile(gradeAttemptId);
@@ -43,8 +48,8 @@ export class DeliverableFive implements Grader {
       }
 
       // Check cloudfront deployment
-      const cloudfrontDeployed = await tools.checkDNS(user.website, /cloudfront\.net/, gradeAttemptId);
-      const pageExists = await tools.checkPageExistsAndContainsText(user.website, /JWT Pizza/g);
+      const cloudfrontDeployed = await this.tools.checkDNS(user.website, /cloudfront\.net/, gradeAttemptId);
+      const pageExists = await this.tools.checkPageExistsAndContainsText(user.website, /JWT Pizza/g);
       if (cloudfrontDeployed && pageExists) {
         rubric.cloudfrontDeployment = 45;
         score += 45;
@@ -53,7 +58,7 @@ export class DeliverableFive implements Grader {
       }
 
       // Check handling of browser refresh React DOM Routing
-      const handles404Routing = await tools.checkPageExistsAndContainsText(user.website + '/garbage', /JWT Pizza/g);
+      const handles404Routing = await this.tools.checkPageExistsAndContainsText(user.website + '/garbage', /JWT Pizza/g);
       if (handles404Routing) {
         rubric.handles404Routing = 10;
         score += 10;
