@@ -11,9 +11,11 @@ interface DeliverableTwoRubric {
 
 export class DeliverableTwo implements Grader {
   private deliverableOne: DeliverableOne;
+  private github: Github;
 
-  constructor(deliverableOne: DeliverableOne) {
+  constructor(deliverableOne: DeliverableOne, github: Github) {
     this.deliverableOne = deliverableOne;
+    this.github = github;
   }
   async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableTwoRubric]> {
     const rubric: DeliverableTwoRubric = {
@@ -22,7 +24,6 @@ export class DeliverableTwo implements Grader {
       comments: '',
     };
     const hostname = user.website;
-    const github = new Github(user, 'jwt-pizza');
     let score = 0;
 
     if (!hostname) {
@@ -31,7 +32,7 @@ export class DeliverableTwo implements Grader {
     }
 
     // Read workflow file
-    const workflowFileContents = await github.readWorkflowFile(gradeAttemptId);
+    const workflowFileContents = await this.github.readWorkflowFile(user, 'jwt-pizza', gradeAttemptId);
     const deployedToPages = workflowFileContents.includes('actions/deploy-pages');
     if (!deployedToPages) {
       rubric.comments += 'Your GitHub Action workflow does not deploy to GitHub Pages.\n';
@@ -40,7 +41,7 @@ export class DeliverableTwo implements Grader {
     score += 30;
     rubric.deployedToPages += 30;
 
-    const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml', gradeAttemptId);
+    const success = await this.github.triggerWorkflowAndWaitForCompletion(user, 'jwt-pizza', 'ci.yml', gradeAttemptId);
     if (!success) {
       rubric.comments += 'Workflow could not be triggered. Did you add byucs329ta as a collaborator?\n';
       return [score, rubric];

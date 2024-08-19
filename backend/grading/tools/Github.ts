@@ -3,34 +3,23 @@ import logger from '../../logger';
 import { User } from '../../model/domain/User';
 
 export class Github {
-  private user: User;
-  private repo: string;
-  constructor(user: User, repo: string) {
-    this.user = user;
-    this.repo = repo;
-  }
-
-  setRepo(repo: string) {
-    this.repo = repo;
-  }
-
-  async readGithubFile(path: string, gradeAttemptId: string): Promise<string> {
-    const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/${path}`;
+  async readGithubFile(user: User, repo: string, path: string, gradeAttemptId: string): Promise<string> {
+    const apiUrl = `https://api.github.com/repos/${user.github}/${repo}/contents/${path}`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      logger.log('error', { type: 'github_file_fetch', gradeAttemptId }, { path, user: this.user.netId, status: response.status });
+      logger.log('error', { type: 'github_file_fetch', gradeAttemptId }, { path, user: user.netId, status: response.status });
       return '';
     }
     // get the content and base 64 decode it
     const content = (await response.json()).content;
     return atob(content);
   }
-  async readWorkflowFile(gradeAttemptId: string): Promise<string> {
-    return this.readGithubFile('.github/workflows/ci.yml', gradeAttemptId);
+  async readWorkflowFile(user: User, repo: string, gradeAttemptId: string): Promise<string> {
+    return this.readGithubFile(user, repo, '.github/workflows/ci.yml', gradeAttemptId);
   }
 
-  async triggerWorkflowAndWaitForCompletion(file: string, gradeAttemptId: string, inputs?: object): Promise<boolean> {
-    const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/actions/workflows/${file}/dispatches`;
+  async triggerWorkflowAndWaitForCompletion(user: User, repo: string, file: string, gradeAttemptId: string, inputs?: object): Promise<boolean> {
+    const url = `https://api.github.com/repos/${user.github}/${repo}/actions/workflows/${file}/dispatches`;
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -48,27 +37,27 @@ export class Github {
         logger.log(
           'error',
           { type: 'github_action_trigger', gradeAttemptId },
-          { file, user: this.user.netId, status: response.status, body: await response.text() }
+          { file, user: user.netId, status: response.status, body: await response.text() }
         );
         return false;
       }
     } catch (error) {
-      logger.log('error', { type: 'github_action_trigger', gradeAttemptId }, { file, user: this.user.netId, error });
+      logger.log('error', { type: 'github_action_trigger', gradeAttemptId }, { file, user: user.netId, error });
     }
     // Wait a few seconds for the run to start
     await new Promise((resolve) => setTimeout(resolve, 5000));
     // Wait for the run to complete
-    await this.waitForCompletion(file, gradeAttemptId);
+    await this.waitForCompletion(user, repo, file, gradeAttemptId);
     return true;
   }
 
-  async checkRecentRunSuccess(file: string, gradeAttemptId: string): Promise<boolean> {
-    const run = await this.getMostRecentRun(file, gradeAttemptId);
+  async checkRecentRunSuccess(user: User, repo: string, file: string, gradeAttemptId: string): Promise<boolean> {
+    const run = await this.getMostRecentRun(user, repo, file, gradeAttemptId);
     return run && run.conclusion === 'success';
   }
 
-  async getMostRecentRun(file: string, gradeAttemptId: string): Promise<any> {
-    const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/actions/workflows/${file}/runs`;
+  async getMostRecentRun(user: User, repo: string, file: string, gradeAttemptId: string): Promise<any> {
+    const url = `https://api.github.com/repos/${user.github}/${repo}/actions/workflows/${file}/runs`;
     try {
       const response = await fetch(url, {
         headers: {
@@ -78,38 +67,38 @@ export class Github {
         },
       });
       if (!response.ok) {
-        logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: this.user.netId, status: response.status });
+        logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: user.netId, status: response.status });
         return null;
       }
       const data = await response.json();
       return data.workflow_runs[0];
     } catch (error) {
-      logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: this.user.netId, error });
+      logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: user.netId, error });
       return null;
     }
   }
 
-  async waitForCompletion(file: string, gradeAttemptId: string): Promise<void> {
-    let run = await this.getMostRecentRun(file, gradeAttemptId);
+  async waitForCompletion(user: User, repo: string, file: string, gradeAttemptId: string): Promise<void> {
+    let run = await this.getMostRecentRun(user, repo, file, gradeAttemptId);
     if (!run) {
-      logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: this.user.netId });
+      logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: user.netId });
       return;
     }
 
     while (run.status !== 'completed') {
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      run = await this.getMostRecentRun(file, gradeAttemptId);
+      run = await this.getMostRecentRun(user, repo, file, gradeAttemptId);
       if (!run) {
-        logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: this.user.netId });
+        logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: user.netId });
         return;
       }
     }
   }
-  async getVersionNumber(app: 'frontend' | 'backend', gradeAttemptId: string): Promise<string> {
-    const apiUrl = `https://api.github.com/repos/${this.user.github}/${this.repo}/contents/${app === 'frontend' ? 'public' : 'src'}/version.json`;
+  async getVersionNumber(user: User, repo: string, app: 'frontend' | 'backend', gradeAttemptId: string): Promise<string> {
+    const apiUrl = `https://api.github.com/repos/${user.github}/${repo}/contents/${app === 'frontend' ? 'public' : 'src'}/version.json`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      logger.log('error', { type: 'github_file_fetch', gradeAttemptId }, { path: 'version.json', user: this.user.netId, status: response.status });
+      logger.log('error', { type: 'github_file_fetch', gradeAttemptId }, { path: 'version.json', user: user.netId, status: response.status });
       return '';
     }
     // get the content and base 64 decode it
@@ -117,21 +106,21 @@ export class Github {
     const version = JSON.parse(atob(content)).version;
     return version;
   }
-  async readCoverageBadge(gradeAttemptId: string): Promise<string> {
-    return this.readGithubFile('coverageBadge.svg', gradeAttemptId);
+  async readCoverageBadge(user: User, repo: string, gradeAttemptId: string): Promise<string> {
+    return this.readGithubFile(user, repo, 'coverageBadge.svg', gradeAttemptId);
   }
 
-  async getMostRecentRelease(gradeAttemptId: string) {
-    const url = `https://api.github.com/repos/${this.user.github}/${this.repo}/releases/latest`;
+  async getMostRecentRelease(user: User, repo: string, gradeAttemptId: string) {
+    const url = `https://api.github.com/repos/${user.github}/${repo}/releases/latest`;
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        logger.log('error', { type: 'github_release_fetch', gradeAttemptId }, { user: this.user.netId, status: response.status });
+        logger.log('error', { type: 'github_release_fetch', gradeAttemptId }, { user: user.netId, status: response.status });
         return null;
       }
       return await response.json();
     } catch (error) {
-      logger.log('error', { type: 'github_release_fetch', gradeAttemptId }, { user: this.user.netId, error });
+      logger.log('error', { type: 'github_release_fetch', gradeAttemptId }, { user: user.netId, error });
       return null;
     }
   }
