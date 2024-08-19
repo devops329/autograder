@@ -7,8 +7,13 @@ interface DeliverableElevenRubric {
   comments: string;
 }
 export class DeliverableElevenPartTwo implements Grader {
+  private db: DB;
+
+  constructor(db: DB) {
+    this.db = db;
+  }
+
   async grade(user: User): Promise<[number, DeliverableElevenRubric]> {
-    const db = new DB();
     const rubric: DeliverableElevenRubric = {
       issueResolvedInTime: 0,
       comments: '',
@@ -16,7 +21,7 @@ export class DeliverableElevenPartTwo implements Grader {
     let score = 80;
     rubric.issueResolvedInTime = 80;
     // get chaos time from chaos db
-    const chaosTime = await db.getChaosTime(user.netId);
+    const chaosTime = await this.db.getChaosTime(user.netId);
     // Add 6 hours to chaos time for cutoff
     const cutoff = new Date(chaosTime);
     cutoff.setHours(cutoff.getHours() + 6);
@@ -29,10 +34,10 @@ export class DeliverableElevenPartTwo implements Grader {
       rubric.comments += `Issue was resolved ${hoursPast} hours late.`;
     }
     // remove chaos from db
-    db.deleteChaos(user.netId);
+    this.db.deleteChaos(user.netId);
 
     // put user into pentest db
-    db.putPentest(user.netId);
+    this.db.putPentest(user.netId);
     return [score, rubric];
   }
 }
