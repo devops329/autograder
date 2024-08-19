@@ -19,11 +19,11 @@ export class DeliverableGradeFactory implements GradeFactory {
   private github: Github = new Github();
   deliverableOne: Grader = new DeliverableOne(this.tools);
   deliverableTwo: Grader = new DeliverableTwo(this.deliverableOne as DeliverableOne, this.github);
-  deliverableThree: Grader = new DeliverableThree(this.tools);
-  deliverableFour: Grader = new DeliverableFour(this.tools);
+  deliverableThree: Grader = new DeliverableThree(this.tools, this.github);
+  deliverableFour: Grader = new DeliverableFour(this.tools, this.github);
   deliverableFive: Grader = new DeliverableFive(this.tools);
-  deliverableSix: Grader = new DeliverableSix(this.tools);
-  deliverableSeven: Grader = new DeliverableSeven(this.tools);
+  deliverableSix: Grader = new DeliverableSix(this.tools, this.github);
+  deliverableSeven: Grader = new DeliverableSeven(this.tools, this.github);
   deliverableElevenPartOne: Grader = new DeliverableElevenPartOne();
   deliverableElevenPartTwo: Grader = new DeliverableElevenPartTwo();
   deliverableTwelve: Grader = new DeliverableTwelve();

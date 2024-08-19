@@ -14,8 +14,11 @@ interface Rubric {
 
 export class DeliverableSix implements Grader {
   private tools: GradingTools;
-  constructor(tools: GradingTools) {
+  private github: Github;
+
+  constructor(tools: GradingTools, github: Github) {
     this.tools = tools;
+    this.github = github;
   }
 
   async grade(user: User, gradeAttemptId: string): Promise<[number, object]> {
@@ -28,23 +31,22 @@ export class DeliverableSix implements Grader {
       frontendCallsOwnFunctionalService: 0,
       comments: '',
     };
-    const github = new Github(user, 'jwt-pizza-service');
 
     // Read workflow file
-    const workflowFile = await github.readWorkflowFile(gradeAttemptId);
+    const workflowFile = await this.github.readWorkflowFile(user, 'jwt-pizza-service', gradeAttemptId);
     const pushesToECS = workflowFile.includes('aws-actions/amazon-ecs-deploy-task-definition');
     const buildsAndPushesToECR = workflowFile.includes('docker build') && workflowFile.includes('$ECR_REGISTRY/$ECR_REPOSITORY --push');
 
     if (pushesToECS && buildsAndPushesToECR) {
       // Run the workflow
-      const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml', gradeAttemptId);
+      const success = await this.github.triggerWorkflowAndWaitForCompletion(user, 'jwt-pizza-service', 'ci.yml', gradeAttemptId);
       if (!success) {
         rubric.comments += 'Workflow could not be triggered. Did you add byucs329ta as a collaborator?\n';
         return [score, rubric];
       }
 
       // Check for successful run
-      const runSuccess = await github.checkRecentRunSuccess('ci.yml', gradeAttemptId);
+      const runSuccess = await this.github.checkRecentRunSuccess(user, 'jwt-pizza-service', 'ci.yml', gradeAttemptId);
       if (runSuccess) {
         score += 50;
         rubric.ecrEcsFargateDeployment += 20;
@@ -67,8 +69,7 @@ export class DeliverableSix implements Grader {
       }
 
       // Get service url from frontend
-      github.setRepo('jwt-pizza');
-      const envFile = await github.readGithubFile('.env.production', gradeAttemptId);
+      const envFile = await this.github.readGithubFile(user, 'jwt-pizza', '.env.production', gradeAttemptId);
       serviceUrl = await this.tools.getEnvVariable(envFile, 'VITE_PIZZA_SERVICE_URL');
       if (!serviceUrl) {
         rubric.comments += 'Could not find VITE_PIZZA_SERVICE_URL in .env.production.\n';

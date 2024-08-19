@@ -13,9 +13,11 @@ interface DeliverableThreeRubric {
 
 export class DeliverableThree implements Grader {
   private tools: GradingTools;
+  private github: Github;
 
-  constructor(tools: GradingTools) {
+  constructor(tools: GradingTools, github: Github) {
     this.tools = tools;
+    this.github = github;
   }
 
   async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableThreeRubric]> {
@@ -28,11 +30,8 @@ export class DeliverableThree implements Grader {
       comments: '',
     };
 
-    // Check commit history
-    const github = new Github(user, 'jwt-pizza-service');
-
     // Read workflow file
-    const workflowFile = await github.readWorkflowFile(gradeAttemptId);
+    const workflowFile = await this.github.readWorkflowFile(user, 'jwt-pizza-service', gradeAttemptId);
     const runsLint = workflowFile.includes('npm run lint');
     if (runsLint) {
       score += 5;
@@ -46,16 +45,16 @@ export class DeliverableThree implements Grader {
       rubric.testSuccess += 5;
 
       // Get current version
-      const versionNumber = await github.getVersionNumber('backend', gradeAttemptId);
+      const versionNumber = await this.github.getVersionNumber(user, 'jwt-pizza-service', 'backend', gradeAttemptId);
       // Run the workflow
-      const success = await github.triggerWorkflowAndWaitForCompletion('ci.yml', gradeAttemptId);
+      const success = await this.github.triggerWorkflowAndWaitForCompletion(user, 'jwt-pizza-service', 'ci.yml', gradeAttemptId);
       if (!success) {
         rubric.comments += 'Workflow could not be triggered. Did you add byucs329ta as a collaborator?\n';
         return [score, rubric];
       }
 
       // Check for successful run
-      const runSuccess = await github.checkRecentRunSuccess('ci.yml', gradeAttemptId);
+      const runSuccess = await this.github.checkRecentRunSuccess(user, 'jwt-pizza-service', 'ci.yml', gradeAttemptId);
       if (runSuccess) {
         rubric.testSuccess += 15;
         score += 15;
@@ -64,7 +63,7 @@ export class DeliverableThree implements Grader {
           rubric.lintSuccess += 5;
         }
         // Get new version number
-        const newVersionNumber = await github.getVersionNumber('backend', gradeAttemptId);
+        const newVersionNumber = await this.github.getVersionNumber(user, 'jwt-pizza-service', 'backend', gradeAttemptId);
         if (newVersionNumber && newVersionNumber != versionNumber) {
           score += 5;
           rubric.versionIncrement += 5;
@@ -73,7 +72,7 @@ export class DeliverableThree implements Grader {
         }
 
         // Get coverage badge
-        const coverageBadge = await github.readCoverageBadge(gradeAttemptId);
+        const coverageBadge = await this.github.readCoverageBadge(user, 'jwt-pizza-service', gradeAttemptId);
         if (await this.tools.checkCoverage(coverageBadge, 80)) {
           score += 65;
           rubric.coverage += 65;
