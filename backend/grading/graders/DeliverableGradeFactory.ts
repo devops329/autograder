@@ -26,7 +26,7 @@ export class DeliverableGradeFactory implements GradeFactory {
   deliverableTwo: Grader = new DeliverableTwo(this.deliverableOne as DeliverableOne, this.github);
   deliverableThree: Grader = new DeliverableThree(this.tools, this.github);
   deliverableFour: Grader = new DeliverableFour(this.tools, this.github);
-  deliverableFive: Grader = new DeliverableFive(this.tools);
+  deliverableFive: Grader = new DeliverableFive(this.tools, this.github);
   deliverableSix: Grader = new DeliverableSix(this.tools, this.github);
   deliverableSeven: Grader = new DeliverableSeven(this.tools, this.github);
   deliverableElevenPartOne: Grader = new DeliverableElevenPartOne(this.chaosService);
