@@ -1,4 +1,5 @@
 import { GradeFactory } from '../GradeFactory';
+import { GradingTools } from '../tools/GradingTools';
 import { DeliverableElevenPartOne } from './DeliverableElevenPartOne';
 import { DeliverableElevenPartTwo } from './DeliverableElevenPartTwo';
 import { DeliverableFive } from './DeliverableFive';
@@ -13,8 +14,8 @@ import { DeliverableTwo } from './DeliverableTwo';
 import { Grader } from './Grader';
 
 export class DeliverableGradeFactory implements GradeFactory {
-  deliverableOne: Grader = new DeliverableOne();
-  deliverableTwo: Grader = new DeliverableTwo();
+  deliverableOne: Grader = new DeliverableOne(new GradingTools());
+  deliverableTwo: Grader = new DeliverableTwo(this.deliverableOne as DeliverableOne);
   deliverableThree: Grader = new DeliverableThree();
   deliverableFour: Grader = new DeliverableFour();
   deliverableFive: Grader = new DeliverableFive();

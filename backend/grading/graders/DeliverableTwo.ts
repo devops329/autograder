@@ -10,6 +10,11 @@ interface DeliverableTwoRubric {
 }
 
 export class DeliverableTwo implements Grader {
+  private deliverableOne: DeliverableOne;
+
+  constructor(deliverableOne: DeliverableOne) {
+    this.deliverableOne = deliverableOne;
+  }
   async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableTwoRubric]> {
     const rubric: DeliverableTwoRubric = {
       deployedToPages: 0,
@@ -42,9 +47,9 @@ export class DeliverableTwo implements Grader {
     }
 
     // Check for successful deployment
-    const deliverableOne = new DeliverableOne();
-    const deployedScore = (await deliverableOne.grade(user, gradeAttemptId))[0] * 0.7;
-    const deliverableOneRubric = (await deliverableOne.grade(user, gradeAttemptId))[1];
+    const deliverableOneResult = await this.deliverableOne.grade(user, gradeAttemptId);
+    const deployedScore = deliverableOneResult[0] * 0.7;
+    const deliverableOneRubric = deliverableOneResult[1];
     rubric.comments += deliverableOneRubric.comments;
     score += deployedScore;
     rubric.deployedScore += deployedScore;

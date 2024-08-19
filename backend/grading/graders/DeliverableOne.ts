@@ -9,6 +9,11 @@ interface DeliverableOneRubric {
 }
 
 export class DeliverableOne implements Grader {
+  private tools: GradingTools;
+
+  constructor(tools: GradingTools) {
+    this.tools = tools;
+  }
   async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableOneRubric]> {
     const rubric: DeliverableOneRubric = {
       customDomainName: 0,
@@ -16,7 +21,6 @@ export class DeliverableOne implements Grader {
       comments: '',
     };
     const hostname = user.website;
-    const tools = new GradingTools();
 
     let score = 0;
 
@@ -28,8 +32,8 @@ export class DeliverableOne implements Grader {
     let customDomainNameSuccess = false;
     let githubPagesSuccess = false;
 
-    customDomainNameSuccess = await tools.checkPageExistsAndContainsText(hostname, /JWT Pizza/g);
-    githubPagesSuccess = await tools.checkDNS(hostname, /github\.io/, gradeAttemptId);
+    customDomainNameSuccess = await this.tools.checkPageExistsAndContainsText(hostname, /JWT Pizza/g);
+    githubPagesSuccess = await this.tools.checkDNS(hostname, /github\.io/, gradeAttemptId);
 
     if (customDomainNameSuccess) {
       score += 30;
