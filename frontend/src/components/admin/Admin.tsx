@@ -26,8 +26,8 @@ export function Admin(props: Props) {
             onChange={(event) => {
               setNetId(event.target.value);
             }}
-            placeholder="NetId"
-            aria-label="NetId"
+            placeholder="netId"
+            aria-label="netId"
             aria-describedby="basic-addon1"
           />
         </InputGroup>
