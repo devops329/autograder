@@ -46,8 +46,6 @@ export class DeliverableOne implements Grader {
       if (customDomainNameSuccess) {
         score += 40;
         rubric.githubPages += 40;
-      } else {
-        rubric.comments += 'Your website is hosted by GitHub Pages, but JWT Pizza is not functional.\n';
       }
       score += 30;
       rubric.githubPages += 30;
