@@ -1,4 +1,3 @@
-import e from 'express';
 import { User } from '../../model/domain/User';
 import { Github } from '../tools/Github';
 import { GradingTools } from '../tools/GradingTools';
@@ -70,10 +69,10 @@ export class DeliverableFour implements Grader {
           rubric.comments += 'Coverage did not exceed minimum threshold.\n';
         }
       } else {
-        rubric.comments += 'Workflow did not run successfully.\n';
+        rubric.comments += 'Workflow did not succeed.\n';
       }
     } else {
-      rubric.comments += 'Workflow does not run tests.\n';
+      rubric.comments += 'Testing is not included in the workflow.\n';
     }
     return [score, rubric];
   }
