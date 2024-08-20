@@ -2,10 +2,14 @@ import { GradingTools } from '../../../grading/tools/GradingTools';
 
 export class MockGradingTools implements GradingTools {
   private _pageExists: boolean = true;
+  private _success404: boolean = true;
   private _dnsSuccess: boolean = true;
   private _coverage: boolean = true;
   set pageExists(value: boolean) {
     this._pageExists = value;
+  }
+  set success404(value: boolean) {
+    this._success404 = value;
   }
   set dnsSuccess(value: boolean) {
     this._dnsSuccess = value;
@@ -17,6 +21,9 @@ export class MockGradingTools implements GradingTools {
     return this._dnsSuccess;
   }
   async checkPageExistsAndContainsText(hostname: string, regex: RegExp): Promise<boolean> {
+    if (hostname.includes('garbage')) {
+      return this._success404;
+    }
     return this._pageExists;
   }
   async readPageJson(hostname: string): Promise<any> {

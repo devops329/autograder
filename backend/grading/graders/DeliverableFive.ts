@@ -46,6 +46,7 @@ export class DeliverableFive implements Grader {
         score += 45;
       } else {
         rubric.comments += 'Workflow did not complete successfully.\n';
+        return [score, rubric];
       }
 
       // Check cloudfront deployment
@@ -56,6 +57,7 @@ export class DeliverableFive implements Grader {
         score += 45;
       } else {
         rubric.comments += 'Cloudfront deployment failed.\n';
+        return [score, rubric];
       }
 
       // Check handling of browser refresh React DOM Routing
@@ -65,6 +67,7 @@ export class DeliverableFive implements Grader {
         score += 10;
       } else {
         rubric.comments += '404 routing failed.\n';
+        return [score, rubric];
       }
     } else {
       rubric.comments += 'Workflow does not push to S3.\n';
