@@ -10,6 +10,9 @@ const d1 = new DeliverableOne(mockTools);
 const d2 = new DeliverableTwo(d1, mockGithub);
 
 // All these tests assume Deliverable One gets full points
+beforeEach(() => {
+  mockGithub.workflowRuns = true;
+});
 
 test('A student with no website gets 0 points', async () => {
   const [score, rubric] = await d2.grade(mockStudentNoWebsiteOrGithub, '1');
@@ -30,7 +33,7 @@ test('A workflow that does not deploy to GitHub Pages gets 0 points', async () =
 
 test('A workflow that has the action to deploy to GitHub Pages but does not run gets 30 points', async () => {
   mockGithub.workflowFileContents = 'actions/deploy-pages';
-  mockGithub.workflowSuccess = false;
+  mockGithub.workflowRuns = false;
   const [score, rubric] = await d2.grade(mockStudent, '1');
   expect(score).toBe(30);
   expect(rubric.deployedToPages).toBe(30);
@@ -40,7 +43,6 @@ test('A workflow that has the action to deploy to GitHub Pages but does not run 
 
 test('A workflow that deploys to GitHub Pages and runs successfully gets 100 points', async () => {
   mockGithub.workflowFileContents = 'actions/deploy-pages';
-  mockGithub.workflowSuccess = true;
   const [score, rubric] = await d2.grade(mockStudent, '1');
   expect(score).toBe(100);
   expect(rubric.deployedToPages).toBe(30);
