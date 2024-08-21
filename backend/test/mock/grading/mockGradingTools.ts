@@ -5,6 +5,8 @@ export class MockGradingTools implements GradingTools {
   private _success404: boolean = true;
   private _dnsSuccess: boolean = true;
   private _coverage: boolean = true;
+  private _serviceWorks: boolean = true;
+  private _envVariable: string = 'mock';
   set pageExists(value: boolean) {
     this._pageExists = value;
   }
@@ -16,6 +18,12 @@ export class MockGradingTools implements GradingTools {
   }
   set coverage(value: boolean) {
     this._coverage = value;
+  }
+  set serviceWorks(value: boolean) {
+    this._serviceWorks = value;
+  }
+  set envVariable(value: string) {
+    this._envVariable = value;
   }
   async checkDNS(hostname: string, regex: RegExp, gradeAttemptId: string): Promise<boolean> {
     return this._dnsSuccess;
@@ -30,15 +38,15 @@ export class MockGradingTools implements GradingTools {
     throw new Error('Method not implemented.');
   }
   async getEnvVariable(envFile: string, variableName: string): Promise<string> {
-    throw new Error('Method not implemented.');
+    return this._envVariable;
   }
   async createUserAndLogin(serviceUrl: string, gradeAttemptId: string): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    return this._serviceWorks;
   }
   async checkCoverage(badge: string, percentage: number): Promise<boolean> {
     return this._coverage;
   }
   getHostnameFromWebsite(website: string): string {
-    throw new Error('Method not implemented.');
+    return 'hostname.mock';
   }
 }

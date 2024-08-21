@@ -3,7 +3,7 @@ import { Github } from '../tools/Github';
 import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
-interface Rubric {
+interface DeliverableSixRubric {
   ecrEcsFargateDeployment: number;
   awsLoadBalancer: number;
   mySQLDatabase: number;
@@ -21,9 +21,9 @@ export class DeliverableSix implements Grader {
     this.github = github;
   }
 
-  async grade(user: User, gradeAttemptId: string): Promise<[number, object]> {
+  async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableSixRubric]> {
     let score = 0;
-    const rubric: Rubric = {
+    const rubric: DeliverableSixRubric = {
       ecrEcsFargateDeployment: 0,
       awsLoadBalancer: 0,
       mySQLDatabase: 0,
@@ -53,6 +53,7 @@ export class DeliverableSix implements Grader {
         rubric.githubActionWorkflow += 30;
       } else {
         rubric.comments += 'Your GitHub Action workflow did not complete successfully.\n';
+        return [score, rubric];
       }
 
       // Assumes that their service follows format 'pizza-service.hostname.tld'
@@ -66,13 +67,14 @@ export class DeliverableSix implements Grader {
         rubric.awsLoadBalancer += 20;
       } else {
         rubric.comments += 'Your service is not deployed with a load balancer.\n';
+        return [score, rubric];
       }
 
       // Get service url from frontend
       const envFile = await this.github.readGithubFile(user, 'jwt-pizza', '.env.production', gradeAttemptId);
       serviceUrl = await this.tools.getEnvVariable(envFile, 'VITE_PIZZA_SERVICE_URL');
       if (!serviceUrl) {
-        rubric.comments += 'Could not find VITE_PIZZA_SERVICE_URL in .env.production.\n';
+        rubric.comments += 'Could not find VITE_PIZZA_SERVICE_URL in jwt-pizza .env.production.\n';
         return [score, rubric];
       }
       const usingOwnService = !serviceUrl.includes('cs329.click');
@@ -88,7 +90,7 @@ export class DeliverableSix implements Grader {
           rubric.comments += 'Your service does not work as expected.\n';
         }
       } else {
-        rubric.comments += 'You are using the provided service URL.';
+        rubric.comments += 'You are using the default service URL.\n';
       }
     } else {
       rubric.comments += 'Your GitHub Action workflow does not build and push to ECR and deploy to ECS.\n';
