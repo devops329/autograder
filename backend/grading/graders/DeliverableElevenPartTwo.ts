@@ -30,7 +30,13 @@ export class DeliverableElevenPartTwo implements Grader {
     if (currentTime > cutoff) {
       const hoursPast = Math.floor((currentTime.getTime() - cutoff.getTime()) / 3600000);
       score -= hoursPast * 10;
+      if (score < 0) {
+        score = 0;
+      }
       rubric.issueResolvedInTime -= hoursPast * 10;
+      if (rubric.issueResolvedInTime < 0) {
+        rubric.issueResolvedInTime = 0;
+      }
       rubric.comments += `Issue was resolved ${hoursPast} hours late.`;
     }
 

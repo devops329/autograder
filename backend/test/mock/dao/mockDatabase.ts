@@ -10,6 +10,8 @@ import { Submission } from '../../../model/domain/Submission';
 export class MockDB extends DB {
   private _queries: string[] = [];
   private _submissions: Submission[] = [];
+  private _alreadyHasPartner = true;
+  private _eligiblePartnersExist = true;
   private tokenExists = true;
 
   constructor() {
@@ -22,6 +24,14 @@ export class MockDB extends DB {
 
   get submissions() {
     return this._submissions;
+  }
+
+  set alreadyHasPartner(hasPartner: boolean) {
+    this._alreadyHasPartner = hasPartner;
+  }
+
+  set eligiblePartnersExist(partnersExist: boolean) {
+    this._eligiblePartnersExist = partnersExist;
   }
 
   setTokenExists(tokenExists: boolean) {
@@ -87,14 +97,14 @@ export class MockDB extends DB {
     return this.tokenExists ? mockToken : null;
   }
 
-  async getPentest(netId: string) {
+  async getCurrentPentestPartner(netId: string) {
     await this.executeQuery('get_pentest', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
-    return { netId: 'student', partnerId: 'anotherStudent' };
+    return this._alreadyHasPartner ? { partnerId: 'anotherStudent' } : '';
   }
 
-  async getPentestPartners(netId: string) {
+  async getEligiblePentestPartners(netId: string) {
     await this.executeQuery('get_pentest_partners', `SELECT * FROM pentest WHERE partnerid = ? AND netid != ?`, ['', netId]);
-    return [];
+    return this._eligiblePartnersExist ? [mockStudent] : [];
   }
 
   async getUntriggeredChaos() {

@@ -170,16 +170,16 @@ export class DB {
     await this.executeQuery('put_pentest', 'INSERT INTO pentest (netid) VALUES (?)', [netId]);
   }
 
-  async getPentest(netId: string) {
+  async getCurrentPentestPartner(netId: string) {
     const [rows] = await this.executeQuery('get_pentest', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
     if (!rows.length) {
       return null;
     }
     const row = rows[0];
-    return { netId: row.netid, partnerId: row.partnerid };
+    return row.partnerid || '';
   }
 
-  async getPentestPartners(netId: string) {
+  async getEligiblePentestPartners(netId: string) {
     const [rows] = await this.executeQuery('get_pentest_partners', `SELECT * FROM pentest WHERE partnerid = ? AND netid != ?`, ['', netId]);
     if (!rows.length) {
       return [];

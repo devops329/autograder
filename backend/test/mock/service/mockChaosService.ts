@@ -1,26 +1,32 @@
+import { User } from '../../../model/domain/User';
 import { ChaosService } from '../../../model/service/ChaosService';
 
 export class MockChaosService extends ChaosService {
+  private _chaosTime: string = '';
   private _chaosScheduled: boolean = false;
-  private _chaosTriggered: boolean = false;
-  get chaosTriggered(): boolean {
-    return this._chaosTriggered;
+  set chaosTime(time: string) {
+    this._chaosTime = time;
   }
   get chaosScheduled(): boolean {
     return this._chaosScheduled;
   }
-  checkForChaosToBeTriggered(): Promise<void> {
+  async checkForChaosToBeTriggered(): Promise<void> {
     throw new Error('Method not implemented.');
   }
-  scheduleChaos(netId: string): Promise<void> {
+  async scheduleChaos(netId: string): Promise<void> {
     this._chaosScheduled = true;
-    return Promise.resolve();
   }
-  triggerChaos(netId: string): Promise<void> {
-    this._chaosTriggered = true;
-    return Promise.resolve();
-  }
-  resolveChaos(apiKey: string, fixCode: string): Promise<true | undefined> {
+  async triggerChaos(netId: string): Promise<void> {}
+
+  async resolveChaos(apiKey: string, fixCode: string): Promise<User | null> {
     throw new Error('Method not implemented.');
+  }
+
+  async getChaosTime(netId: string) {
+    return this._chaosTime;
+  }
+
+  async removeScheduledChaos(netId: string) {
+    return;
   }
 }

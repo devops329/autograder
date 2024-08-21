@@ -1,12 +1,16 @@
 import { GradeService } from '../../model/service/GradeService';
 import { MockCanvas } from '../mock/dao/mockCanvas';
 import { MockDB } from '../mock/dao/mockDatabase';
+import { MockPizzaFactory } from '../mock/dao/mockPizzaFactory';
 import { MockGradeFactory } from '../mock/grading/mockGradeFactory';
+import { MockChaosService } from '../mock/service/mockChaosService';
 
 const mockDB = new MockDB();
 const mockCanvas = new MockCanvas();
 const mockGradeFactory = new MockGradeFactory();
-const gradeService = new GradeService(mockDB, mockCanvas, mockGradeFactory);
+const mockPizzaFactory = new MockPizzaFactory();
+const mockChaosService = new MockChaosService(mockDB, mockPizzaFactory);
+const gradeService = new GradeService(mockDB, mockCanvas, mockGradeFactory, mockChaosService);
 
 beforeAll(async () => {
   // Mock fetch
