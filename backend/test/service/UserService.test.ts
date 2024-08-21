@@ -1,7 +1,7 @@
 import { UserService } from '../../model/service/UserService';
 import { MockCanvas } from '../mock/dao/mockCanvas';
 import { MockDB } from '../mock/dao/mockDatabase';
-import { MockPizzaFactory } from '../mock/grading/mockPizzaFactory';
+import { MockPizzaFactory } from '../mock/dao/mockPizzaFactory';
 import { mockToken } from '../mock/mockValues';
 
 const mockDB = new MockDB();

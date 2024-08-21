@@ -9,7 +9,7 @@ export class DeliverableElevenPartOne implements Grader {
   }
 
   async grade(user: User): Promise<[string]> {
-    await this.chaosService.addChaosToBeTriggered(user.netId);
-    return ['The chaos has been triggered for you. Good luck!'];
+    await this.chaosService.scheduleChaos(user.netId);
+    return ['The chaos has been scheduled for you. Good luck!'];
   }
 }

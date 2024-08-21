@@ -26,7 +26,7 @@ export class ChaosService {
     }
   }
 
-  async addChaosToBeTriggered(netId: string) {
+  async scheduleChaos(netId: string) {
     const randomHours = 8 + Math.floor(Math.random() * 6);
     const randomMinutes = Math.floor(Math.random() * 60);
     const chaosTime = DateTime.now()
