@@ -5,6 +5,7 @@ import { GradeService } from './GradeService';
 import { Canvas } from '../dao/canvas/Canvas';
 import { DeliverableGradeFactory } from '../../grading/graders/DeliverableGradeFactory';
 import { DateTime } from 'luxon';
+import { User } from '../domain/User';
 
 export class ChaosService {
   private db: DB;
@@ -47,15 +48,18 @@ export class ChaosService {
     logger.log('info', { type: 'chaos_triggered' }, { netId });
   }
 
-  async resolveChaos(apiKey: string, fixCode: string) {
-    const chaosResolved = await this.pizzaFactory.resolveChaos(apiKey, fixCode);
-    if (chaosResolved) {
-      const user = await this.db.getUserByApiKey(apiKey);
-      logger.log('info', { type: 'chaos_resolved' }, { netId: user!.netId });
-      const gradeFactory = new DeliverableGradeFactory();
-      const service = new GradeService(this.db, new Canvas(), gradeFactory);
-      await service.gradeDeliverableEleven(user!);
-      return true;
-    }
+  async resolveChaos(apiKey: string, fixCode: string): Promise<User | null> {
+    await this.pizzaFactory.resolveChaos(apiKey, fixCode);
+    const user = await this.db.getUserByApiKey(apiKey);
+    logger.log('info', { type: 'chaos_resolved' }, { netId: user!.netId });
+    return user;
+  }
+
+  async getChaosTime(netId: string) {
+    return (await this.db.getChaosTime(netId))!.chaosTime;
+  }
+
+  async removeScheduledChaos(netId: string) {
+    await this.db.deleteChaos(netId);
   }
 }

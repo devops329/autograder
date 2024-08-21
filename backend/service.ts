@@ -19,9 +19,9 @@ const canvas = new Canvas();
 const pizzaFactory = new PizzaFactory();
 const gradeFactory = new DeliverableGradeFactory();
 // Build services
-const gradeService = new GradeService(db, canvas, gradeFactory);
-const userService = new UserService(db, pizzaFactory, canvas);
 const chaosService = new ChaosService(db, pizzaFactory);
+const gradeService = new GradeService(db, canvas, gradeFactory, chaosService);
+const userService = new UserService(db, pizzaFactory, canvas);
 
 // SAML setup
 // Service provider
@@ -125,7 +125,8 @@ apiRouter.get('/report', async (req, res) => {
     res.status(400).send({ msg: 'Missing required parameters' });
     return;
   }
-  const chaosResolved = await chaosService.resolveChaos(apiKey, fixCode);
+  const chaosResolved = await gradeService.gradeDeliverableEleven(apiKey, fixCode);
+  // const chaosResolved = await chaosService.resolveChaos(apiKey, fixCode);
   if (chaosResolved) {
     res.send({ msg: 'Chaos resolved' });
   } else {

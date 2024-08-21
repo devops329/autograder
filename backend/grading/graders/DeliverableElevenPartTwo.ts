@@ -1,5 +1,5 @@
-import { DB } from '../../model/dao/mysql/Database';
 import { User } from '../../model/domain/User';
+import { ChaosService } from '../../model/service/ChaosService';
 import { Grader } from './Grader';
 
 interface DeliverableElevenRubric {
@@ -7,21 +7,21 @@ interface DeliverableElevenRubric {
   comments: string;
 }
 export class DeliverableElevenPartTwo implements Grader {
-  private db: DB;
+  private chaosService: ChaosService;
 
-  constructor(db: DB) {
-    this.db = db;
+  constructor(chaosService: ChaosService) {
+    this.chaosService = chaosService;
   }
 
   async grade(user: User): Promise<[number, DeliverableElevenRubric]> {
+    // Start with full score
     const rubric: DeliverableElevenRubric = {
-      issueResolvedInTime: 0,
+      issueResolvedInTime: 80,
       comments: '',
     };
     let score = 80;
-    rubric.issueResolvedInTime = 80;
     // get chaos time from chaos db
-    const chaosTime = await this.db.getChaosTime(user.netId);
+    const chaosTime = await this.chaosService.getChaosTime(user.netId);
     // Add 6 hours to chaos time for cutoff
     const cutoff = new Date(chaosTime);
     cutoff.setHours(cutoff.getHours() + 6);
@@ -33,11 +33,7 @@ export class DeliverableElevenPartTwo implements Grader {
       rubric.issueResolvedInTime -= hoursPast * 10;
       rubric.comments += `Issue was resolved ${hoursPast} hours late.`;
     }
-    // remove chaos from db
-    this.db.deleteChaos(user.netId);
 
-    // put user into pentest db
-    this.db.putPentest(user.netId);
     return [score, rubric];
   }
 }

@@ -6,16 +6,19 @@ import { User } from '../domain/User';
 import logger from '../../logger';
 import { v4 as uuidv4 } from 'uuid';
 import { GradeFactory } from '../../grading/GradeFactory';
+import { ChaosService } from './ChaosService';
 
 export class GradeService {
-  private dao: DB;
+  private db: DB;
   private canvas: Canvas;
   private gradeFactory: GradeFactory;
+  private chaosService: ChaosService;
 
-  constructor(dao: DB, canvas: Canvas, gradeFactory: GradeFactory) {
-    this.dao = dao;
+  constructor(db: DB, canvas: Canvas, gradeFactory: GradeFactory, chaosService: ChaosService) {
+    this.db = db;
     this.canvas = canvas;
     this.gradeFactory = gradeFactory;
+    this.chaosService = chaosService;
   }
 
   async grade(assignmentPhase: number, netid: string): Promise<[number | string, Submission[], object?]> {
@@ -23,7 +26,7 @@ export class GradeService {
     let grader: Grader;
     let assignmentId = 0;
     const assignmentIds = await this.getAssignmentIds();
-    const user = await this.dao.getUser(netid);
+    const user = await this.db.getUser(netid);
 
     const gradeAttemptId = uuidv4();
 
@@ -95,28 +98,38 @@ export class GradeService {
     }
   }
 
-  async gradeDeliverableEleven(user: User) {
-    const assignmentIds = await this.getAssignmentIds();
-    const gradeAttemptId = uuidv4();
-    const grader = this.gradeFactory.deliverableElevenPartTwo;
-    const result = await grader.grade(user, gradeAttemptId);
-    const score = result[0] as number;
-    const rubric = result[1] as object;
-    const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentIds['11'], user.netId, score, gradeAttemptId);
-    if (!submitScoreErrorMessage) {
-      await this.putSubmissionIntoDB(11, user.netId, score, rubric);
+  async gradeDeliverableEleven(apiKey: string, fixCode: string) {
+    const user = await this.chaosService.resolveChaos(apiKey, fixCode);
+    if (user) {
+      const assignmentIds = await this.getAssignmentIds();
+      const gradeAttemptId = uuidv4();
+      const grader = this.gradeFactory.deliverableElevenPartTwo;
+      const result = await grader.grade(user);
+      const score = result[0] as number;
+      const rubric = result[1] as object;
+      const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentIds['11'], user.netId, score, gradeAttemptId);
+      if (!submitScoreErrorMessage) {
+        await this.putSubmissionIntoDB(11, user.netId, score, rubric);
+      }
+      // remove chaos from db
+      this.chaosService.removeScheduledChaos(user.netId);
+      // Make user eligible for pentest
+      this.db.putPentest(user.netId);
+      return true;
+    } else {
+      return false;
     }
   }
 
   private async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number, rubric: object) {
     const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const submission = new Submission(date, assignmentPhase, score, JSON.stringify(rubric));
-    await this.dao.putSubmission(submission, netId);
-    return this.dao.getSubmissions(netId);
+    await this.db.putSubmission(submission, netId);
+    return this.db.getSubmissions(netId);
   }
 
   async getSubmissions(netId: string) {
-    return this.dao.getSubmissions(netId);
+    return this.db.getSubmissions(netId);
   }
 
   async getAssignmentIds() {

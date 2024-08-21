@@ -30,6 +30,6 @@ export class DeliverableGradeFactory implements GradeFactory {
   deliverableSix: Grader = new DeliverableSix(this.tools, this.github);
   deliverableSeven: Grader = new DeliverableSeven(this.tools, this.github);
   deliverableElevenPartOne: Grader = new DeliverableElevenPartOne(this.chaosService);
-  deliverableElevenPartTwo: Grader = new DeliverableElevenPartTwo(this.db);
+  deliverableElevenPartTwo: Grader = new DeliverableElevenPartTwo(this.chaosService);
   deliverableTwelve: Grader = new DeliverableTwelve(this.db);
 }
