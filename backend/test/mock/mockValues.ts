@@ -14,3 +14,21 @@ export const mockAdmin = new User('admin', 'admin', 'admin', 'admin', 'admin', '
 export const mockToken = 'mockToken';
 
 export const mockNetId = 'mockNetId';
+
+export const mockRelease = {
+  id: '1.1.1',
+  name: 'Release 20240806.210309',
+};
+
+export const mockRelease2 = {
+  id: '1.1.2',
+  name: 'Release 20240806.210310',
+};
+
+export const mockVersionJson = {
+  version: '20240806.210309',
+};
+
+export const mockVersionJson2 = {
+  version: '20240806.210310',
+};

@@ -1,4 +1,5 @@
 import { GradingTools } from '../../../grading/tools/GradingTools';
+import { mockVersionJson, mockVersionJson2 } from '../mockValues';
 
 export class MockGradingTools implements GradingTools {
   private _pageExists: boolean = true;
@@ -7,6 +8,9 @@ export class MockGradingTools implements GradingTools {
   private _coverage: boolean = true;
   private _serviceWorks: boolean = true;
   private _envVariable: string = 'mock';
+  private _pageJson: object = mockVersionJson;
+  private _updatePageJson: boolean = true;
+
   set pageExists(value: boolean) {
     this._pageExists = value;
   }
@@ -25,6 +29,12 @@ export class MockGradingTools implements GradingTools {
   set envVariable(value: string) {
     this._envVariable = value;
   }
+  set pageJson(json: object) {
+    this._pageJson = json;
+  }
+  set updatePageJson(value: boolean) {
+    this._updatePageJson = value;
+  }
   async checkDNS(hostname: string, regex: RegExp, gradeAttemptId: string): Promise<boolean> {
     return this._dnsSuccess;
   }
@@ -35,7 +45,11 @@ export class MockGradingTools implements GradingTools {
     return this._pageExists;
   }
   async readPageJson(hostname: string): Promise<any> {
-    throw new Error('Method not implemented.');
+    const json = this._pageJson;
+    if (this._updatePageJson) {
+      this._pageJson = this._pageJson === mockVersionJson ? mockVersionJson2 : mockVersionJson;
+    }
+    return json;
   }
   async getEnvVariable(envFile: string, variableName: string): Promise<string> {
     return this._envVariable;
