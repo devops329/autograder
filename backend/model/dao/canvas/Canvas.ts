@@ -56,7 +56,7 @@ export class Canvas {
           posted_grade: score,
         },
       };
-      logger.log('info', { type: 'update_grade', gradeAttemptId: gradeAttemptId }, { studentId, score, netId });
+      logger.log('info', { type: 'update_grade', gradeAttemptId: gradeAttemptId }, { studentId, score, netId, assignmentId });
 
       const updateResponse = await fetch(url, {
         method: 'PUT',
