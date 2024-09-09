@@ -8,9 +8,9 @@ app.listen(port, () => {
 
 // Catch any uncaught errors that would cause the server to crash
 process.on('uncaughtException', (err) => {
-  logger.log('error', { type: 'uncaught_exception' }, err);
+  logger.log('error', { type: 'uncaught_exception', service: 'index' }, err);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  logger.log('error', { type: 'unhandled_rejection' }, { reason });
+  logger.log('error', { type: 'unhandled_rejection', service: 'index' }, { reason });
 });
