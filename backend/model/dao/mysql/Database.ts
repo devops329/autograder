@@ -25,7 +25,7 @@ export class DB {
       result = await connection.query(query, params);
       return result as any;
     } catch (err: any) {
-      logger.log('warn', { type: operation }, { exception: err.message });
+      logger.log('warn', { type: operation, service: 'database' }, { exception: err.message });
     } finally {
       connection.end();
     }
@@ -59,7 +59,7 @@ export class DB {
         connection.end();
       }
     } catch (err: any) {
-      logger.log('warn', { type: 'database_init' }, { message: 'Error initializing database', exception: err.message });
+      logger.log('warn', { type: 'database_init', service: 'database' }, { message: 'Error initializing database', exception: err.message });
     }
   }
 

@@ -28,7 +28,7 @@ export class GradingTools {
       });
       return matchesRegex;
     } catch (e) {
-      logger.log('error', { type: 'dns_error', gradeAttemptId }, { hostname, error: e });
+      logger.log('error', { type: 'dns_error', service: 'grade_tools', gradeAttemptId }, { hostname, error: e });
       return false;
     }
   }
@@ -51,7 +51,7 @@ export class GradingTools {
       // Handle the response here
     } catch (error) {
       // Handle the error here
-      logger.log('error', { type: 'fetch_error' }, { hostname, error });
+      logger.log('error', { type: 'fetch_error', service: 'grade_tools' }, { hostname, error });
       return false;
     }
   }
@@ -87,7 +87,7 @@ export class GradingTools {
         }),
       });
       if (!response.ok) {
-        logger.log('error', { type: 'create_user_error', gradeAttemptId }, { status: response.status });
+        logger.log('error', { type: 'create_user_error', service: 'grade_tools', gradeAttemptId }, { status: response.status });
         return false;
       }
 
@@ -102,11 +102,11 @@ export class GradingTools {
         }),
       });
       if (!loginResponse.ok) {
-        logger.log('error', { type: 'login_error', gradeAttemptId }, { status: loginResponse.status });
+        logger.log('error', { type: 'login_error', service: 'grade_tools', gradeAttemptId }, { status: loginResponse.status });
         return false;
       }
     } catch (e) {
-      logger.log('error', { type: 'create_user_and_login_error', gradeAttemptId }, { error: e });
+      logger.log('error', { type: 'create_user_and_login_error', service: 'grade_tools', gradeAttemptId }, { error: e });
       return false;
     }
 

@@ -7,7 +7,7 @@ export class Github {
     const apiUrl = `https://api.github.com/repos/${user.github}/${repo}/contents/${path}`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      logger.log('error', { type: 'github_file_fetch', gradeAttemptId }, { path, user: user.netId, status: response.status });
+      logger.log('error', { type: 'github_file_fetch', service: 'github', gradeAttemptId }, { path, user: user.netId, status: response.status });
       return '';
     }
     // get the content and base 64 decode it
@@ -36,13 +36,13 @@ export class Github {
       if (response.status !== 204) {
         logger.log(
           'error',
-          { type: 'github_action_trigger', gradeAttemptId },
+          { type: 'github_action_trigger', service: 'github', gradeAttemptId },
           { file, user: user.netId, status: response.status, body: await response.text() }
         );
         return false;
       }
     } catch (error) {
-      logger.log('error', { type: 'github_action_trigger', gradeAttemptId }, { file, user: user.netId, error });
+      logger.log('error', { type: 'github_action_trigger', service: 'github', gradeAttemptId }, { file, user: user.netId, error });
     }
     // Wait a few seconds for the run to start
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -67,13 +67,13 @@ export class Github {
         },
       });
       if (!response.ok) {
-        logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: user.netId, status: response.status });
+        logger.log('error', { type: 'github_run_fetch', service: 'github', gradeAttemptId }, { file, user: user.netId, status: response.status });
         return null;
       }
       const data = await response.json();
       return data.workflow_runs[0];
     } catch (error) {
-      logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: user.netId, error });
+      logger.log('error', { type: 'github_run_fetch', service: 'github', gradeAttemptId }, { file, user: user.netId, error });
       return null;
     }
   }
@@ -81,7 +81,7 @@ export class Github {
   async waitForCompletion(user: User, repo: string, file: string, gradeAttemptId: string): Promise<void> {
     let run = await this.getMostRecentRun(user, repo, file, gradeAttemptId);
     if (!run) {
-      logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: user.netId });
+      logger.log('error', { type: 'github_run_fetch', service: 'github', gradeAttemptId }, { file, user: user.netId });
       return;
     }
 
@@ -89,7 +89,7 @@ export class Github {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       run = await this.getMostRecentRun(user, repo, file, gradeAttemptId);
       if (!run) {
-        logger.log('error', { type: 'github_run_fetch', gradeAttemptId }, { file, user: user.netId });
+        logger.log('error', { type: 'github_run_fetch', service: 'github', gradeAttemptId }, { file, user: user.netId });
         return;
       }
     }
@@ -98,7 +98,11 @@ export class Github {
     const apiUrl = `https://api.github.com/repos/${user.github}/${repo}/contents/${app === 'frontend' ? 'public' : 'src'}/version.json`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      logger.log('error', { type: 'github_file_fetch', gradeAttemptId }, { path: 'version.json', user: user.netId, status: response.status });
+      logger.log(
+        'error',
+        { type: 'github_file_fetch', service: 'github', gradeAttemptId },
+        { path: 'version.json', user: user.netId, status: response.status }
+      );
       return '';
     }
     // get the content and base 64 decode it
@@ -115,12 +119,12 @@ export class Github {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        logger.log('error', { type: 'github_release_fetch', gradeAttemptId }, { user: user.netId, status: response.status });
+        logger.log('error', { type: 'github_release_fetch', service: 'github', gradeAttemptId }, { user: user.netId, status: response.status });
         return null;
       }
       return await response.json();
     } catch (error) {
-      logger.log('error', { type: 'github_release_fetch', gradeAttemptId }, { user: user.netId, error });
+      logger.log('error', { type: 'github_release_fetch', service: 'github', gradeAttemptId }, { user: user.netId, error });
       return null;
     }
   }

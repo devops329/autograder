@@ -2,7 +2,6 @@ import { Grader } from '../../grading/graders/Grader';
 import { Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
 import { Submission } from '../domain/Submission';
-import { User } from '../domain/User';
 import logger from '../../logger';
 import { v4 as uuidv4 } from 'uuid';
 import { GradeFactory } from '../../grading/GradeFactory';
@@ -93,7 +92,7 @@ export class GradeService {
       const submitScoreErrorMessage = await this.canvas.updateGrade(netid, assignmentId, studentId, score, gradeAttemptId);
       return submitScoreErrorMessage;
     } catch (e) {
-      logger.log('error', { type: 'grade' }, { netid, error: e });
+      logger.log('error', { type: 'grade', service: 'grade_service' }, { netid, error: e });
       return 'Failed to update grade';
     }
   }

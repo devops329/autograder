@@ -42,7 +42,7 @@ export class Canvas {
 
     if (!currentGradeResponse.ok) {
       const message = await currentGradeResponse.json();
-      logger.log('error', { type: 'fetch_grade_failed', gradeAttemptId: gradeAttemptId }, { message });
+      logger.log('error', { type: 'fetch_grade_failed', service: 'canvas', gradeAttemptId: gradeAttemptId }, { message });
       return 'Failed to update grade';
     }
 
@@ -56,7 +56,7 @@ export class Canvas {
           posted_grade: score,
         },
       };
-      logger.log('info', { type: 'update_grade', gradeAttemptId: gradeAttemptId }, { studentId, score, netId, assignmentId });
+      logger.log('info', { type: 'update_grade', service: 'canvas', gradeAttemptId: gradeAttemptId }, { studentId, score, netId, assignmentId });
 
       const updateResponse = await fetch(url, {
         method: 'PUT',
@@ -68,7 +68,7 @@ export class Canvas {
       });
       if (!updateResponse.ok) {
         const message = await updateResponse.json();
-        logger.log('error', { type: 'update_grade_failed' }, { message });
+        logger.log('error', { type: 'update_grade_failed', service: 'canvas' }, { message });
         return 'Failed to update grade';
       }
     } else {
@@ -116,7 +116,7 @@ export class Canvas {
       }
     }
     if (Object.keys(assignmentIds).length < 12) {
-      logger.log('error', { type: 'missing_assignments' }, { assignmentIds });
+      logger.log('error', { type: 'missing_assignments', service: 'canvas' }, { assignmentIds });
     }
     return assignmentIds;
   }

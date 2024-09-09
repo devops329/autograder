@@ -1,9 +1,6 @@
 import logger from '../../logger';
 import { DB } from '../dao/mysql/Database';
 import { PizzaFactory } from '../dao/pizzaFactory/PizzaFactory';
-import { GradeService } from './GradeService';
-import { Canvas } from '../dao/canvas/Canvas';
-import { DeliverableGradeFactory } from '../../grading/graders/DeliverableGradeFactory';
 import { DateTime } from 'luxon';
 import { User } from '../domain/User';
 
@@ -39,19 +36,19 @@ export class ChaosService {
 
     // Put user and chaos time into chaos db
     await this.db.putChaos(netId, chaosTime!);
-    logger.log('info', { type: 'chaos_scheduled' }, { netId });
+    logger.log('info', { type: 'chaos_scheduled', service: 'chaos_service' }, { netId });
   }
 
   async triggerChaos(netId: string) {
     const apiKey = (await this.db.getUser(netId))!.apiKey;
     await this.pizzaFactory.triggerChaos(apiKey);
-    logger.log('info', { type: 'chaos_triggered' }, { netId });
+    logger.log('info', { type: 'chaos_triggered', service: 'chaos_service' }, { netId });
   }
 
   async resolveChaos(apiKey: string, fixCode: string): Promise<User | null> {
     await this.pizzaFactory.resolveChaos(apiKey, fixCode);
     const user = await this.db.getUserByApiKey(apiKey);
-    logger.log('info', { type: 'chaos_resolved' }, { netId: user!.netId });
+    logger.log('info', { type: 'chaos_resolved', service: 'chaos_service' }, { netId: user!.netId });
     return user;
   }
 

@@ -23,7 +23,7 @@ export class UserService {
       if (!user.apiKey) {
         const apiKey = await this.pizzaFactory.getApiKey(netId, user.name);
         this.dao.updateApiKey(netId, apiKey);
-        logger.log('info', { type: 'new_api_key' }, { netid: netId });
+        logger.log('info', { type: 'new_api_key', service: 'user_service' }, { netid: netId });
       }
       if (!token) {
         token = uuidv4();
@@ -35,11 +35,10 @@ export class UserService {
 
       // If student not found in canvas, return null. This will result in a 401 response
       if (!studentInfo) {
-        logger.log('error', { type: 'student_not_found' }, { netid: netId });
+        logger.log('error', { type: 'student_not_found_in_canvas', service: 'user_service' }, { netid: netId });
         return null;
       }
 
-      logger.log('info', { type: 'new_user' }, { netid: netId });
       let name = '';
       let email = '';
       try {
@@ -55,6 +54,7 @@ export class UserService {
       // Create token
       token = uuidv4();
       this.dao.putToken(token, netId);
+      logger.log('info', { type: 'new_user_created', service: 'user_service' }, { user });
 
       return token;
     }

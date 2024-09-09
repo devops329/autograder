@@ -18,7 +18,7 @@ export class PizzaFactory {
       const data = await response.json();
       return data.apiKey;
     } catch (error: any) {
-      logger.log('error', { type: 'get_api_key' }, { error: error.message });
+      logger.log('error', { type: 'get_api_key', service: 'pizza_factory' }, { error: error.message });
     }
   }
 
@@ -35,7 +35,7 @@ export class PizzaFactory {
       });
       return response.ok;
     } catch (error: any) {
-      logger.log('error', { type: 'chaos_trigger' }, { error: error.message });
+      logger.log('error', { type: 'chaos_trigger', service: 'pizza_factory' }, { error: error.message });
     }
   }
 
@@ -44,7 +44,7 @@ export class PizzaFactory {
       const response = await fetch(`${config.pizza_factory.url}/api/support/${apiKey}/report/${fixCode}`);
       return response.ok;
     } catch (error: any) {
-      logger.log('error', { type: 'chaos_resolve' }, { error: error.message });
+      logger.log('error', { type: 'chaos_resolve', service: 'pizza_factory' }, { error: error.message });
     }
   }
 }
