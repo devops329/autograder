@@ -50,8 +50,8 @@ export class DeliverableFive implements Grader {
       }
 
       // Check cloudfront deployment
-      const cloudfrontDeployed = await this.tools.checkDNS(user.website, /cloudfront\.net/, gradeAttemptId);
-      const pageExists = await this.tools.checkPageExistsAndContainsText(user.website, /JWT Pizza/g);
+      const cloudfrontDeployed = await this.tools.checkResponseHeadersForText(user.website, /cloudfront\.net/);
+      const pageExists = await this.tools.checkPageBodyForText(user.website, /JWT Pizza/g);
       if (cloudfrontDeployed && pageExists) {
         rubric.cloudfrontDeployment = 45;
         score += 45;
@@ -61,7 +61,7 @@ export class DeliverableFive implements Grader {
       }
 
       // Check handling of browser refresh React DOM Routing
-      const handles404Routing = await this.tools.checkPageExistsAndContainsText(user.website + '/garbage', /JWT Pizza/g);
+      const handles404Routing = await this.tools.checkPageBodyForText(user.website + '/garbage', /JWT Pizza/g);
       if (handles404Routing) {
         rubric.handles404Routing = 10;
         score += 10;

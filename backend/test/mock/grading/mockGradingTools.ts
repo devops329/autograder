@@ -38,7 +38,14 @@ export class MockGradingTools implements GradingTools {
   async checkDNS(hostname: string, regex: RegExp, gradeAttemptId: string): Promise<boolean> {
     return this._dnsSuccess;
   }
-  async checkPageExistsAndContainsText(hostname: string, regex: RegExp): Promise<boolean> {
+
+  async fetchWithTimeout(url: string, timeout: number): Promise<Response> {
+    return new Response();
+  }
+  async checkResponseHeadersForText(hostname: string, regex: RegExp): Promise<boolean> {
+    return true;
+  }
+  async checkPageBodyForText(hostname: string, regex: RegExp): Promise<boolean> {
     if (hostname.includes('garbage')) {
       return this._success404;
     }
