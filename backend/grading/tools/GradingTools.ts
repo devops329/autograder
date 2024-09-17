@@ -136,6 +136,9 @@ export class GradingTools {
     if (matches && parseFloat(matches[1]) >= percentage) {
       return true;
     }
+    if (matches) {
+      logger.log('info', { type: 'coverage', service: 'grade_tools' }, { coverage: parseFloat(matches[1]) });
+    }
     return false;
   }
 
