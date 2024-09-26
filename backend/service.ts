@@ -126,7 +126,6 @@ apiRouter.get('/report', async (req, res) => {
     return;
   }
   const chaosResolved = await gradeService.gradeDeliverableEleven(apiKey, fixCode);
-  // const chaosResolved = await chaosService.resolveChaos(apiKey, fixCode);
   if (chaosResolved) {
     res.send({ msg: 'Chaos resolved' });
   } else {

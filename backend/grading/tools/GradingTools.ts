@@ -131,13 +131,15 @@ export class GradingTools {
   }
 
   async checkCoverage(badge: string, percentage: number) {
-    const regex = /Coverage: (\d+\.\d+)%/;
+    const regex = /Coverage: (\d+(\.\d+)?%)/;
     const matches = badge.match(regex);
     if (matches && parseFloat(matches[1]) >= percentage) {
       return true;
     }
     if (matches) {
       logger.log('info', { type: 'coverage', service: 'grade_tools' }, { coverage: parseFloat(matches[1]) });
+    } else {
+      logger.log('info', { type: 'coverage', service: 'grade_tools' }, { error: 'No coverage value found', badge });
     }
     return false;
   }
