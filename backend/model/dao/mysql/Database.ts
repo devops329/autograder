@@ -170,6 +170,11 @@ export class DB {
     await this.executeQuery('put_pentest', 'INSERT INTO pentest (netid) VALUES (?)', [netId]);
   }
 
+  async checkPentestEligibility(netId: string) {
+    const [rows] = await this.executeQuery('check_pentest_eligibility', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
+    return !rows.length;
+  }
+
   async getCurrentPentestPartner(netId: string) {
     const [rows] = await this.executeQuery('get_pentest', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
     if (!rows.length) {

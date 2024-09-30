@@ -9,6 +9,11 @@ export class DeliverableTwelve implements Grader {
   }
 
   async grade(user: User): Promise<[string]> {
+    const eligible = await this.penTestService.checkPentestEligibility(user.netId);
+    if (!eligible) {
+      return ['Must complete Chaos Testing to be eligible for Penetration Testing.'];
+    }
+
     let partner: User | null = await this.penTestService.getPentestPartner(user.netId);
 
     if (!partner) {
