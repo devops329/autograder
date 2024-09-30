@@ -55,4 +55,10 @@ export class ServerFacade {
     const response: JSON = (await this.clientCommunicator.doPost({ website, github, email, netId }, endpoint)) as unknown as JSON;
     return User.fromJson(response);
   }
+
+  async getStats(): Promise<object> {
+    const endpoint = 'stats';
+    const response: JSON = await this.clientCommunicator.doPost({}, endpoint);
+    return response;
+  }
 }

@@ -11,4 +11,8 @@ export class GradeService {
   async grade(netId: string, assignmentPhase: number) {
     return await this.serverFacade.grade(netId, assignmentPhase);
   }
+
+  async getStats() {
+    return await this.serverFacade.getStats();
+  }
 }

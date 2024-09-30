@@ -77,7 +77,7 @@ function App() {
             <Route path="/grader" element={<Grader user={user} setSubmissions={setSubmissions} impersonating={impersonating} />} />
             <Route path="/profile" element={<UserInfo impersonating={impersonating} user={user} setUser={setUser} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
-            {user.isAdmin && <Route path="/stats" element={<Stats />} />}
+            {user.isAdmin && <Route path="/stats" element={<Stats setErrorMessage={setErrorMessage} />} />}
             <Route path="*" element={<Grader user={user} setSubmissions={setSubmissions} impersonating={impersonating} />} />
           </Routes>
         ) : (
