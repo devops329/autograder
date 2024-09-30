@@ -134,4 +134,8 @@ export class GradeService {
   async getAssignmentIds() {
     return await this.canvas.getAssignmentIds();
   }
+
+  async getStats() {
+    return await this.db.getSubmissionCountAllPhases();
+  }
 }

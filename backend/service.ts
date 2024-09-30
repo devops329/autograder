@@ -12,6 +12,15 @@ import fs from 'fs';
 import path from 'path';
 import { DeliverableGradeFactory } from './grading/graders/DeliverableGradeFactory';
 
+// Extend the Express Request interface
+declare global {
+  namespace Express {
+    interface Request {
+      isAdmin?: boolean; // Add the new property
+    }
+  }
+}
+
 const app = express();
 
 const db = new DB();
@@ -146,14 +155,31 @@ secureApiRouter.use(async (req, res, next) => {
     return;
   }
   const netIdFromRequest = req.body.netId;
-  const netIdFromToken = await db.getNetIdByToken(authToken);
-  const user = await db.getUser(netIdFromToken);
-  // Only allows the user to access their own information, unless they are an admin
-  if (user!.isAdmin || netIdFromRequest === netIdFromToken || !netIdFromRequest) {
-    next();
-  } else {
+  try {
+    const netIdFromToken = await db.getNetIdByToken(authToken);
+    const user = await db.getUser(netIdFromToken);
+    if (user?.isAdmin) {
+      req.isAdmin = true;
+    }
+    // Only allows the user to access their own information, unless they are an admin
+    if (user!.isAdmin || netIdFromRequest === netIdFromToken || !netIdFromRequest) {
+      next();
+    } else {
+      res.status(401).send({ msg: 'Unauthorized' });
+    }
+  } catch (e) {
     res.status(401).send({ msg: 'Unauthorized' });
   }
+});
+
+// Get stats for all deliverables
+secureApiRouter.post('/stats', async function (req, res) {
+  if (!req.isAdmin) {
+    res.status(401).send({ msg: 'Unauthorized' });
+    return;
+  }
+  const stats = await gradeService.getStats();
+  res.send(JSON.stringify(stats));
 });
 
 // Get user's data
