@@ -46,6 +46,7 @@ export class AuthenticatePresenter {
     this.view.setUser(null);
     this.view.setSubmissions([]);
     this.userService.logOut();
+    window.location.href = '/';
   }
 
   async impersonate(netId: string) {

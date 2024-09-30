@@ -11,6 +11,7 @@ import { Login } from './components/login/Login';
 import Cookies from 'js-cookie';
 import { ErrorModal } from './components/errorModal/ErrorModal';
 import { Admin } from './components/admin/Admin';
+import { Stats } from './components/stats/Stats';
 
 function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -34,6 +35,7 @@ function App() {
       ? JSON.parse(localStorage.getItem('submissions')!).map((item: JSON) => Submission.fromJson(item))
       : []
   );
+  // const [stats, setStats] = useState<object>({});
   const handleClose = () => setErrorMessage(null);
 
   useEffect(() => {
@@ -65,13 +67,17 @@ function App() {
         />
         <Routes>
           <Route path="/admin" element={<Admin setErrorMessage={setErrorMessage} />} />
-          <Route path="/login" element={<Login setErrorMessage={setErrorMessage} setUser={setUser} setSubmissions={setSubmissions} setIsAdmin={setIsAdmin} />} />
+          <Route
+            path="/login"
+            element={<Login setErrorMessage={setErrorMessage} setUser={setUser} setSubmissions={setSubmissions} setIsAdmin={setIsAdmin} />}
+          />
         </Routes>
         {user ? (
           <Routes>
             <Route path="/grader" element={<Grader user={user} setSubmissions={setSubmissions} impersonating={impersonating} />} />
             <Route path="/profile" element={<UserInfo impersonating={impersonating} user={user} setUser={setUser} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
+            {user.isAdmin && <Route path="/stats" element={<Stats />} />}
             <Route path="*" element={<Grader user={user} setSubmissions={setSubmissions} impersonating={impersonating} />} />
           </Routes>
         ) : (
