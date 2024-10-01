@@ -143,12 +143,23 @@ export class DB {
   }
 
   async getSubmissionCountAllPhases() {
-    const [rows] = await this.executeQuery('get_submission_count_all_phases', `SELECT phase, COUNT(*) as count FROM submission GROUP BY phase`, []);
+    const [rows] = await this.executeQuery(
+      'get_submission_count_all_phases',
+      `
+      SELECT 
+        phase, 
+        COUNT(*) as submissionCount, 
+        COUNT(DISTINCT userId) as studentCount 
+      FROM submission 
+      GROUP BY phase
+    `,
+      []
+    );
     if (!rows.length) {
       return [];
     }
     return rows.map((row: any) => {
-      return { phase: row.phase, count: row.count };
+      return { phase: row.phase, submissionCount: row.submissionCount, studentCount: row.studentCount };
     });
   }
 

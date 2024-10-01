@@ -7,7 +7,8 @@ interface Props {
 
 interface Stat {
   phase: number;
-  count: number;
+  submissionCount: number;
+  studentCount: number;
 }
 
 export function Stats(props: Props) {
@@ -31,14 +32,16 @@ export function Stats(props: Props) {
         <thead>
           <tr>
             <th>Phase</th>
-            <th>Count</th>
+            <th>Submission Count</th>
+            <th>Student Count</th>
           </tr>
         </thead>
         <tbody>
           {stats.map((item, index) => (
             <tr key={index}>
               <td>{item.phase}</td>
-              <td>{item.count}</td>
+              <td>{item.submissionCount}</td>
+              <td>{item.studentCount}</td>
             </tr>
           ))}
         </tbody>
