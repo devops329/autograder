@@ -2,10 +2,10 @@ import { config } from '../../../config';
 import logger from '../../../logger';
 
 export class Canvas {
-  async getStudentId(netid: string): Promise<number> {
+  async getStudentId(netid: string): Promise<number | undefined> {
     const data = await this.getStudentInfo(netid);
     if (!data) {
-      throw new Error('Student not found');
+      return;
     }
     const id = data.id;
     return id;
@@ -14,65 +14,70 @@ export class Canvas {
   async getStudentInfo(netId: string): Promise<any> {
     const url = config.canvas.base_url + '/users?search_term=' + netId;
     logger.log('info', { type: 'get_student_info' }, { url });
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${config.canvas.token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    const data = await response.json();
-    if (!data[0]?.id) {
-      throw new Error('Student not found');
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${config.canvas.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      return data[0];
+    } catch (e) {
+      logger.log('error', { type: 'get_student_info_failed', service: 'canvas' }, { netId, error: e });
+      return;
     }
-    return data[0];
   }
 
   async updateGrade(netId: string, assignmentId: number, studentId: number, score: number, gradeAttemptId: string): Promise<string | void> {
     const url = config.canvas.base_url + '/assignments/' + assignmentId + '/submissions/' + studentId;
 
     // Fetch the current grade
-    const currentGradeResponse = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${config.canvas.token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!currentGradeResponse.ok) {
-      const message = await currentGradeResponse.json();
-      logger.log('error', { type: 'fetch_grade_failed', service: 'canvas', gradeAttemptId: gradeAttemptId }, { message });
-      return 'Failed to update grade';
-    }
-
-    const currentGradeData = await currentGradeResponse.json();
-    const currentScore = currentGradeData.score;
-
-    // Compare the current grade with the new grade
-    if (score > currentScore) {
-      const data = {
-        submission: {
-          posted_grade: score,
-        },
-      };
-      logger.log('info', { type: 'update_grade', service: 'canvas', gradeAttemptId: gradeAttemptId }, { studentId, score, netId, assignmentId });
-
-      const updateResponse = await fetch(url, {
-        method: 'PUT',
+    try {
+      const currentGradeResponse = await fetch(url, {
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${config.canvas.token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
       });
-      if (!updateResponse.ok) {
-        const message = await updateResponse.json();
-        logger.log('error', { type: 'update_grade_failed', service: 'canvas' }, { message });
+      if (!currentGradeResponse.ok) {
+        const message = await currentGradeResponse.json();
+        logger.log('error', { type: 'fetch_grade_failed', service: 'canvas', gradeAttemptId: gradeAttemptId }, { message });
         return 'Failed to update grade';
       }
-    } else {
-      return 'Did not update grade, score is not higher than current grade.';
+      const currentGradeData = await currentGradeResponse.json();
+      const currentScore = currentGradeData.score;
+
+      // Compare the current grade with the new grade
+      if (score > currentScore) {
+        const data = {
+          submission: {
+            posted_grade: score,
+          },
+        };
+        logger.log('info', { type: 'update_grade', service: 'canvas', gradeAttemptId: gradeAttemptId }, { studentId, score, netId, assignmentId });
+
+        const updateResponse = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${config.canvas.token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        if (!updateResponse.ok) {
+          const message = await updateResponse.json();
+          logger.log('error', { type: 'update_grade_failed', service: 'canvas' }, { message });
+          return 'Failed to update grade';
+        }
+      } else {
+        return 'Did not update grade, score is not higher than current grade.';
+      }
+    } catch (e) {
+      logger.log('error', { type: 'update_grade', service: 'canvas' }, { netId, assignmentId, error: e });
+      return 'Failed to update grade';
     }
   }
 

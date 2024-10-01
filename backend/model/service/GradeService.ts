@@ -89,6 +89,10 @@ export class GradeService {
   private async submitScoreToCanvas(assignmentId: number, netid: string, score: number, gradeAttemptId: string): Promise<string | void> {
     try {
       const studentId = await this.canvas.getStudentId(netid);
+      if (!studentId) {
+        logger.log('error', { type: 'get_student_id_failed', service: 'grade_service' }, { netid, message: 'Student not found' });
+        return 'Failed to update grade';
+      }
       const submitScoreErrorMessage = await this.canvas.updateGrade(netid, assignmentId, studentId, score, gradeAttemptId);
       return submitScoreErrorMessage;
     } catch (e) {
