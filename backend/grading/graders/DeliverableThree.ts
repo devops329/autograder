@@ -32,6 +32,10 @@ export class DeliverableThree implements Grader {
 
     // Read workflow file
     const workflowFile = await this.github.readWorkflowFile(user, 'jwt-pizza-service', gradeAttemptId);
+    if (!workflowFile) {
+      rubric.comments += 'Workflow file not found.\n';
+      return [score, rubric];
+    }
     const runsLint = workflowFile.includes('npm run lint');
     if (runsLint) {
       score += 5;

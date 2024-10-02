@@ -30,6 +30,10 @@ export class DeliverableFive implements Grader {
 
     // Read workflow file
     const workflowFile = await this.github.readWorkflowFile(user, 'jwt-pizza', gradeAttemptId);
+    if (!workflowFile) {
+      rubric.comments += 'Workflow file not found.\n';
+      return [score, rubric];
+    }
     const pushesToS3 = workflowFile.includes('aws s3 cp');
     if (pushesToS3) {
       // Run the workflow

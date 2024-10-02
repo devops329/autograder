@@ -32,8 +32,12 @@ export class DeliverableTwo implements Grader {
     }
 
     // Read workflow file
-    const workflowFileContents = await this.github.readWorkflowFile(user, 'jwt-pizza', gradeAttemptId);
-    const deployedToPages = workflowFileContents.includes('actions/deploy-pages');
+    const workflowFile = await this.github.readWorkflowFile(user, 'jwt-pizza', gradeAttemptId);
+    if (!workflowFile) {
+      rubric.comments += 'Workflow file not found.\n';
+      return [score, rubric];
+    }
+    const deployedToPages = workflowFile.includes('actions/deploy-pages');
     if (!deployedToPages) {
       rubric.comments += 'Your GitHub Action workflow does not deploy to GitHub Pages.\n';
       return [score, rubric];

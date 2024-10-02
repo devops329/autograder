@@ -30,14 +30,18 @@ export class DeliverableSeven implements Grader {
     };
 
     // Read ci file
-    const ci = await this.github.readWorkflowFile(user, 'jwt-pizza', gradeAttemptId);
+    const workflowFile = await this.github.readWorkflowFile(user, 'jwt-pizza', gradeAttemptId);
+    if (!workflowFile) {
+      rubric.comments += 'Workflow file not found.\n';
+      return [score, rubric];
+    }
     // Get most recent release
     const oldReleaseJson = await this.github.getMostRecentRelease(user, 'jwt-pizza', gradeAttemptId);
     // Check it has 'push:'
-    const onPush = ci.includes('push:');
+    const onPush = workflowFile.includes('push:');
     // Check that it copies to the version directory in s3
     const regex = /aws s3 cp dist s3:\/\/[^\/]+\/\$version/;
-    const pushesVersionToS3 = regex.test(ci);
+    const pushesVersionToS3 = regex.test(workflowFile);
     if (pushesVersionToS3) {
       score += 10;
       rubric.versionArchiveInS3 += 10;

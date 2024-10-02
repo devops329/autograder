@@ -30,6 +30,10 @@ export class DeliverableFour implements Grader {
 
     // Read workflow file
     const workflowFile = await this.github.readWorkflowFile(user, 'jwt-pizza', gradeAttemptId);
+    if (!workflowFile) {
+      rubric.comments += 'Workflow file not found.\n';
+      return [score, rubric];
+    }
     const runsTest = workflowFile.includes('npm run test:coverage');
     if (runsTest) {
       score += 5;

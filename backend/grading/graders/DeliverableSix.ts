@@ -34,6 +34,10 @@ export class DeliverableSix implements Grader {
 
     // Read workflow file
     const workflowFile = await this.github.readWorkflowFile(user, 'jwt-pizza-service', gradeAttemptId);
+    if (!workflowFile) {
+      rubric.comments += 'Workflow file not found.\n';
+      return [score, rubric];
+    }
     const pushesToECS = workflowFile.includes('aws-actions/amazon-ecs-deploy-task-definition');
     const buildsAndPushesToECR = workflowFile.includes('docker build') && workflowFile.includes('$ECR_REGISTRY/$ECR_REPOSITORY --push');
 
