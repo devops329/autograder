@@ -7,7 +7,7 @@ export class MockCanvas implements Canvas {
     this._success = success;
   }
   async getStudentId(netid: string): Promise<number> {
-    return 0;
+    return 1;
   }
   async getStudentInfo(netId: string): Promise<any> {
     throw new Error('Method not implemented.');

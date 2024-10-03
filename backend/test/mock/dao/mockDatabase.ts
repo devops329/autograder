@@ -107,6 +107,11 @@ export class MockDB extends DB {
     return this._eligiblePartnersExist ? [mockStudent] : [];
   }
 
+  async checkPentestEligibility(netId: string) {
+    await this.executeQuery('check_pentest_eligibility', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
+    return true;
+  }
+
   async getUntriggeredChaos() {
     await this.executeQuery('get_untriggered_chaos', `SELECT * FROM chaos WHERE triggered = false`, []);
     return [];
