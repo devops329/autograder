@@ -2,12 +2,15 @@
 
 ## Design
 
-The AutoGrader uses a React frontend with a Typescript backend, using the `express` library for the server. There are two main objects passed between the front- and backend: [User](frontend/src/model/domain/User.ts) and [Submission](frontend/src/model/domain/Submission.ts). Note to avoid the complexity of a shared module, these files are duplicated across the front- and backend, so if you change one, change the other.
+The AutoGrader uses a React frontend with a Typescript / node backend, using `express` for the server. There are two main objects passed between the front- and backend: [User](frontend/src/model/domain/User.ts) and [Submission](frontend/src/model/domain/Submission.ts). Note to avoid the complexity of a shared module, these files are duplicated across the front- and backend, so if you change one, change the other.
 
 ### Frontend Components
 
 The frontend is deliberately simple, containing a navbar, a grading page, a user information page, and a submissions page.
-Admin users can impersonate any student, using the app as if they were that student.
+
+#### Admin Features
+
+Admin users can impersonate any student, using the app as if they were that student. There is also a `Stats` component for admins that allows viewing how many submissions and how many unique students have submitted for each deliverable.
 
 ### Server Endpoints
 
