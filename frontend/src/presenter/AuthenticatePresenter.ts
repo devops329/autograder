@@ -6,6 +6,7 @@ export interface AuthenticateView {
   setUser(user: User | null): void;
   setSubmissions(submissions: Submission[]): void;
   setErrorMessage(errorMessage: string | null): void;
+  setNetIdToImpersonate(netId: string): void;
 }
 export class AuthenticatePresenter {
   private userService: UserService;
@@ -56,6 +57,7 @@ export class AuthenticatePresenter {
     const data = await this.userService.getUserInfo(netId);
     if (!data) {
       this.view.setErrorMessage('Student not found');
+      this.view.setNetIdToImpersonate('');
       return;
     }
     const [user, submissions] = data;

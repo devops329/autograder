@@ -21,6 +21,7 @@ export function NavBar(props: Props) {
     setUser: props.setUser,
     setSubmissions: props.setSubmissions,
     setErrorMessage: props.setErrorMessage,
+    setNetIdToImpersonate: setNetIdToImpersonate,
   };
   const [presenter] = useState(new AuthenticatePresenter(listener));
   return (
