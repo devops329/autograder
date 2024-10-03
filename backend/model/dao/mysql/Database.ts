@@ -193,7 +193,7 @@ export class DB {
 
   async checkPentestEligibility(netId: string) {
     const [rows] = await this.executeQuery('check_pentest_eligibility', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
-    return !rows.length;
+    return !!rows.length;
   }
 
   async getCurrentPentestPartner(netId: string) {
