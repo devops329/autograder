@@ -11,7 +11,7 @@ Admin users can impersonate any student, using the app as if they were that stud
 
 ### Server Endpoints
 
-There are three authenticated endpoints on the [server](backend/service.ts): `/user` for getting a user's data (their user object and list of submissions), `/update` for updating a user's user object, and `/grade`, to grade a single deliverable.
+There are four authenticated endpoints on the [server](backend/service.ts): `/stats` for getting number of submissions and unique students who have submitted for each deliverable, `/user` for getting a user's data (their user object and list of submissions), `/update` for updating a user's user object, and `/grade`, to grade a single deliverable.
 
 Unauthenticated endpoints include those necessary for logging in/out, and a `report` endpoint that is used for resolving the errors caused by triggering [chaos](backend/grading/graders/DeliverableElevenPartOne.ts).
 
@@ -32,7 +32,7 @@ This app uses the SAML protocol for authentication with BYU CAS as the service p
 
 ### Authenticating Locally
 
-Because `localhost` is not authorized to use CAS with SAML, you cannot log in this way when running the application locally. Instead, there is a page at the `/admin` path through which you can log in. The service maintains a separate admin table in which it keeps the netId and encrypted password of admin users. You will need to add yourself to the local db to log in this way.
+Because `localhost` is not authorized to use CAS with SAML, you cannot log in this way when running the application locally. Instead, there is a page at the `/admin` path through which you can log in. The service maintains a separate admin table in which it keeps the netId and bcrypt encrypted password of admin users. You will need to add yourself to the local db to log in this way.
 
 ## Configuration
 
