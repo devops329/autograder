@@ -163,6 +163,26 @@ export class DB {
     });
   }
 
+  async getNetIdsForDeliverablePhase(phase: number) {
+    const [rows] = await this.executeQuery(
+      'get_netids_for_deliverable_phase',
+      `
+      SELECT DISTINCT u.netid
+      FROM submission s
+      JOIN user u ON s.userId = u.id
+      WHERE s.phase = ?;
+
+      `,
+      [phase]
+    );
+    if (!rows.length) {
+      return [];
+    }
+    return rows.map((row: any) => {
+      return row.netid;
+    });
+  }
+
   async getNetIdByToken(token: string) {
     const [rows] = await this.executeQuery('get_netid_by_token', `SELECT netid FROM token WHERE authtoken = ?`, [token]);
     if (!rows.length) {

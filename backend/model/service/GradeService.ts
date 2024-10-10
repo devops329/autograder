@@ -142,4 +142,8 @@ export class GradeService {
   async getStats() {
     return await this.db.getSubmissionCountAllPhases();
   }
+
+  async getNetIdsForDeliverablePhase(phase: number) {
+    return await this.db.getNetIdsForDeliverablePhase(phase);
+  }
 }
