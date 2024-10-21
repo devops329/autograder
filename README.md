@@ -10,7 +10,7 @@ The frontend is deliberately simple, containing a navbar, a grading page, a user
 
 #### Admin Features
 
-Admin users can impersonate any student, using the app as if they were that student. There is also a `Stats` component for admins that allows viewing how many submissions and how many unique students have submitted for each deliverable.
+Admin users can impersonate any student, using the app as if they were that student. There is also a `Stats` component for admins that allows viewing how many submissions and how many unique students have submitted for each deliverable, along with viewing the net ids of those students by clicking on a deliverable.
 
 ### Server Endpoints
 
