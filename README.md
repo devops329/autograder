@@ -14,7 +14,7 @@ Admin users can impersonate any student, using the app as if they were that stud
 
 ### Server Endpoints
 
-There are four authenticated endpoints on the [server](backend/service.ts): `/stats` for getting number of submissions and unique students who have submitted for each deliverable, `/user` for getting a user's data (their user object and list of submissions), `/update` for updating a user's user object, and `/grade`, to grade a single deliverable.
+There are five authenticated endpoints on the [server](backend/service.ts): `/stats` for getting number of submissions and unique students who have submitted for each deliverable, `/stats/netids` for the net ids of students who submitted for a particular deliverable, `/user` for getting a user's data (their user object and list of submissions), `/update` for updating a user's user object, and `/grade`, to grade a single deliverable.
 
 Unauthenticated endpoints include those necessary for logging in/out, and a `report` endpoint that is used for resolving the errors caused by triggering [chaos](backend/grading/graders/DeliverableElevenPartOne.ts).
 
