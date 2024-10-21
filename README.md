@@ -27,11 +27,29 @@ This app is hosted on an AWS EC2 server at `cs329.click`, and deployed using a [
 sh deploy.sh -k cs329.pem -h cs329.click -s grade
 ```
 
+The script requires you to have a production configuration file named `config.prod.js`. To make one, run `npm run build` and look at the `config.js` file it produces in the `dist` directory. Then, change the values to be those needed for the production autograder to run. These credentials can be found in the class AWS secrets repository (ask Professor Jensen for details).
+
+The EC2 server has a local instance of MySQL running to which the autograder can connect.
+
 The running service is managed on the server using [pm2](https://www.npmjs.com/package/pm2).
 
 ## Authentication
 
 This app uses the SAML protocol for authentication with BYU CAS as the service provider, using the [saml2-js](https://www.npmjs.com/package/saml2-js) library to abstract most of the implementation. The certificates (`byu.crt` and `sp.crt`) for this are kept in the `certs` directory and are non-confidential. The `sp.key` file should not be publicly visible, hence it is created in the [deployment script](deploy.sh). The code for authentication is found in [service.ts](backend/service.ts).
+
+## Running Locally
+
+The back and front end are run separately when running locally. Make sure you have a local instance of MySQL running and provide a `config.ts` file with correct credentials.
+
+To run the backend:
+```sh
+cd backend && npm run start
+```
+
+Run the frontend similarly:
+```sh
+cd frontend && npm run dev
+```
 
 ### Authenticating Locally
 
@@ -39,7 +57,7 @@ Because `localhost` is not authorized to use CAS with SAML, you cannot log in th
 
 ## Configuration
 
-This is an example config file. It should never be committed.
+This is an example `config.ts` file. It should never be committed.
 
 ```javascript
 export const config = {
