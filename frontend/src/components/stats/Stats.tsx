@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { StatsPresenter, StatsView } from '../../presenter/StatsPresenter';
 import { Table } from 'react-bootstrap';
 interface Props {
@@ -13,6 +13,9 @@ interface Stat {
 
 export function Stats(props: Props) {
   const [stats, setStats] = useState<Stat[]>([]);
+  const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const [netIds, setNetIds] = useState<string[] | undefined>([]);
+
   const listener: StatsView = {
     setStats: setStats,
     setError: props.setErrorMessage,
@@ -24,6 +27,12 @@ export function Stats(props: Props) {
     };
     getStats();
   }, []);
+
+  const getNetIdsForDeliverablePhase = async (phase: number) => {
+    const netIds = await presenter.getNetIdsForDeliverablePhase(phase);
+    setNetIds(netIds); // Assume `data` is an array of netids
+    setExpandedRow(phase);
+  };
 
   return (
     <>
@@ -38,11 +47,28 @@ export function Stats(props: Props) {
         </thead>
         <tbody>
           {stats.map((item, index) => (
-            <tr key={index}>
-              <td>{item.phase}</td>
-              <td>{item.submissionCount}</td>
-              <td>{item.studentCount}</td>
-            </tr>
+            <Fragment key={index}>
+              <tr
+                onClick={() => {
+                  expandedRow ? setExpandedRow(null) : getNetIdsForDeliverablePhase(item.phase);
+                }}>
+                <td>{item.phase}</td>
+                <td>{item.submissionCount}</td>
+                <td>{item.studentCount}</td>
+              </tr>
+              {expandedRow === item.phase && netIds && (
+                <tr onClick={() => setExpandedRow(null)}>
+                  <td colSpan={3}>
+                    <strong>Net IDs:</strong>
+                    <ul>
+                      {netIds.map((netid, i) => (
+                        <li key={i}>{netid}</li>
+                      ))}
+                    </ul>
+                  </td>
+                </tr>
+              )}
+            </Fragment>
           ))}
         </tbody>
       </Table>

@@ -182,6 +182,16 @@ secureApiRouter.post('/stats', async function (req, res) {
   res.send(JSON.stringify(stats));
 });
 
+// Get all netids for a specific deliverable
+secureApiRouter.post('/stats/netids', async function (req, res) {
+  if (!req.isAdmin) {
+    res.status(401).send({ msg: 'Unauthorized' });
+    return;
+  }
+  const netIds = await gradeService.getNetIdsForDeliverablePhase(req.body.phase);
+  res.send(JSON.stringify(netIds));
+});
+
 // Get user's data
 secureApiRouter.post('/user', async function (req, res) {
   let netId = req.body.netId ?? (await db.getNetIdByToken(req.cookies[AUTH_COOKIE_NAME]));

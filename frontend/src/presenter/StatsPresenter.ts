@@ -22,4 +22,14 @@ export class StatsPresenter {
     }
     this.view.setStats(stats);
   }
+
+  async getNetIdsForDeliverablePhase(phase: number) {
+    let netIds: string[] = [];
+    try {
+      netIds = await this.gradeService.getNetIdsForDeliverablePhase(phase);
+      return netIds;
+    } catch (e) {
+      this.view.setError((e as Error).message);
+    }
+  }
 }

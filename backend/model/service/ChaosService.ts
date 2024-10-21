@@ -52,8 +52,8 @@ export class ChaosService {
     return user;
   }
 
-  async getChaosTime(netId: string) {
-    return (await this.db.getChaosTime(netId))!.chaosTime;
+  async getChaosTime(netId: string): Promise<string> {
+    return await this.db.getChaosTime(netId);
   }
 
   async removeScheduledChaos(netId: string) {
