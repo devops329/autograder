@@ -104,20 +104,26 @@ export class GradeService {
   async gradeDeliverableEleven(apiKey: string, fixCode: string) {
     const user = await this.chaosService.resolveChaos(apiKey, fixCode);
     if (user) {
-      const assignmentIds = await this.getAssignmentIds();
-      const gradeAttemptId = uuidv4();
-      const grader = this.gradeFactory.deliverableElevenPartTwo;
-      const result = await grader.grade(user);
-      const score = result[0] as number;
-      const rubric = result[1] as object;
-      const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentIds['11'], user.netId, score, gradeAttemptId);
-      if (!submitScoreErrorMessage) {
-        await this.putSubmissionIntoDB(11, user.netId, score, rubric);
+      try {
+        const assignmentIds = await this.getAssignmentIds();
+        const gradeAttemptId = uuidv4();
+        const grader = this.gradeFactory.deliverableElevenPartTwo;
+        const result = await grader.grade(user);
+        const score = result[0] as number;
+        logger.log('info', { type: 'grade', service: 'grade_service', deliverable: '11' }, { netid: user.netId, score });
+        const rubric = result[1] as object;
+        const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentIds['11'], user.netId, score, gradeAttemptId);
+        if (!submitScoreErrorMessage) {
+          await this.putSubmissionIntoDB(11, user.netId, score, rubric);
+        }
+        // remove chaos from db
+        this.chaosService.removeScheduledChaos(user.netId);
+        // Make user eligible for pentest
+        this.db.putPentest(user.netId);
+      } catch (e) {
+        logger.log('error', { type: 'grade', service: 'grade_service' }, { netid: user.netId, error: e });
+        return false;
       }
-      // remove chaos from db
-      this.chaosService.removeScheduledChaos(user.netId);
-      // Make user eligible for pentest
-      this.db.putPentest(user.netId);
       return true;
     } else {
       return false;

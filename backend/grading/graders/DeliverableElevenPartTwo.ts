@@ -1,3 +1,4 @@
+import logger from '../../logger';
 import { User } from '../../model/domain/User';
 import { ChaosService } from '../../model/service/ChaosService';
 import { Grader } from './Grader';
@@ -22,6 +23,11 @@ export class DeliverableElevenPartTwo implements Grader {
     let score = 80;
     // get chaos time from chaos db
     const chaosTime = await this.chaosService.getChaosTime(user.netId);
+    if (!chaosTime) {
+      logger.log('warn', { type: 'chaos_time_not_found', service: 'deliverable_eleven_part_two' }, { netId: user.netId });
+      rubric.comments += 'Could not find scheduled chaos time. Contact TA.\n';
+      return [0, rubric];
+    }
     // Add 6 hours to chaos time for cutoff
     const cutoff = new Date(chaosTime);
     cutoff.setHours(cutoff.getHours() + 6);
