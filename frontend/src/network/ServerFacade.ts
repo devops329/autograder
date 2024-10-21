@@ -61,4 +61,10 @@ export class ServerFacade {
     const response: JSON = await this.clientCommunicator.doPost({}, endpoint);
     return response;
   }
+
+  async getNetIdsForDeliverablePhase(phase: number): Promise<string[]> {
+    const endpoint = 'stats/netids';
+    const response: JSON = await this.clientCommunicator.doPost({ phase }, endpoint);
+    return response as unknown as string[];
+  }
 }

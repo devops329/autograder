@@ -15,4 +15,8 @@ export class GradeService {
   async getStats() {
     return await this.serverFacade.getStats();
   }
+
+  async getNetIdsForDeliverablePhase(phase: number) {
+    return await this.serverFacade.getNetIdsForDeliverablePhase(phase);
+  }
 }
