@@ -27,7 +27,7 @@ This app is hosted on an AWS EC2 server at `cs329.click`, and deployed using a [
 sh deploy.sh -k cs329.pem -h cs329.click -s grade
 ```
 
-The script requires you to have a production configuration file named `config.prod.js`. To make one, run `npm run build` and look at the `config.js` file it produces in the `dist` directory. Then, change the values to be those needed for the production autograder to run. These credentials can be found in the class AWS secrets repository (ask Professor Jensen for details).
+The script requires you to have a production configuration file named `config.prod.js`. To make one, run `npm run build` and look at the `config.js` file it produces in the `dist` directory. Copy this file into the root of the project (where `deploy.sh` is found) and change the values to be those needed for the production autograder to run. These credentials can be found in the class AWS secrets repository (ask Professor Jensen for details).
 
 The EC2 server has a local instance of MySQL running to which the autograder can connect.
 
