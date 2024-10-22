@@ -55,6 +55,10 @@ cd frontend && npm run dev
 
 Because `localhost` is not authorized to use CAS with SAML, you cannot log in this way when running the application locally. Instead, there is a page at the `/admin` path through which you can log in. The service maintains a separate admin table in which it keeps the netId and bcrypt encrypted password of admin users. You will need to add yourself to the local db to log in this way.
 
+## Observability
+
+The grader logs to an `Autograder` dashboard at `https://byucs329ta.grafana.net/`. You can log into this dashboard with the `byucs329ta` github account. Follow the course instruction for obtaining the configuration values.
+
 ## Configuration
 
 This is an example `config.ts` file. It should never be committed.
@@ -88,6 +92,12 @@ export const config = {
   github: {
     // access token for byucs329ta, used to trigger workflows
     personal_access_token: 'ghp_12345678_12345678',
+  },
+  logging: {
+    source: 'autograder',
+    url: 'https://logs-prod-006.grafana.net/loki/api/v1/push',
+    userId: '930494',
+    apiKey: 'glc_eyJxOjoiMCE...Q==',
   },
 };
 ```
