@@ -6,7 +6,7 @@ export interface AuthenticateView {
   setUser(user: User | null): void;
   setSubmissions(submissions: Submission[]): void;
   setErrorMessage(errorMessage: string | null): void;
-  setNetIdToImpersonate?(netId: string): void;
+  setImpersonateSearchString?(netId: string): void;
 }
 export class AuthenticatePresenter {
   private userService: UserService;
@@ -50,15 +50,15 @@ export class AuthenticatePresenter {
     window.location.href = '/';
   }
 
-  async impersonate(netId: string) {
-    if (!netId) {
+  async impersonate(searchString: string) {
+    if (!searchString) {
       return;
     }
-    const data = await this.userService.getUserInfo(netId);
+    const data = await this.userService.impersonateUser(searchString);
     if (!data) {
       this.view.setErrorMessage('Student not found');
-      if (this.view.setNetIdToImpersonate) {
-        this.view.setNetIdToImpersonate('');
+      if (this.view.setImpersonateSearchString) {
+        this.view.setImpersonateSearchString('');
       }
       return;
     }

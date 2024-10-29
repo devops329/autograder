@@ -158,11 +158,15 @@ secureApiRouter.use(async (req, res, next) => {
   try {
     const netIdFromToken = await db.getNetIdByToken(authToken);
     const user = await db.getUser(netIdFromToken);
+    if (!user) {
+      res.status(401).send({ msg: 'Unauthorized' });
+      return;
+    }
     if (user?.isAdmin) {
       req.isAdmin = true;
     }
     // Only allows the user to access their own information, unless they are an admin
-    if (user!.isAdmin || netIdFromRequest === netIdFromToken || !netIdFromRequest) {
+    if (user!.isAdmin || netIdFromRequest === netIdFromToken) {
       next();
     } else {
       res.status(401).send({ msg: 'Unauthorized' });
@@ -194,13 +198,29 @@ secureApiRouter.post('/stats/netids', async function (req, res) {
 
 // Get user's data
 secureApiRouter.post('/user', async function (req, res) {
-  let netId = req.body.netId ?? (await db.getNetIdByToken(req.cookies[AUTH_COOKIE_NAME]));
-  const user = await userService.getUser(netId);
+  let netId = req.body.netId;
+  const user = await userService.getUserByNetId(netId);
   if (!user) {
     res.status(404).send({ msg: 'User not found' });
     return;
   }
   const submissions = await gradeService.getSubmissions(netId);
+  res.send(JSON.stringify({ user, submissions }));
+});
+
+// Impersonate a user
+secureApiRouter.post('/impersonate', async function (req, res) {
+  if (!req.isAdmin) {
+    res.status(401).send({ msg: 'Unauthorized' });
+    return;
+  }
+  const searchString = req.body.searchString;
+  const user = await userService.getUserFuzzySearch(searchString);
+  if (!user) {
+    res.status(404).send({ msg: 'User not found' });
+    return;
+  }
+  const submissions = await gradeService.getSubmissions(user.netId);
   res.send(JSON.stringify({ user, submissions }));
 });
 

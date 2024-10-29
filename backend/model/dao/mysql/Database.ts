@@ -107,6 +107,20 @@ export class DB {
     return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
   }
 
+  async getUserFuzzySearch(search: string) {
+    const searchLowerCase = search.toLowerCase();
+    const [rows] = await this.executeQuery(
+      'get_user_fuzzy_search',
+      `SELECT * FROM user WHERE LOWER(netid) LIKE LOWER(?) OR LOWER(name) LIKE LOWER(?) OR LOWER(github) LIKE LOWER(?)`,
+      [`%${searchLowerCase}%`, `%${searchLowerCase}%`, `%${searchLowerCase}%`]
+    );
+    if (!rows.length) {
+      return null;
+    }
+    const row = rows[0];
+    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
+  }
+
   async getUserByApiKey(apiKey: string) {
     const [rows] = await this.executeQuery('get_user_by_api_key', `SELECT * FROM user WHERE apiKey = ?`, [apiKey]);
     if (!rows.length) {

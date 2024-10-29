@@ -64,12 +64,16 @@ export class UserService {
     await this.dao.deleteToken(token);
   }
 
-  async getUser(netId: string) {
+  async getUserByNetId(netId: string) {
     return await this.dao.getUser(netId);
+  }
+
+  async getUserFuzzySearch(search: string) {
+    return await this.dao.getUserFuzzySearch(search);
   }
 
   async updateUserInfo(netId: string, website: string, github: string, email: string) {
     await this.dao.updateUserInfo(netId, website, github, email);
-    return await this.getUser(netId);
+    return await this.getUserByNetId(netId);
   }
 }
