@@ -50,6 +50,23 @@ export class ServerFacade {
     }
   }
 
+  async impersonateUser(searchString: string): Promise<[User, Submission[]] | null> {
+    const endpoint = 'impersonate';
+    let response: { user: JSON; submissions: JSON[] };
+    try {
+      response = (await this.clientCommunicator.doPost({ searchString }, endpoint)) as unknown as { user: JSON; submissions: JSON[] };
+      const user = User.fromJson(response.user);
+      const submissions: Submission[] = [];
+      for (const submission of response.submissions) {
+        submissions.push(Submission.fromJson(submission));
+      }
+      return [user, submissions];
+    } catch (error) {
+      console.error('Error impersonating user:', error);
+      return null;
+    }
+  }
+
   async updateUserInfo(netId: string, website: string, github: string, email: string): Promise<User> {
     const endpoint = 'update';
     const response: JSON = (await this.clientCommunicator.doPost({ website, github, email, netId }, endpoint)) as unknown as JSON;

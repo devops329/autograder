@@ -16,12 +16,12 @@ interface Props {
 }
 
 export function NavBar(props: Props) {
-  const [netIdToImpersonate, setNetIdToImpersonate] = useState(props.impersonating ? props.user?.netId : '');
+  const [impersonateSearchString, setImpersonateSearchString] = useState(props.impersonating ? props.user?.netId : '');
   const listener: AuthenticateView = {
     setUser: props.setUser,
     setSubmissions: props.setSubmissions,
     setErrorMessage: props.setErrorMessage,
-    setNetIdToImpersonate: setNetIdToImpersonate,
+    setImpersonateSearchString: setImpersonateSearchString,
   };
   const [presenter] = useState(new AuthenticatePresenter(listener));
   return (
@@ -42,9 +42,9 @@ export function NavBar(props: Props) {
                 <InputGroup style={{ width: '12rem', margin: '1rem 1rem 1rem 0' }}>
                   <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                   <Form.Control
-                    value={netIdToImpersonate}
+                    value={impersonateSearchString}
                     onChange={(event) => {
-                      setNetIdToImpersonate(event.target.value);
+                      setImpersonateSearchString(event.target.value);
                     }}
                     placeholder="netId"
                     aria-label="NetId"
@@ -68,7 +68,7 @@ export function NavBar(props: Props) {
                     </Button>
                   ) : (
                     <>
-                      <Button variant="outline-primary" className="m-0" onClick={() => presenter.impersonate(netIdToImpersonate!)}>
+                      <Button variant="outline-primary" className="m-0" onClick={() => presenter.impersonate(impersonateSearchString!)}>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"

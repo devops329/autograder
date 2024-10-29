@@ -2,6 +2,7 @@ import { User } from '../../model/domain/User';
 import { Github } from '../tools/Github';
 import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
+import logger from '../../logger';
 
 interface DeliverableSevenRubric {
   versionArchiveInS3: number;
@@ -81,6 +82,11 @@ export class DeliverableSeven implements Grader {
             score += 20;
             rubric.continuousStagingDeployment += 20;
           } else {
+            logger.log(
+              'info',
+              { type: 'version_mismatch', service: 'deliverable_seven', gradeAttemptId },
+              { stagingReleaseVersion, stagingSiteVersion }
+            );
             rubric.comments += 'Staging release version does not match staging site version.\n';
           }
           // Take version number and trigger production release

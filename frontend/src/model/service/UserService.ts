@@ -9,6 +9,10 @@ export class UserService {
     return this.serverFacade.getUserInfo(netId);
   }
 
+  async impersonateUser(searchString: string): Promise<[User, Submission[]] | null> {
+    return this.serverFacade.impersonateUser(searchString);
+  }
+
   async updateUserInfo(netId: string, website: string, github: string, email: string): Promise<User> {
     return this.serverFacade.updateUserInfo(netId, website, github, email);
   }
