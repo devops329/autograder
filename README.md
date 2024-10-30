@@ -10,11 +10,11 @@ The frontend is deliberately simple, containing a navbar, a grading page, a user
 
 #### Admin Features
 
-Admin users can impersonate any student, using the app as if they were that student. There is also a `Stats` component for admins that allows viewing how many submissions and how many unique students have submitted for each deliverable, along with viewing the net ids of those students by clicking on a deliverable.
+Admin users can impersonate any student, using the app as if they were that student. They can input a netid, name or github username in the `student` box and the grader will impersonate the first match to any one of these, including partial matches. Note that there can be students with the same name, so if there is any conflict, use the netid or github username. There is also a `Stats` component for admins that allows viewing how many submissions and how many unique students have submitted for each deliverable, along with viewing the net ids of those students by clicking on a deliverable.
 
 ### Server Endpoints
 
-There are five authenticated endpoints on the [server](backend/service.ts): `/stats` for getting number of submissions and unique students who have submitted for each deliverable, `/stats/netids` for the net ids of students who submitted for a particular deliverable, `/user` for getting a user's data (their user object and list of submissions), `/update` for updating a user's user object, and `/grade`, to grade a single deliverable.
+There are six authenticated endpoints on the [server](backend/service.ts): `/stats` for getting number of submissions and unique students who have submitted for each deliverable, `/stats/netids` for the net ids of students who submitted for a particular deliverable, `/user` for getting a user's data (their user object and list of submissions), `/impersonate` which does the same as user but allows an admin to get a student's data, `/update` for updating a user's user object, and `/grade`, to grade a single deliverable.
 
 Unauthenticated endpoints include those necessary for logging in/out, and a `report` endpoint that is used for resolving the errors caused by triggering [chaos](backend/grading/graders/DeliverableElevenPartOne.ts).
 
