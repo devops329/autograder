@@ -28,7 +28,7 @@ export class GradingTools {
       });
       return matchesRegex;
     } catch (e) {
-      logger.log('error', { type: 'dns_error', service: 'grade_tools', gradeAttemptId }, { hostname, error: e });
+      logger.log('error', { type: 'dns_error', service: 'grade_tools', tool: 'check_dns', gradeAttemptId }, { hostname, error: e });
       return false;
     }
   }
@@ -55,7 +55,7 @@ export class GradingTools {
       });
       return matches;
     } catch (error) {
-      logger.log('error', { type: 'fetch_error', service: 'grade_tools' }, { hostname, error });
+      logger.log('error', { type: 'fetch_error', service: 'grade_tools', tool: 'check_response_headers_for_text' }, { hostname, error });
       return false;
     }
   }
@@ -68,14 +68,19 @@ export class GradingTools {
       const matches = body.match(regex);
       return !!matches;
     } catch (error) {
-      logger.log('error', { type: 'fetch_error', service: 'grade_tools' }, { hostname, error });
+      logger.log('error', { type: 'fetch_error', service: 'grade_tools', tool: 'check_page_body_for_text' }, { hostname, error });
       return false;
     }
   }
 
   async readPageJson(hostname: string): Promise<any> {
-    const response = await fetch(`https://${hostname}`);
-    return response.json();
+    try {
+      const response = await fetch(`https://${hostname}`);
+      return response.json();
+    } catch (error) {
+      logger.log('error', { type: 'fetch_error', service: 'grade_tools', tool: 'read_page_json' }, { hostname, error });
+      return null;
+    }
   }
 
   async getEnvVariable(envFile: string, variableName: string): Promise<string> {
@@ -104,7 +109,11 @@ export class GradingTools {
         }),
       });
       if (!response.ok) {
-        logger.log('error', { type: 'create_user_error', service: 'grade_tools', gradeAttemptId }, { status: response.status });
+        logger.log(
+          'error',
+          { type: 'create_user_error', service: 'grade_tools', tool: 'create_user_and_login', gradeAttemptId },
+          { status: response.status }
+        );
         return false;
       }
 
@@ -119,11 +128,19 @@ export class GradingTools {
         }),
       });
       if (!loginResponse.ok) {
-        logger.log('error', { type: 'login_error', service: 'grade_tools', gradeAttemptId }, { status: loginResponse.status });
+        logger.log(
+          'error',
+          { type: 'login_error', service: 'grade_tools', tool: 'create_user_and_login', gradeAttemptId },
+          { status: loginResponse.status }
+        );
         return false;
       }
     } catch (e) {
-      logger.log('error', { type: 'create_user_and_login_error', service: 'grade_tools', gradeAttemptId }, { error: e });
+      logger.log(
+        'error',
+        { type: 'create_user_and_login_error', service: 'grade_tools', tool: 'create_user_and_login', gradeAttemptId },
+        { error: e }
+      );
       return false;
     }
 
@@ -137,9 +154,9 @@ export class GradingTools {
       return true;
     }
     if (matches) {
-      logger.log('info', { type: 'coverage', service: 'grade_tools' }, { coverage: parseFloat(matches[1]) });
+      logger.log('info', { type: 'coverage', service: 'grade_tools', tool: 'check_coverage' }, { coverage: parseFloat(matches[1]) });
     } else {
-      logger.log('info', { type: 'coverage', service: 'grade_tools' }, { error: 'No coverage value found', badge });
+      logger.log('info', { type: 'coverage', service: 'grade_tools', tool: 'check_coverage' }, { error: 'No coverage value found', badge });
     }
     return false;
   }
