@@ -14,3 +14,13 @@ svg.copy:hover {
 button {
   margin: 0.5rem 0 !important;
 }
+
+.bg-image {
+  position: absolute;
+  object-fit: cover;
+  object-position: left;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.8;
+}

@@ -58,7 +58,7 @@ export function Grader(props: Props) {
     <>
       <DropdownButton
         id="dropdown-basic-button"
-        variant="secondary"
+        variant="primary"
         title={selectedAssignment ? `Deliverable ${selectedAssignment}` : 'Select Assignment'}>
         {assignmentPhases.map((assigmentPhase) => (
           <Dropdown.Item

@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function NavBar(props: Props) {
-  const [impersonateSearchString, setImpersonateSearchString] = useState(props.impersonating ? props.user?.netId : '');
+  const [impersonateSearchString, setImpersonateSearchString] = useState(props.impersonating ? props.user?.name : '');
   const listener: AuthenticateView = {
     setUser: props.setUser,
     setSubmissions: props.setSubmissions,
@@ -25,7 +25,7 @@ export function NavBar(props: Props) {
   };
   const [presenter] = useState(new AuthenticatePresenter(listener));
   return (
-    <Navbar expand="lg" className="bg-body-tertiary  align-items-center" fixed="top">
+    <Navbar data-bs-theme="dark" expand="lg" className="bg-body-tertiary  align-items-center" fixed="top">
       <Container>
         <Navbar.Brand href="/grader">CS329 AutoGrader</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -46,8 +46,8 @@ export function NavBar(props: Props) {
                     onChange={(event) => {
                       setImpersonateSearchString(event.target.value);
                     }}
-                    placeholder="netId"
-                    aria-label="NetId"
+                    placeholder="student"
+                    aria-label="Student"
                     aria-describedby="basic-addon1"
                   />
                   {props.impersonating ? (

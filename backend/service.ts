@@ -166,7 +166,7 @@ secureApiRouter.use(async (req, res, next) => {
       req.isAdmin = true;
     }
     // Only allows the user to access their own information, unless they are an admin
-    if (user!.isAdmin || netIdFromRequest === netIdFromToken) {
+    if (user!.isAdmin || netIdFromRequest === netIdFromToken || !netIdFromRequest) {
       next();
     } else {
       res.status(401).send({ msg: 'Unauthorized' });
@@ -198,7 +198,7 @@ secureApiRouter.post('/stats/netids', async function (req, res) {
 
 // Get user's data
 secureApiRouter.post('/user', async function (req, res) {
-  let netId = req.body.netId;
+  let netId = req.body.netId ?? (await db.getNetIdByToken(req.cookies[AUTH_COOKIE_NAME]));
   const user = await userService.getUserByNetId(netId);
   if (!user) {
     res.status(404).send({ msg: 'User not found' });
