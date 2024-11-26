@@ -42,18 +42,20 @@ This app uses the SAML protocol for authentication with BYU CAS as the service p
 The back and front end are run separately when running locally. Make sure you have a local instance of MySQL running and provide a `config.ts` file with correct credentials.
 
 To run the backend:
+
 ```sh
 cd backend && npm run start
 ```
 
 Run the frontend similarly:
+
 ```sh
 cd frontend && npm run dev
 ```
 
 ### Authenticating Locally
 
-Because `localhost` is not authorized to use CAS with SAML, you cannot log in this way when running the application locally. Instead, there is a page at the `/admin` path through which you can log in. The service maintains a separate admin table in which it keeps the netId and bcrypt encrypted password of admin users. You will need to add yourself to the local db to log in this way.
+Because `localhost` is not authorized to use CAS with SAML, you cannot log in this way when running the application locally. Instead, there is a page at the `/admin` path through which you can log in. The service maintains a separate admin table in which it keeps the netId and [bcrypt](https://www.npmjs.com/package/bcrypt) encrypted password of admin users. You will need to add yourself to the local db to log in this way.
 
 ## Observability
 
