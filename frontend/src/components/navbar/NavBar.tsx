@@ -25,7 +25,7 @@ export function NavBar(props: Props) {
   };
   const [presenter] = useState(new AuthenticatePresenter(listener));
   return (
-    <Navbar data-bs-theme="dark" expand="lg" className="bg-body-tertiary  align-items-center" fixed="top">
+    <Navbar data-bs-theme="dark" expand="lg" className="align-items-center" style={{ backgroundColor: '#002e5d' }} fixed="top">
       <Container>
         <Navbar.Brand href="/grader">CS329 AutoGrader</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -39,7 +39,7 @@ export function NavBar(props: Props) {
           {props.user ? (
             <>
               {props.isAdmin && (
-                <InputGroup style={{ width: '12rem', margin: '1rem 1rem 1rem 0' }}>
+                <InputGroup data-bs-theme="light" style={{ width: '12rem', margin: '1rem 1rem 1rem 0' }}>
                   <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                   <Form.Control
                     value={impersonateSearchString}
@@ -68,7 +68,7 @@ export function NavBar(props: Props) {
                     </Button>
                   ) : (
                     <>
-                      <Button variant="outline-primary" className="m-0" onClick={() => presenter.impersonate(impersonateSearchString!)}>
+                      <Button variant="primary" className="m-0" onClick={() => presenter.impersonate(impersonateSearchString!)}>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
