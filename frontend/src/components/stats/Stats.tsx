@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react';
 import { StatsPresenter, StatsView } from '../../presenter/StatsPresenter';
 import { Table } from 'react-bootstrap';
+import './Stats.css';
 interface Props {
   setErrorMessage: (errorMessage: string | null) => void;
 }
@@ -60,7 +61,7 @@ export function Stats(props: Props) {
                 <tr onClick={() => setExpandedRow(null)}>
                   <td colSpan={3}>
                     <strong>Net IDs:</strong>
-                    <ul>
+                    <ul className="netids">
                       {netIds.map((netid, i) => (
                         <li key={i}>{netid}</li>
                       ))}
