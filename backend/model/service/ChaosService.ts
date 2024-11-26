@@ -36,7 +36,7 @@ export class ChaosService {
 
     // Put user and chaos time into chaos db
     await this.db.putChaos(netId, chaosTime!);
-    logger.log('info', { type: 'chaos_scheduled', service: 'chaos_service' }, { netId });
+    logger.log('info', { type: 'chaos_scheduled', service: 'chaos_service' }, { netId, chaosTime });
   }
 
   async triggerChaos(netId: string) {
