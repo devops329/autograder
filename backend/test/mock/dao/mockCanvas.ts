@@ -18,7 +18,7 @@ export class MockCanvas implements Canvas {
     }
     return;
   }
-  async getAssignmentIds(): Promise<{ [key: number]: number }> {
+  async getAssignmentIdsAndDueDates(): Promise<{ [key: number]: number }> {
     return new Promise((resolve, reject) => {
       resolve({ 1: 1, 2: 2, 3: 3 });
     });

@@ -1,6 +1,11 @@
 import { config } from '../../../config';
 import logger from '../../../logger';
 
+export interface Assignment {
+  id: number;
+  due_at: string;
+}
+
 export class Canvas {
   async getStudentId(netid: string): Promise<number | undefined> {
     const data = await this.getStudentInfo(netid);
@@ -81,9 +86,9 @@ export class Canvas {
     }
   }
 
-  async getAssignmentIds(): Promise<{ [key: number]: number }> {
+  async getAssignmentIdsAndDueDates(): Promise<{ [key: number]: Assignment }> {
     let nextPageUrl: string | null = config.canvas.base_url + '/assignments';
-    const assignmentIds: { [key: number]: number } = {};
+    const assignments: { [key: number]: Assignment } = {};
 
     while (nextPageUrl) {
       const response: Response = await fetch(nextPageUrl, {
@@ -102,7 +107,10 @@ export class Canvas {
         const match = name.match(regex);
         if (match) {
           const deliverableNumber = parseInt(match[1]);
-          assignmentIds[deliverableNumber] = assignment.id;
+          assignments[deliverableNumber] = {
+            id: assignment.id,
+            due_at: assignment.due_at,
+          };
         }
       });
 
@@ -120,9 +128,9 @@ export class Canvas {
         }
       }
     }
-    if (Object.keys(assignmentIds).length < 12) {
-      logger.log('error', { type: 'missing_assignments', service: 'canvas' }, { assignmentIds });
+    if (Object.keys(assignments).length < 12) {
+      logger.log('error', { type: 'missing_assignments', service: 'canvas' }, { assignments });
     }
-    return assignmentIds;
+    return assignments;
   }
 }

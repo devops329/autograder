@@ -24,7 +24,7 @@ export class GradeService {
     let score = 0;
     let grader: Grader;
     let assignmentId = 0;
-    const assignmentIds = await this.getAssignmentIds();
+    const assignments = await this.getAssignmentIdsAndDueDates();
     const user = await this.db.getUser(netid);
 
     const gradeAttemptId = uuidv4();
@@ -34,31 +34,31 @@ export class GradeService {
     switch (assignmentPhase) {
       case 1:
         grader = this.gradeFactory.deliverableOne;
-        assignmentId = assignmentIds['1'];
+        assignmentId = assignments['1'].id;
         break;
       case 2:
         grader = this.gradeFactory.deliverableTwo;
-        assignmentId = assignmentIds['2'];
+        assignmentId = assignments['2'].id;
         break;
       case 3:
         grader = this.gradeFactory.deliverableThree;
-        assignmentId = assignmentIds['3'];
+        assignmentId = assignments['3'].id;
         break;
       case 4:
         grader = this.gradeFactory.deliverableFour;
-        assignmentId = assignmentIds['4'];
+        assignmentId = assignments['4'].id;
         break;
       case 5:
         grader = this.gradeFactory.deliverableFive;
-        assignmentId = assignmentIds['5'];
+        assignmentId = assignments['5'].id;
         break;
       case 6:
         grader = this.gradeFactory.deliverableSix;
-        assignmentId = assignmentIds['6'];
+        assignmentId = assignments['6'].id;
         break;
       case 7:
         grader = this.gradeFactory.deliverableSeven;
-        assignmentId = assignmentIds['7'];
+        assignmentId = assignments['7'].id;
         break;
       case 11:
         grader = this.gradeFactory.deliverableElevenPartOne;
@@ -105,14 +105,14 @@ export class GradeService {
     const user = await this.chaosService.resolveChaos(apiKey, fixCode);
     if (user) {
       try {
-        const assignmentIds = await this.getAssignmentIds();
+        const assignments = await this.getAssignmentIdsAndDueDates();
         const gradeAttemptId = uuidv4();
         const grader = this.gradeFactory.deliverableElevenPartTwo;
         const result = await grader.grade(user);
         const score = result[0] as number;
         logger.log('info', { type: 'grade', service: 'grade_service', deliverable: '11' }, { netid: user.netId, score });
         const rubric = result[1] as object;
-        const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentIds['11'], user.netId, score, gradeAttemptId);
+        const submitScoreErrorMessage = await this.submitScoreToCanvas(assignments['11'].id, user.netId, score, gradeAttemptId);
         if (!submitScoreErrorMessage) {
           await this.putSubmissionIntoDB(11, user.netId, score, rubric);
         }
@@ -141,8 +141,8 @@ export class GradeService {
     return this.db.getSubmissions(netId);
   }
 
-  async getAssignmentIds() {
-    return await this.canvas.getAssignmentIds();
+  async getAssignmentIdsAndDueDates() {
+    return await this.canvas.getAssignmentIdsAndDueDates();
   }
 
   async getStats() {
