@@ -11,6 +11,7 @@ import saml2 from 'saml2-js';
 import fs from 'fs';
 import path from 'path';
 import { DeliverableGradeFactory } from './grading/graders/DeliverableGradeFactory';
+import { AdminService } from './model/service/AdminService';
 
 // Extend the Express Request interface
 declare global {
@@ -31,6 +32,7 @@ const gradeFactory = new DeliverableGradeFactory();
 const chaosService = new ChaosService(db, pizzaFactory);
 const gradeService = new GradeService(db, canvas, gradeFactory, chaosService);
 const userService = new UserService(db, pizzaFactory, canvas);
+const adminService = new AdminService(db);
 
 // SAML setup
 // Service provider
@@ -182,7 +184,7 @@ secureApiRouter.post('/stats', async function (req, res) {
     res.status(401).send({ msg: 'Unauthorized' });
     return;
   }
-  const stats = await gradeService.getStats();
+  const stats = await adminService.getStats();
   res.send(JSON.stringify(stats));
 });
 
@@ -192,7 +194,7 @@ secureApiRouter.post('/stats/netids', async function (req, res) {
     res.status(401).send({ msg: 'Unauthorized' });
     return;
   }
-  const netIds = await gradeService.getNetIdsForDeliverablePhase(req.body.phase);
+  const netIds = await adminService.getNetIdsForDeliverablePhase(req.body.phase);
   res.send(JSON.stringify(netIds));
 });
 

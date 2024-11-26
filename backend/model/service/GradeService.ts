@@ -144,12 +144,4 @@ export class GradeService {
   async getAssignmentIdsAndDueDates() {
     return await this.canvas.getAssignmentIdsAndDueDates();
   }
-
-  async getStats() {
-    return await this.db.getSubmissionCountAllPhases();
-  }
-
-  async getNetIdsForDeliverablePhase(phase: number) {
-    return await this.db.getNetIdsForDeliverablePhase(phase);
-  }
 }
