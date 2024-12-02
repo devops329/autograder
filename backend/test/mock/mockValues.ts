@@ -5,11 +5,11 @@ export const mockSubmission: Submission = new Submission('today', 0, 1000, 'rubr
 
 export const mockSubmissions: Submission[] = [mockSubmission];
 
-export const mockStudent = new User('student', 'student', 'student', 'student', 'student', 'student', false);
+export const mockStudent = new User('student', 'student', 'student', 'student', 'student', 'student', 0, false);
 
-export const mockStudentNoWebsiteOrGithub = new User('student', 'student', 'student', '', '', 'student', false);
+export const mockStudentNoWebsiteOrGithub = new User('student', 'student', 'student', '', '', 'student', 0, false);
 
-export const mockAdmin = new User('admin', 'admin', 'admin', 'admin', 'admin', 'admin', true);
+export const mockAdmin = new User('admin', 'admin', 'admin', 'admin', 'admin', 'admin', 0, true);
 
 export const mockToken = 'mockToken';
 

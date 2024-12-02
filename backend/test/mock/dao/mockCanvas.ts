@@ -1,4 +1,4 @@
-import { Canvas } from '../../../model/dao/canvas/Canvas';
+import { Assignment, Canvas } from '../../../model/dao/canvas/Canvas';
 
 export class MockCanvas implements Canvas {
   private _success = true;
@@ -18,9 +18,9 @@ export class MockCanvas implements Canvas {
     }
     return;
   }
-  async getAssignmentIdsAndDueDates(): Promise<{ [key: number]: number }> {
+  async getAssignmentIdsAndDueDates(): Promise<{ [key: number]: Assignment }> {
     return new Promise((resolve, reject) => {
-      resolve({ 1: 1, 2: 2, 3: 3 });
+      resolve({ 1: { id: 1, due_at: '' }, 2: { id: 2, due_at: '' }, 3: { id: 3, due_at: '' } });
     });
   }
 }
