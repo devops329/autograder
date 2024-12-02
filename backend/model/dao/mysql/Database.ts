@@ -225,8 +225,8 @@ export class DB {
     return ((rows as any)[0] as any).lateDays || 0;
   }
 
-  async addLateDays(netId: string, days: number) {
-    await this.executeQuery('add_late_days', 'UPDATE user SET lateDays = lateDays + ? WHERE netid = ?', [days, netId]);
+  async updateLateDays(netId: string, days: number) {
+    await this.executeQuery('add_late_days', 'UPDATE user SET lateDays = ? WHERE netid = ?', [days, netId]);
   }
 
   async putPentest(netId: string) {

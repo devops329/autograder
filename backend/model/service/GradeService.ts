@@ -156,7 +156,7 @@ export class GradeService {
     }
     if (daysLate < 0) {
       const daysEarly = Math.min(3, Math.abs(daysLate));
-      this.db.addLateDays(netId, daysEarly);
+      this.db.updateLateDays(netId, lateDays + daysEarly);
     }
     return score;
   }

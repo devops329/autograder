@@ -16,6 +16,7 @@ export function UserInfo(props: Props) {
   const [email, setEmail] = useState(props.user.email);
   const [website, setWebsite] = useState(props.user.website);
   const [github, setGithub] = useState(props.user.github);
+  const [lateDays, setLateDays] = useState(props.user.lateDays);
   const [updated, setUpdated] = useState(false);
 
   const presenter = new UserInfoPresenter({ setUpdated, setUser: props.setUser, setWebsite });
@@ -95,11 +96,19 @@ export function UserInfo(props: Props) {
           </svg>
         )}
       </h3>
-      <h3>Late Days: {props.user.lateDays}</h3>
+      <div className="d-flex align-items-center">
+        <h3 className="me-3">Late Days: {props.user.lateDays}</h3>
+        <Button variant="primary" className="me-2" onClick={() => setLateDays(lateDays + 1)}>
+          +
+        </Button>
+        <Button variant="secondary" onClick={() => setLateDays(lateDays - 1)}>
+          -
+        </Button>
+      </div>
       <Button
         variant={updated ? 'success' : 'primary'}
         onClick={() => {
-          presenter.updateUserInfo(props.user.netId, website, github, email, props.impersonating);
+          presenter.updateUserInfo(props.user.netId, website, github, email, lateDays, props.impersonating);
         }}>
         {updated ? 'Updated!' : 'Update'}
       </Button>

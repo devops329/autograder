@@ -230,6 +230,10 @@ secureApiRouter.post('/impersonate', async function (req, res) {
 secureApiRouter.post('/update', async function (req, res) {
   const netId = req.body.netId;
   const user = await userService.updateUserInfo(netId, req.body.website, req.body.github, req.body.email);
+  if (req.isAdmin) {
+    const updatedLateDays = req.body.lateDays;
+    await db.updateLateDays(netId, updatedLateDays);
+  }
   res.send(JSON.stringify(user));
 });
 
