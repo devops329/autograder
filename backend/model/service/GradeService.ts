@@ -77,13 +77,15 @@ export class GradeService {
     score = result[0] as number;
     const rubric = result[1] as object;
 
-    const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentId, netid, score, gradeAttemptId);
+    const scoreAfterLateCalculation = await this.calculateScoreAfterLateDays(netid, assignments[assignmentPhase], score);
+
+    const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentId, netid, scoreAfterLateCalculation, gradeAttemptId);
     if (submitScoreErrorMessage) {
       submissions = await this.getSubmissions(netid);
       return [submitScoreErrorMessage, submissions, rubric];
     }
-    submissions = await this.putSubmissionIntoDB(assignmentPhase, netid, score, rubric);
-    return [`Score: ${score}`, submissions, rubric];
+    submissions = await this.putSubmissionIntoDB(assignmentPhase, netid, scoreAfterLateCalculation, rubric);
+    return [`Score: ${scoreAfterLateCalculation}`, submissions, rubric];
   }
 
   private async submitScoreToCanvas(assignmentId: number, netid: string, score: number, gradeAttemptId: string): Promise<string | void> {
@@ -110,11 +112,12 @@ export class GradeService {
         const grader = this.gradeFactory.deliverableElevenPartTwo;
         const result = await grader.grade(user);
         const score = result[0] as number;
-        logger.log('info', { type: 'grade', service: 'grade_service', deliverable: '11' }, { netid: user.netId, score });
+        const scoreAfterLateCalculation = await this.calculateScoreAfterLateDays(user.netId, assignments[11], score);
+        logger.log('info', { type: 'grade', service: 'grade_service', deliverable: '11' }, { netid: user.netId, scoreAfterLateCalculation });
         const rubric = result[1] as object;
-        const submitScoreErrorMessage = await this.submitScoreToCanvas(assignments['11'].id, user.netId, score, gradeAttemptId);
+        const submitScoreErrorMessage = await this.submitScoreToCanvas(assignments['11'].id, user.netId, scoreAfterLateCalculation, gradeAttemptId);
         if (!submitScoreErrorMessage) {
-          await this.putSubmissionIntoDB(11, user.netId, score, rubric);
+          await this.putSubmissionIntoDB(11, user.netId, scoreAfterLateCalculation, rubric);
         }
         // remove chaos from db
         this.chaosService.removeScheduledChaos(user.netId);
@@ -150,12 +153,19 @@ export class GradeService {
     const dueDate = new Date(assignment.due_at);
     const lateDays = await this.db.getLateDays(netId);
     const timeDiff = today.getTime() - dueDate.getTime();
-    const daysLate = Math.floor(timeDiff / (1000 * 3600 * 24));
-    if (daysLate > lateDays) {
+    const daysPastDueDate = Math.floor(timeDiff / (1000 * 3600 * 24));
+
+    // If days late exceeds remaining late days, return 0
+    if (daysPastDueDate > lateDays) {
       return 0;
     }
-    if (daysLate < 0) {
-      const daysEarly = Math.min(3, Math.abs(daysLate));
+    // If days late is positive, subtract from late days
+    if (daysPastDueDate > 0) {
+      this.db.updateLateDays(netId, lateDays - daysPastDueDate);
+    }
+    // Must be 100% to get extra credit for early submission
+    if (daysPastDueDate < 0 && (score == 100 || (assignment.phase == 11 && score == 80))) {
+      const daysEarly = Math.min(3, Math.abs(daysPastDueDate));
       this.db.updateLateDays(netId, lateDays + daysEarly);
     }
     return score;

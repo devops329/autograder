@@ -2,6 +2,7 @@ import { config } from '../../../config';
 import logger from '../../../logger';
 
 export interface Assignment {
+  phase: number;
   id: number;
   due_at: string;
 }
@@ -110,6 +111,7 @@ export class Canvas {
           assignments[deliverableNumber] = {
             id: assignment.id,
             due_at: assignment.due_at,
+            phase: deliverableNumber,
           };
         }
       });

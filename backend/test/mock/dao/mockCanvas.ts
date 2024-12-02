@@ -20,7 +20,7 @@ export class MockCanvas implements Canvas {
   }
   async getAssignmentIdsAndDueDates(): Promise<{ [key: number]: Assignment }> {
     return new Promise((resolve, reject) => {
-      resolve({ 1: { id: 1, due_at: '' }, 2: { id: 2, due_at: '' }, 3: { id: 3, due_at: '' } });
+      resolve({ 1: { id: 1, due_at: '', phase: 1 }, 2: { id: 2, due_at: '', phase: 2 }, 3: { id: 3, due_at: '', phase: 3 } });
     });
   }
 }
