@@ -7,8 +7,8 @@ import './UserInfo.css';
 interface Props {
   user: User;
   setUser: (user: User) => void;
-  isAdminPage?: boolean;
   impersonating: boolean;
+  isAdmin: boolean;
 }
 
 export function UserInfo(props: Props) {
@@ -31,7 +31,7 @@ export function UserInfo(props: Props) {
 
   return (
     <>
-      {!props.isAdminPage && <h1>My Info</h1>}
+      <h1>My Info</h1>
       <h3>Name: {props.user.name}</h3>
       <h3>NetID: {props.user.netId}</h3>
       <InputGroup className="mb-3">
@@ -97,13 +97,21 @@ export function UserInfo(props: Props) {
         )}
       </h3>
       <div className="d-flex align-items-center">
-        <h3 className="me-3">Late Days: {props.user.lateDays}</h3>
-        <Button variant="primary" className="me-2" onClick={() => setLateDays(lateDays + 1)}>
-          +
-        </Button>
-        <Button variant="secondary" onClick={() => setLateDays(lateDays - 1)}>
-          -
-        </Button>
+        <h3 className="me-3">Late Days: {lateDays}</h3>
+        {props.isAdmin && (
+          <>
+            <Button variant="primary" className="me-2" onClick={() => setLateDays(lateDays + 1)}>
+              +
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setLateDays(Math.max(0, lateDays - 1));
+              }}>
+              -
+            </Button>
+          </>
+        )}
       </div>
       <Button
         variant={updated ? 'success' : 'primary'}
