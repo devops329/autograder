@@ -74,15 +74,11 @@ export class DB {
   }
 
   async putUser(user: User) {
-    await this.executeQuery('put_user', 'INSERT INTO user (name, netid, apiKey, website, github, email, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?)', [
-      user.name,
-      user.netId,
-      user.apiKey,
-      user.website,
-      user.github,
-      user.email,
-      user.isAdmin,
-    ]);
+    await this.executeQuery(
+      'put_user',
+      'INSERT INTO user (name, netid, apiKey, website, github, email, lateDays, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [user.name, user.netId, user.apiKey, user.website, user.github, user.email, user.lateDays, user.isAdmin]
+    );
   }
 
   async deleteUser(netId: string) {
@@ -104,7 +100,7 @@ export class DB {
       return null;
     }
     const row = rows[0];
-    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
+    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.lateDays, row.isAdmin);
   }
 
   async getUserFuzzySearch(search: string) {

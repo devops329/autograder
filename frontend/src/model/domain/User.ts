@@ -69,7 +69,7 @@ export class User {
       _github: string;
       _email: string;
       _lateDays: number;
-      _isAdmin?: boolean;
+      _isAdmin: boolean;
     }
     const jsonObject: UserJson = json as unknown as UserJson;
     return new User(
