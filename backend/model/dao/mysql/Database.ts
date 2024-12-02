@@ -221,6 +221,18 @@ export class DB {
     await this.executeQuery('delete_token', 'DELETE FROM token WHERE authtoken = ?', [token]);
   }
 
+  async getLateDays(netId: string) {
+    const [rows] = await this.executeQuery('get_late_days', `SELECT lateDays FROM user WHERE netid = ?`, [netId]);
+    if (!rows.length) {
+      return 0;
+    }
+    return ((rows as any)[0] as any).lateDays || 0;
+  }
+
+  async addLateDays(netId: string, days: number) {
+    await this.executeQuery('add_late_days', 'UPDATE user SET lateDays = lateDays + ? WHERE netid = ?', [days, netId]);
+  }
+
   async putPentest(netId: string) {
     await this.executeQuery('put_pentest', 'INSERT INTO pentest (netid) VALUES (?)', [netId]);
   }

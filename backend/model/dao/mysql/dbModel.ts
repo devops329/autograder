@@ -7,6 +7,7 @@ export const tableCreateStatements = [
   website VARCHAR(255) NOT NULL,
   github VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
+  lateDays INT NOT NULL DEFAULT 0,
   isAdmin BOOLEAN NOT NULL DEFAULT false
   )`,
 

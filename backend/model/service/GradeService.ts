@@ -1,5 +1,5 @@
 import { Grader } from '../../grading/graders/Grader';
-import { Canvas } from '../dao/canvas/Canvas';
+import { Assignment, Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
 import { Submission } from '../domain/Submission';
 import logger from '../../logger';
@@ -143,5 +143,21 @@ export class GradeService {
 
   async getAssignmentIdsAndDueDates() {
     return await this.canvas.getAssignmentIdsAndDueDates();
+  }
+
+  async calculateScoreAfterLateDays(netId: string, assignment: Assignment, score: number) {
+    const today = new Date();
+    const dueDate = new Date(assignment.due_at);
+    const lateDays = await this.db.getLateDays(netId);
+    const timeDiff = today.getTime() - dueDate.getTime();
+    const daysLate = Math.floor(timeDiff / (1000 * 3600 * 24));
+    if (daysLate > lateDays) {
+      return 0;
+    }
+    if (daysLate < 0) {
+      const daysEarly = Math.min(3, Math.abs(daysLate));
+      this.db.addLateDays(netId, daysEarly);
+    }
+    return score;
   }
 }
