@@ -25,6 +25,7 @@ export class ChaosService {
   }
 
   async scheduleChaos(netId: string) {
+    await this.removeScheduledChaos(netId);
     const randomHours = 8 + Math.floor(Math.random() * 6);
     const randomMinutes = Math.floor(Math.random() * 60);
     const chaosTime = DateTime.now()
