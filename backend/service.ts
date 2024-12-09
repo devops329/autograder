@@ -231,9 +231,23 @@ secureApiRouter.post('/update', async function (req, res) {
   res.send(JSON.stringify(user));
 });
 
+// End/Start the semester
+secureApiRouter.post('/semester-over', async function (req, res) {
+  if (!req.isAdmin) {
+    res.status(401).send({ msg: 'Unauthorized' });
+    return;
+  }
+  const semesterOver = gradeService.toggleSemesterOver();
+  res.send(semesterOver);
+});
+
 // Grade a deliverable assignment
 secureApiRouter.post('/grade', async function (req, res) {
   const netId = req.body.netId;
+  if (gradeService.semesterOver) {
+    const message = 'Merry Christmas! The semester is over.';
+    res.send(JSON.stringify({ message, submissions: [], rubric: {} }));
+  }
   const [message, submissions, rubric] = await gradeService.grade(req.body.assignmentPhase, netId);
   res.send(JSON.stringify({ message, submissions, rubric }));
 });

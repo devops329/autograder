@@ -33,6 +33,12 @@ export class ServerFacade {
     return [response.message, submissions, response.rubric];
   }
 
+  async toggleSemesterOver(): Promise<boolean> {
+    const endpoint = 'semester-over';
+    const response: boolean = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as boolean;
+    return response;
+  }
+
   async getUserInfo(netId?: string): Promise<[User, Submission[]] | null> {
     const endpoint = 'user';
     let response: { user: JSON; submissions: JSON[] };
