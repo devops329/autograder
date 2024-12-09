@@ -13,11 +13,22 @@ export class GradeService {
   private gradeFactory: GradeFactory;
   private chaosService: ChaosService;
 
+  private _semesterOver = false;
+
   constructor(db: DB, canvas: Canvas, gradeFactory: GradeFactory, chaosService: ChaosService) {
     this.db = db;
     this.canvas = canvas;
     this.gradeFactory = gradeFactory;
     this.chaosService = chaosService;
+  }
+
+  get semesterOver() {
+    return this._semesterOver;
+  }
+
+  toggleSemesterOver() {
+    this._semesterOver = !this._semesterOver;
+    return this._semesterOver;
   }
 
   async grade(assignmentPhase: number, netid: string): Promise<[number | string, Submission[], object?]> {
