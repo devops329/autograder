@@ -120,7 +120,7 @@ export class GradeService {
         const gradeAttemptId = uuidv4();
         const grader = this.gradeFactory.deliverableElevenPartTwo;
         const result = await grader.grade(user);
-        const score = result[0] as number;
+        const score = this.semesterOver ? 0 : (result[0] as number);
         logger.log('info', { type: 'grade', service: 'grade_service', deliverable: '11' }, { netid: user.netId, score });
         const rubric = result[1] as object;
         const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentIds['11'], user.netId, score, gradeAttemptId);
