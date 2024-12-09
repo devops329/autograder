@@ -44,12 +44,11 @@ export function NavBar(props: Props) {
             <>
               {props.isAdmin && (
                 <>
-                  <Button
-                    variant={props.semesterOver ? 'success' : 'danger'}
-                    onClick={() => navBarPresenter.toggleSemesterOver()}
-                    style={{ margin: '1rem 1rem 1rem 0' }}>
-                    {props.semesterOver ? 'Start Semester' : 'End Semester'}
-                  </Button>
+                  <div style={{ marginRight: '1rem' }}>
+                    <Button variant={props.semesterOver ? 'outline-success' : 'outline-danger'} onClick={() => navBarPresenter.toggleSemesterOver()}>
+                      {props.semesterOver ? 'Start Semester' : 'End Semester'}
+                    </Button>
+                  </div>
                   <InputGroup data-bs-theme="light" style={{ width: '12rem', margin: '1rem 1rem 1rem 0' }}>
                     <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                     <Form.Control
