@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc && cp -r certs dist",
-    "start": "tsc && cp -r certs dist && node dist/index.js",
+    "dev": "tsc && cp -r certs dist && node dist/index.js",
     "test": "jest --detectOpenHandles"
   },
   "keywords": [],
