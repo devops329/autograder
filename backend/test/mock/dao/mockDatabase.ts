@@ -87,6 +87,11 @@ export class MockDB extends DB {
     return this.submissions;
   }
 
+  async getLateDays(netId: string) {
+    await this.executeQuery('get_late_days', `SELECT lateDays FROM user WHERE netid = ?`, [netId]);
+    return 0;
+  }
+
   async getNetIdByToken(token: string) {
     await this.executeQuery('get_netid_by_token', `SELECT netid FROM token WHERE authtoken = ?`, [token]);
     return mockNetId;

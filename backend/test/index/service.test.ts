@@ -2,12 +2,13 @@ import request from 'supertest';
 import { DB } from '../../model/dao/mysql/Database';
 import { User } from '../../model/domain/User';
 import app from '../../service';
+import { mockAdmin, mockStudent } from '../mock/mockValues';
 
 function createUser(isAdmin: boolean) {
   if (isAdmin) {
-    return new User('admin', 'admin', 'admin', 'admin', 'admin', 'admin', isAdmin);
+    return mockAdmin;
   }
-  return new User('test', 'test', 'test', 'test', 'test', 'test', isAdmin);
+  return mockStudent;
 }
 
 const db = new DB();

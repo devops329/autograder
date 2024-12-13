@@ -73,9 +73,9 @@ export class ServerFacade {
     }
   }
 
-  async updateUserInfo(netId: string, website: string, github: string, email: string): Promise<User> {
+  async updateUserInfo(netId: string, website: string, github: string, email: string, lateDays: number): Promise<User> {
     const endpoint = 'update';
-    const response: JSON = (await this.clientCommunicator.doPost({ website, github, email, netId }, endpoint)) as unknown as JSON;
+    const response: JSON = (await this.clientCommunicator.doPost({ website, github, email, netId, lateDays }, endpoint)) as unknown as JSON;
     return User.fromJson(response);
   }
 

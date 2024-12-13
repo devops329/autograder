@@ -7,8 +7,8 @@ import './UserInfo.css';
 interface Props {
   user: User;
   setUser: (user: User) => void;
-  isAdminPage?: boolean;
   impersonating: boolean;
+  isAdmin: boolean;
 }
 
 export function UserInfo(props: Props) {
@@ -16,6 +16,7 @@ export function UserInfo(props: Props) {
   const [email, setEmail] = useState(props.user.email);
   const [website, setWebsite] = useState(props.user.website);
   const [github, setGithub] = useState(props.user.github);
+  const [lateDays, setLateDays] = useState(props.user.lateDays);
   const [updated, setUpdated] = useState(false);
 
   const presenter = new UserInfoPresenter({ setUpdated, setUser: props.setUser, setWebsite });
@@ -30,7 +31,7 @@ export function UserInfo(props: Props) {
 
   return (
     <>
-      {!props.isAdminPage && <h1>My Info</h1>}
+      <h1>My Info</h1>
       <h3>Name: {props.user.name}</h3>
       <h3>NetID: {props.user.netId}</h3>
       <InputGroup className="mb-3">
@@ -80,7 +81,14 @@ export function UserInfo(props: Props) {
             <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0" />
           </svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-copy copy" viewBox="0 0 16 16" onClick={copy}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="currentColor"
+            className="bi bi-copy copy"
+            viewBox="0 0 16 16"
+            onClick={copy}>
             <path
               fillRule="evenodd"
               d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"
@@ -88,10 +96,27 @@ export function UserInfo(props: Props) {
           </svg>
         )}
       </h3>
+      <div className="d-flex align-items-center">
+        <h3 className="me-3">Late Days: {lateDays}</h3>
+        {props.isAdmin && (
+          <>
+            <Button variant="primary" className="me-2" onClick={() => setLateDays(lateDays + 1)}>
+              +
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setLateDays(Math.max(0, lateDays - 1));
+              }}>
+              -
+            </Button>
+          </>
+        )}
+      </div>
       <Button
         variant={updated ? 'success' : 'primary'}
         onClick={() => {
-          presenter.updateUserInfo(props.user.netId, website, github, email, props.impersonating);
+          presenter.updateUserInfo(props.user.netId, website, github, email, lateDays, props.impersonating);
         }}>
         {updated ? 'Updated!' : 'Update'}
       </Button>

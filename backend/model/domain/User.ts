@@ -6,14 +6,25 @@ export class User {
   private _github: string;
   private _isAdmin: boolean;
   private _email: string;
+  private _lateDays: number;
 
-  constructor(name: string, netId: string, apiKey: string, website: string, github: string, email: string, isAdmin: boolean = false) {
+  constructor(
+    name: string,
+    netId: string,
+    apiKey: string,
+    website: string,
+    github: string,
+    email: string,
+    lateDays: number = 0,
+    isAdmin: boolean = false
+  ) {
     this._netId = netId;
     this._name = name;
     this._apiKey = apiKey;
     this._website = website;
     this._github = github;
     this._email = email;
+    this._lateDays = lateDays;
     this._isAdmin = isAdmin;
   }
 
@@ -45,6 +56,10 @@ export class User {
     return this._email;
   }
 
+  get lateDays(): number {
+    return this._lateDays;
+  }
+
   static fromJson(json: JSON): User {
     interface UserJson {
       _name: string;
@@ -53,9 +68,19 @@ export class User {
       _website: string;
       _github: string;
       _email: string;
-      _isAdmin?: boolean;
+      _lateDays: number;
+      _isAdmin: boolean;
     }
     const jsonObject: UserJson = json as unknown as UserJson;
-    return new User(jsonObject._name, jsonObject._netId, jsonObject._apiKey, jsonObject._website, jsonObject._github, jsonObject._email, jsonObject._isAdmin);
+    return new User(
+      jsonObject._name,
+      jsonObject._netId,
+      jsonObject._apiKey,
+      jsonObject._website,
+      jsonObject._github,
+      jsonObject._email,
+      jsonObject._lateDays,
+      jsonObject._isAdmin
+    );
   }
 }

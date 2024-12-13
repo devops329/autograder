@@ -49,7 +49,7 @@ export class UserService {
       }
       // Get API key from pizza factory
       const apiKey = await this.pizzaFactory.getApiKey(netId, name);
-      user = new User(name, netId, apiKey, '', '', email, false);
+      user = new User(name, netId, apiKey, '', '', email, 0, false);
       await this.dao.putUser(user);
       // Create token
       token = uuidv4();
