@@ -178,26 +178,6 @@ secureApiRouter.use(async (req, res, next) => {
   }
 });
 
-// Get stats for all deliverables
-secureApiRouter.post('/stats', async function (req, res) {
-  if (!req.isAdmin) {
-    res.status(401).send({ msg: 'Unauthorized' });
-    return;
-  }
-  const stats = await adminService.getStats();
-  res.send(JSON.stringify(stats));
-});
-
-// Get all netids for a specific deliverable
-secureApiRouter.post('/stats/netids', async function (req, res) {
-  if (!req.isAdmin) {
-    res.status(401).send({ msg: 'Unauthorized' });
-    return;
-  }
-  const netIds = await adminService.getNetIdsForDeliverablePhase(req.body.phase);
-  res.send(JSON.stringify(netIds));
-});
-
 // Get user's data
 secureApiRouter.post('/user', async function (req, res) {
   let netId = req.body.netId ?? (await db.getNetIdByToken(req.cookies[AUTH_COOKIE_NAME]));
@@ -207,22 +187,6 @@ secureApiRouter.post('/user', async function (req, res) {
     return;
   }
   const submissions = await gradeService.getSubmissions(netId);
-  res.send(JSON.stringify({ user, submissions }));
-});
-
-// Impersonate a user
-secureApiRouter.post('/impersonate', async function (req, res) {
-  if (!req.isAdmin) {
-    res.status(401).send({ msg: 'Unauthorized' });
-    return;
-  }
-  const searchString = req.body.searchString;
-  const user = await userService.getUserFuzzySearch(searchString);
-  if (!user) {
-    res.status(404).send({ msg: 'User not found' });
-    return;
-  }
-  const submissions = await gradeService.getSubmissions(user.netId);
   res.send(JSON.stringify({ user, submissions }));
 });
 
@@ -237,16 +201,6 @@ secureApiRouter.post('/update', async function (req, res) {
   res.send(JSON.stringify(user));
 });
 
-// End/Start the semester
-secureApiRouter.post('/semester-over', async function (req, res) {
-  if (!req.isAdmin) {
-    res.status(401).send({ msg: 'Unauthorized' });
-    return;
-  }
-  const semesterOver = gradeService.toggleSemesterOver();
-  res.send(semesterOver);
-});
-
 // Grade a deliverable assignment
 secureApiRouter.post('/grade', async function (req, res) {
   const netId = req.body.netId;
@@ -256,6 +210,49 @@ secureApiRouter.post('/grade', async function (req, res) {
   }
   const [message, submissions, rubric] = await gradeService.grade(req.body.assignmentPhase, netId);
   res.send(JSON.stringify({ message, submissions, rubric }));
+});
+
+// Admin routes
+
+const adminApiRouter = express.Router();
+secureApiRouter.use(adminApiRouter);
+
+adminApiRouter.use(async (req, res, next) => {
+  if (!req.isAdmin) {
+    res.status(401).send({ msg: 'Unauthorized' });
+    return;
+  }
+  next();
+});
+
+// Impersonate a user
+adminApiRouter.post('/impersonate', async function (req, res) {
+  const searchString = req.body.searchString;
+  const user = await userService.getUserFuzzySearch(searchString);
+  if (!user) {
+    res.status(404).send({ msg: 'User not found' });
+    return;
+  }
+  const submissions = await gradeService.getSubmissions(user.netId);
+  res.send(JSON.stringify({ user, submissions }));
+});
+
+// Get stats for all deliverables
+adminApiRouter.post('/stats', async function (req, res) {
+  const stats = await adminService.getStats();
+  res.send(JSON.stringify(stats));
+});
+
+// Get all netids for a specific deliverable
+adminApiRouter.post('/stats/netids', async function (req, res) {
+  const netIds = await adminService.getNetIdsForDeliverablePhase(req.body.phase);
+  res.send(JSON.stringify(netIds));
+});
+
+// End/Start the semester
+adminApiRouter.post('/semester-over', async function (req, res) {
+  const semesterOver = gradeService.toggleSemesterOver();
+  res.send(semesterOver);
 });
 
 // Return the application's default page if the path is unknown

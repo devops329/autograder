@@ -1,6 +1,5 @@
 import request from 'supertest';
 import { DB } from '../../model/dao/mysql/Database';
-import { User } from '../../model/domain/User';
 import app from '../../service';
 import { mockAdmin, mockStudent } from '../mock/mockValues';
 
@@ -55,8 +54,21 @@ afterAll(async () => {
 });
 
 test('secure routes reject if no authtoken', async () => {
-  const response = await request(app).get('/api/grade');
-  expect(response.status).toBe(401);
+  const endpoints = ['grade', 'user', 'stats', 'stats/netids', 'impersonate', 'update', 'semester-over'];
+  for (const endpoint of endpoints) {
+    const response = await request(app).post(`/api/${endpoint}`);
+    expect(response.status).toBe(401);
+  }
+});
+
+test('admin routes reject if user is not admin', async () => {
+  const endpoints = ['impersonate', 'stats', 'stats/netids', 'semester-over'];
+  for (const endpoint of endpoints) {
+    const response = await request(app)
+      .post(`/api/${endpoint}`)
+      .set('Cookie', [`token=${testToken}`]);
+    expect(response.status).toBe(401);
+  }
 });
 
 test("allows admin users to access other users' info", async () => {
