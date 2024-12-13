@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import Cookies from 'js-cookie';
 import { User } from '../../model/domain/User';
 import { Submission } from '../../model/domain/Submission';
-import { AuthenticatePresenter } from '../../presenter/AuthenticatePresenter';
+import { NavBarPresenter } from '../../presenter/NavBarPresenter';
 
 interface Props {
   setUser: (user: User | null) => void;
@@ -12,10 +12,11 @@ interface Props {
 }
 export function Login(props: Props) {
   useEffect(() => {
-    const presenter = new AuthenticatePresenter({
+    const presenter = new NavBarPresenter({
       setUser: props.setUser,
       setSubmissions: props.setSubmissions,
       setErrorMessage: props.setErrorMessage,
+      setSemesterOver: () => {},
     });
 
     const checkUser = async () => {

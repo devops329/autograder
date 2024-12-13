@@ -13,11 +13,22 @@ export class GradeService {
   private gradeFactory: GradeFactory;
   private chaosService: ChaosService;
 
+  private _semesterOver = false;
+
   constructor(db: DB, canvas: Canvas, gradeFactory: GradeFactory, chaosService: ChaosService) {
     this.db = db;
     this.canvas = canvas;
     this.gradeFactory = gradeFactory;
     this.chaosService = chaosService;
+  }
+
+  get semesterOver() {
+    return this._semesterOver;
+  }
+
+  toggleSemesterOver() {
+    this._semesterOver = !this._semesterOver;
+    return this._semesterOver;
   }
 
   async grade(assignmentPhase: number, netid: string): Promise<[number | string, Submission[], object?]> {
@@ -112,6 +123,7 @@ export class GradeService {
         const grader = this.gradeFactory.deliverableElevenPartTwo;
         const result = await grader.grade(user);
         const score = result[0] as number;
+        // Calculate score after late days
         const scoreAfterLateCalculation = await this.calculateScoreAfterLateDays(user.netId, assignments[11], score);
         logger.log('info', { type: 'grade', service: 'grade_service', deliverable: '11' }, { netid: user.netId, scoreAfterLateCalculation });
         const rubric = result[1] as object;
@@ -149,6 +161,9 @@ export class GradeService {
   }
 
   async calculateScoreAfterLateDays(netId: string, assignment: Assignment, score: number) {
+    if (this.semesterOver) {
+      return 0;
+    }
     const today = new Date();
     const dueDate = new Date(assignment.due_at);
     const lateDays = await this.db.getLateDays(netId);

@@ -14,6 +14,7 @@ import { Admin } from './components/admin/Admin';
 import { Stats } from './components/stats/Stats';
 
 function App() {
+  const [semesterOver, setSemesterOver] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(!!localStorage.getItem('isAdmin'));
   const [impersonating, setImpersonating] = useState<boolean>(!!localStorage.getItem('impersonatedUser'));
@@ -64,6 +65,8 @@ function App() {
           setSubmissions={setSubmissions}
           isAdmin={isAdmin}
           setIsAdmin={setIsAdmin}
+          semesterOver={semesterOver}
+          setSemesterOver={setSemesterOver}
         />
         <Routes>
           <Route path="/admin" element={<Admin setErrorMessage={setErrorMessage} />} />
