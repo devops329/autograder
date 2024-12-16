@@ -207,9 +207,10 @@ secureApiRouter.post('/grade', async function (req, res) {
   if (gradeService.semesterOver) {
     const message = 'Merry Christmas! The semester is over.';
     res.send(JSON.stringify({ message, submissions: [], rubric: {} }));
+  } else {
+    const [message, submissions, rubric] = await gradeService.grade(req.body.assignmentPhase, netId);
+    res.send(JSON.stringify({ message, submissions, rubric }));
   }
-  const [message, submissions, rubric] = await gradeService.grade(req.body.assignmentPhase, netId);
-  res.send(JSON.stringify({ message, submissions, rubric }));
 });
 
 // Admin routes

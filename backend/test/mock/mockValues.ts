@@ -1,7 +1,7 @@
 import { Submission } from '../../model/domain/Submission';
 import { User } from '../../model/domain/User';
 
-export const mockSubmission: Submission = new Submission('today', 0, 1000, 'rubric');
+export const mockSubmission: Submission = new Submission('today', 0, 1000, 'rubric', 0);
 
 export const mockSubmissions: Submission[] = [mockSubmission];
 
