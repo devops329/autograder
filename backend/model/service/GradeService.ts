@@ -86,11 +86,10 @@ export class GradeService {
     }
     const result = await grader.grade(user!, gradeAttemptId);
     score = result[0] as number;
-    const rubric = result[1] as object;
-
     const lateCalculation = await this.calculateScoreAfterLateDays(netid, assignments[assignmentPhase], score);
     const scoreAfterLateCalculation = lateCalculation.score;
     const lateDaysUsed = lateCalculation.lateDaysUsed;
+    const rubric = { ...result[1], lateDaysUsed };
 
     // Attempt to submit score to Canvas
     const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentId, netid, scoreAfterLateCalculation, gradeAttemptId);
@@ -134,7 +133,7 @@ export class GradeService {
         const scoreAfterLateCalculation = lateCalculation.score;
         const lateDaysUsed = lateCalculation.lateDaysUsed;
         logger.log('info', { type: 'grade', service: 'grade_service', deliverable: '11' }, { netid: user.netId, scoreAfterLateCalculation });
-        const rubric = result[1] as object;
+        const rubric = { ...result[1], lateDaysUsed };
         const submitScoreErrorMessage = await this.submitScoreToCanvas(assignments['11'].id, user.netId, scoreAfterLateCalculation, gradeAttemptId);
         if (!submitScoreErrorMessage) {
           await this.putSubmissionIntoDB(11, user.netId, scoreAfterLateCalculation, rubric, lateDaysUsed);
