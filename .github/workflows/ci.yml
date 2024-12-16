@@ -58,7 +58,7 @@ jobs:
               apiKey: '${{ secrets.GRAFANA_API_KEY }}',
             },
           };
-          " > backend/src/config.ts
+          " > backend/config.ts
 
       - name: Build and copy the backend
         run: |
