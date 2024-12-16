@@ -33,7 +33,7 @@ export class Submission {
     return this._lateDaysUsed;
   }
 
-  static fromJson(json: string): Submission {
+  static fromJson(json: JSON): Submission {
     interface SubmissionJson {
       _date: string;
       _phase: number;
