@@ -33,7 +33,7 @@ export class Submission {
     return this._lateDaysUsed;
   }
 
-  static fromJson(json: string): Submission {
+  static fromJson(json: JSON): Submission {
     interface SubmissionJson {
       _date: string;
       _phase: number;
@@ -41,8 +41,7 @@ export class Submission {
       _rubric: string;
       _lateDaysUsed: number;
     }
-
-    const jsonObject: SubmissionJson = JSON.parse(json);
+    const jsonObject: SubmissionJson = json as unknown as SubmissionJson;
 
     return new Submission(jsonObject._date, jsonObject._phase, jsonObject._score, jsonObject._rubric, jsonObject._lateDaysUsed);
   }
