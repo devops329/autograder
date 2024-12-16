@@ -63,6 +63,7 @@ jobs:
       - name: Build and copy the backend
         run: |
           cd backend
+          npm ci
           npm run build
           cp -r dist/* ../build
           openssl genrsa -out ../build/certs/sp.key 2048
@@ -73,6 +74,7 @@ jobs:
       - name: Build and copy the frontend
         run: |
           cd frontend
+          npm ci
           npm run build
           cp -rf dist ../build/public
           rm -rf dist
