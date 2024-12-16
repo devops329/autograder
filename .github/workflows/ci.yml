@@ -24,31 +24,10 @@ jobs:
       - name: Create build folder
         run: mkdir build
 
-      - name: Build and copy the backend
-        run: |
-          cd backend
-          npm run build
-          cp -r dist/* ../build
-          openssl genrsa -out ../build/certs/sp.key 2048
-          cp package.json ../build
-          rm -rf dist
-          cd ../
-
-      - name: Build and copy the frontend
-        run: |
-          cd frontend
-          npm run build
-          cp -rf dist ../build/public
-          rm -rf dist
-          cd ../
-
       - name: Write config file
         run: |
           echo "
-          'use strict';
-          Object.defineProperty(exports, '__esModule', { value: true });
-          exports.config = void 0;
-          exports.config = {
+          export const config = {
             app: {
               host: 'https://cs329.cs.byu.edu',
             },
@@ -79,7 +58,25 @@ jobs:
               apiKey: '${{ secrets.GRAFANA_API_KEY }}',
             },
           };
-          " > config.prod.js
+          " > backend/src/config.ts
+
+      - name: Build and copy the backend
+        run: |
+          cd backend
+          npm run build
+          cp -r dist/* ../build
+          openssl genrsa -out ../build/certs/sp.key 2048
+          cp package.json ../build
+          rm -rf dist
+          cd ../
+
+      - name: Build and copy the frontend
+        run: |
+          cd frontend
+          npm run build
+          cp -rf dist ../build/public
+          rm -rf dist
+          cd ../
 
       - name: SSH to EC2 and clear out previous distribution
         run: |
