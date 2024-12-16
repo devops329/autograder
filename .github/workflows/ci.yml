@@ -82,18 +82,18 @@ jobs:
 
       - name: SSH to EC2 and clear out previous distribution
         run: |
-          ssh -i ${{ secrets.EC2_KEY }} ubuntu@cs329.click << ENDSSH
+          ssh -i <(${{ secrets.EC2_KEY }}) ubuntu@cs329.click << ENDSSH
           rm -rf services/grade
           mkdir -p services/grade
           ENDSSH
 
       - name: Copy the build to EC2
         run: |
-          scp -i ${{ secrets.EC2_KEY }} -r build/* ubuntu@cs329.click:services/grade
+          scp -i <(${{ secrets.EC2_KEY }}) -r build/* ubuntu@cs329.click:services/grade
 
       - name: SSH to EC2 and start the service
         run: |
-          ssh -i ${{ secrets.EC2_KEY }} ubuntu@cs329.click << ENDSSH
+          ssh -i <(${{ secrets.EC2_KEY }}) ubuntu@cs329.click << ENDSSH
           cd services/grade
           npm install
           pm2 start ecosystem.config.js
