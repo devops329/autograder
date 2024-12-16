@@ -148,8 +148,21 @@ export class DB {
       return [];
     }
     return rows.map((row: any) => {
-      return new Submission(row.time, row.phase, row.score, row.rubric);
+      return new Submission(row.time, row.phase, row.score, row.rubric, row.lateDaysUsed);
     });
+  }
+
+  async getMostRecentSubmissionForDeliverable(netId: string, phase: number) {
+    const [rows] = await this.executeQuery(
+      'get_most_recent_submission_for_deliverable',
+      `SELECT * FROM submission WHERE userId = ? AND phase = ? ORDER BY time DESC LIMIT 1`,
+      [await this.getUserId(netId), phase]
+    );
+    if (!rows.length) {
+      return null;
+    }
+    const row = rows[0];
+    return new Submission(row.time, row.phase, row.score, row.rubric, row.lateDaysUsed);
   }
 
   async getSubmissionCountAllPhases() {
