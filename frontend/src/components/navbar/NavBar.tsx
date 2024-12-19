@@ -39,6 +39,7 @@ export function NavBar(props: Props) {
             <Nav.Link href="/profile">My Info</Nav.Link>
             <Nav.Link href="/submissions">Submission History</Nav.Link>
             {props.isAdmin && <Nav.Link href="/stats">Stats</Nav.Link>}
+            {props.isAdmin && <Nav.Link href="/admin">Admin</Nav.Link>}
           </Nav>
           {props.user ? (
             <>
