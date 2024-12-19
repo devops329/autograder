@@ -13,7 +13,7 @@ export class GradeService {
   private gradeFactory: GradeFactory;
   private chaosService: ChaosService;
 
-  private _semesterOver = false;
+  private _submissionsEnabled = true;
 
   constructor(db: DB, canvas: Canvas, gradeFactory: GradeFactory, chaosService: ChaosService) {
     this.db = db;
@@ -22,13 +22,13 @@ export class GradeService {
     this.chaosService = chaosService;
   }
 
-  get semesterOver() {
-    return this._semesterOver;
+  get submissionsEnabled() {
+    return this._submissionsEnabled;
   }
 
-  toggleSemesterOver() {
-    this._semesterOver = !this._semesterOver;
-    return this._semesterOver;
+  toggleSubmissions() {
+    this._submissionsEnabled = !this._submissionsEnabled;
+    return this._submissionsEnabled;
   }
 
   async grade(assignmentPhase: number, netid: string): Promise<[number | string, Submission[], object?]> {
@@ -168,7 +168,7 @@ export class GradeService {
   }
 
   async calculateScoreAfterLateDays(netId: string, assignment: Assignment, score: number): Promise<{ score: number; lateDaysUsed: number }> {
-    if (this.semesterOver) {
+    if (!this.submissionsEnabled) {
       return { score: 0, lateDaysUsed: 0 };
     }
     // Get today's date and due date, calculate days past due date

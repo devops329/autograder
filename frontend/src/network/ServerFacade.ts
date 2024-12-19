@@ -34,7 +34,7 @@ export class ServerFacade {
   }
 
   async toggleSemesterOver(): Promise<boolean> {
-    const endpoint = 'semester-over';
+    const endpoint = 'toggle-submissions';
     const response: boolean = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as boolean;
     return response;
   }

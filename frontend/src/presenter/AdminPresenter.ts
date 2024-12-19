@@ -1,7 +1,7 @@
 import { AdminService } from '../model/service/AdminService';
 
 export interface AdminView {
-  setSemesterOver(semesterOver: boolean): void;
+  setSubmissionsEnabled(submissionsEnabled: boolean): void;
 }
 
 export class AdminPresenter {
@@ -12,7 +12,7 @@ export class AdminPresenter {
     this.adminService = new AdminService();
   }
   async toggleSemesterOver() {
-    const semesterOver = await this.adminService.toggleSemesterOver();
-    this.view.setSemesterOver(semesterOver);
+    const submissionsEnabled = await this.adminService.toggleSemesterOver();
+    this.view.setSubmissionsEnabled(submissionsEnabled);
   }
 }

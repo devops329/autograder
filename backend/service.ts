@@ -204,7 +204,7 @@ secureApiRouter.post('/update', async function (req, res) {
 // Grade a deliverable assignment
 secureApiRouter.post('/grade', async function (req, res) {
   const netId = req.body.netId;
-  if (gradeService.semesterOver) {
+  if (!gradeService.submissionsEnabled) {
     const message = 'Merry Christmas! The semester is over.';
     res.send(JSON.stringify({ message, submissions: [], rubric: {} }));
   } else {
@@ -251,9 +251,9 @@ adminApiRouter.post('/stats/netids', async function (req, res) {
 });
 
 // End/Start the semester
-adminApiRouter.post('/semester-over', async function (req, res) {
-  const semesterOver = gradeService.toggleSemesterOver();
-  res.send(semesterOver);
+adminApiRouter.post('/toggle-submissions', async function (req, res) {
+  const submissionsEnabled = gradeService.toggleSubmissions();
+  res.send(submissionsEnabled);
 });
 
 // Return the application's default page if the path is unknown
