@@ -19,8 +19,4 @@ export class GradeService {
   async getNetIdsForDeliverablePhase(phase: number) {
     return await this.serverFacade.getNetIdsForDeliverablePhase(phase);
   }
-
-  async toggleSemesterOver() {
-    return await this.serverFacade.toggleSemesterOver();
-  }
 }
