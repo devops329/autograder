@@ -28,13 +28,13 @@ export class DeliverableElevenPartTwo implements Grader {
       rubric.comments += 'Could not find scheduled chaos time. Contact TA.\n';
       return [0, rubric];
     }
-    // Add 6 hours to chaos time for cutoff
+    // Add 4 hours to chaos time for cutoff
     const cutoff = new Date(chaosTime);
-    cutoff.setHours(cutoff.getHours() + 6);
-    // For every hour that the current time is past the cutoff, subtract 10 points
+    cutoff.setHours(cutoff.getHours() + 4);
+    // Every hour that the current time is past the cutoff, subtract 10 points
     const currentTime = new Date();
     if (currentTime > cutoff) {
-      const hoursPast = Math.floor((currentTime.getTime() - cutoff.getTime()) / 3600000);
+      const hoursPast = Math.ceil((currentTime.getTime() - cutoff.getTime()) / 3600000);
       score -= hoursPast * 10;
       if (score < 0) {
         score = 0;
