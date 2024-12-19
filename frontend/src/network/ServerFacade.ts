@@ -33,8 +33,14 @@ export class ServerFacade {
     return [response.message, submissions, response.rubric];
   }
 
-  async toggleSemesterOver(): Promise<boolean> {
+  async toggleSubmissionsEnabled(): Promise<boolean> {
     const endpoint = 'toggle-submissions';
+    const response: boolean = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as boolean;
+    return response;
+  }
+
+  async getSubmissionsEnabled(): Promise<boolean> {
+    const endpoint = 'submissions-enabled';
     const response: boolean = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as boolean;
     return response;
   }

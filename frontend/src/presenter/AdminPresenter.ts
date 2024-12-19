@@ -11,8 +11,15 @@ export class AdminPresenter {
     this.view = view;
     this.adminService = new AdminService();
   }
-  async toggleSemesterOver() {
-    const submissionsEnabled = await this.adminService.toggleSemesterOver();
+  async toggleSubmissionsEnabled() {
+    const submissionsEnabled = await this.adminService.toggleSubmissionsEnabled();
+    localStorage.setItem('submissionsEnabled', submissionsEnabled ? 'true' : 'false');
+    this.view.setSubmissionsEnabled(submissionsEnabled);
+  }
+
+  async getSubmissionsEnabled() {
+    const submissionsEnabled = await this.adminService.getSubmissionsEnabled();
+    localStorage.setItem('submissionsEnabled', submissionsEnabled ? 'true' : 'false');
     this.view.setSubmissionsEnabled(submissionsEnabled);
   }
 }

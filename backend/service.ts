@@ -256,6 +256,11 @@ adminApiRouter.post('/toggle-submissions', async function (req, res) {
   res.send(submissionsEnabled);
 });
 
+// Get the current status of submissions
+adminApiRouter.post('/submissions-enabled', async function (req, res) {
+  res.send(gradeService.submissionsEnabled);
+});
+
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
   res.sendFile('index.html', { root: 'public' });
