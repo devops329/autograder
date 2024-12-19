@@ -86,8 +86,7 @@ jobs:
           chmod 600 ec2_key.pem
 
       - name: SSH to EC2 and clear out previous distribution
-        run: |
-          run: ssh -i ec2_key.pem ubuntu@cs329.click "rm -rf services/grade && mkdir -p services/grade"
+        run: ssh -i ec2_key.pem ubuntu@cs329.click "rm -rf services/grade && mkdir -p services/grade"
 
       - name: Copy the build to EC2
         run: |
