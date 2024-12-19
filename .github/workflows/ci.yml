@@ -87,10 +87,7 @@ jobs:
 
       - name: SSH to EC2 and clear out previous distribution
         run: |
-          ssh -i ec2_key.pem ubuntu@cs329.click << ENDSSH
-          rm -rf services/grade
-          mkdir -p services/grade
-          ENDSSH
+          run: ssh -i ec2_key.pem ubuntu@cs329.click "rm -rf services/grade && mkdir -p services/grade"
 
       - name: Copy the build to EC2
         run: |
