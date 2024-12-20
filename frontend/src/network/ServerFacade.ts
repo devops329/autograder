@@ -112,4 +112,36 @@ export class ServerFacade {
       return null;
     }
   }
+
+  async removeAdmin(netId: string): Promise<User[] | null> {
+    const endpoint = 'admin/remove';
+    let response: JSON[];
+    try {
+      response = (await this.clientCommunicator.doPost({ netId }, endpoint)) as unknown as JSON[];
+      const admins: User[] = [];
+      for (const admin of response) {
+        admins.push(User.fromJson(admin));
+      }
+      return admins;
+    } catch (error) {
+      console.error('Error getting admin list:', error);
+      return null;
+    }
+  }
+
+  async addAdmin(netId: string): Promise<User[] | null> {
+    const endpoint = 'admin/add';
+    let response: JSON[];
+    try {
+      response = (await this.clientCommunicator.doPost({ netId }, endpoint)) as unknown as JSON[];
+      const admins: User[] = [];
+      for (const admin of response) {
+        admins.push(User.fromJson(admin));
+      }
+      return admins;
+    } catch (error) {
+      console.error('Error adding admin:', error);
+      return null;
+    }
+  }
 }

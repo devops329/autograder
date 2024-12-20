@@ -22,4 +22,12 @@ export class AdminService {
   async listAdmins() {
     return await this.serverFacade.listAdmins();
   }
+
+  async removeAdmin(netId: string) {
+    return await this.serverFacade.removeAdmin(netId);
+  }
+
+  async addAdmin(netId: string) {
+    return await this.serverFacade.addAdmin(netId);
+  }
 }

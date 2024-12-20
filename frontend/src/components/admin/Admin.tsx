@@ -43,7 +43,7 @@ export function Admin() {
                 <td>{admin.netId}</td>
                 <td>{admin.name}</td>
                 <td>
-                  <Button variant="danger" size="sm" onClick={() => console.log('Deleting Admin', admin.netId)}>
+                  <Button variant="danger" size="sm" onClick={() => presenter.removeAdmin(admin.netId)}>
                     Remove
                   </Button>
                 </td>

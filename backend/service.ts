@@ -270,15 +270,17 @@ adminApiRouter.post('/admin/list', async function (_req, res) {
 // Add an admin
 adminApiRouter.post('/admin/add', async function (req, res) {
   const netId = req.body.netId;
-  const success = await adminService.addAdmin(netId);
-  res.send(success);
+  await adminService.addAdmin(netId);
+  const admins = await adminService.listAdmins();
+  res.send(JSON.stringify(admins));
 });
 
 // Remove an admin
 adminApiRouter.post('/admin/remove', async function (req, res) {
   const netId = req.body.netId;
-  const success = await adminService.removeAdmin(netId);
-  res.send(success);
+  await adminService.removeAdmin(netId);
+  const admins = await adminService.listAdmins();
+  res.send(JSON.stringify(admins));
 });
 
 // Return the application's default page if the path is unknown

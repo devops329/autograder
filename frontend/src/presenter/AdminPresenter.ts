@@ -36,4 +36,12 @@ export class AdminPresenter {
     }
     this.view.setAdmins(admins);
   }
+
+  async removeAdmin(netId: string) {
+    const admins = (await this.adminService.removeAdmin(netId)) ?? [];
+    if (!admins) {
+      return;
+    }
+    this.view.setAdmins(admins);
+  }
 }
