@@ -44,4 +44,12 @@ export class AdminPresenter {
     }
     this.view.setAdmins(admins);
   }
+
+  async addAdmin(netId: string) {
+    const admins = (await this.adminService.addAdmin(netId)) ?? [];
+    if (!admins) {
+      return;
+    }
+    this.view.setAdmins(admins);
+  }
 }

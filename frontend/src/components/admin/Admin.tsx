@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Form, InputGroup, Table } from 'react-bootstrap';
 import { AdminPresenter, AdminView } from '../../presenter/AdminPresenter';
 import { User } from '../../model/domain/User';
 import { ConfirmPopoverButton } from './ConfirmPopoverButton';
@@ -9,6 +9,8 @@ export function Admin() {
     localStorage.getItem('submissionsEnabled') ? localStorage.getItem('submissionsEnabled') === 'true' : false
   );
   const [admins, setAdmins] = useState<User[]>([]);
+  const [showAddAdmin, setShowAddAdmin] = useState(false);
+  const [adminToAdd, setAdminToAdd] = useState('');
   const listener: AdminView = {
     setSubmissionsEnabled,
     setAdmins,
@@ -43,7 +45,7 @@ export function Admin() {
                 <td>{admin.netId}</td>
                 <td>{admin.name}</td>
                 <td>
-                  <Button variant="danger" size="sm" onClick={() => presenter.removeAdmin(admin.netId)}>
+                  <Button className="m-0 btn-sm" variant="danger" onClick={() => presenter.removeAdmin(admin.netId)}>
                     Remove
                   </Button>
                 </td>
@@ -52,7 +54,31 @@ export function Admin() {
           </tbody>
         </Table>
       )}
-      <ConfirmPopoverButton label="Remove Student Data" onConfirm={() => console.log('Deleting Student Data')} />
+      <Button variant="primary" onClick={() => setShowAddAdmin(true)}>
+        Add Admin
+      </Button>
+      {showAddAdmin && (
+        <InputGroup className="mb-3" style={{ width: '12rem', margin: '1rem 1rem 1rem 0' }}>
+          <Form.Control
+            value={adminToAdd}
+            onChange={(event) => {
+              setAdminToAdd(event.target.value);
+            }}
+            placeholder="NetID"
+          />
+          <Button
+            variant="primary"
+            className="m-0"
+            onClick={() => {
+              presenter.addAdmin(adminToAdd);
+              setAdminToAdd('');
+              setShowAddAdmin(false);
+            }}>
+            Add
+          </Button>
+        </InputGroup>
+      )}
+      <ConfirmPopoverButton label="Clear Student Data" onConfirm={() => console.log('Deleting Student Data')} />
     </>
   );
 }
