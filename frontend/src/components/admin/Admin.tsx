@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, ListGroup } from 'react-bootstrap';
+import { Button, Table } from 'react-bootstrap';
 import { AdminPresenter, AdminView } from '../../presenter/AdminPresenter';
 import { User } from '../../model/domain/User';
 
@@ -24,18 +24,27 @@ export function Admin() {
           {submissionsEnabled ? 'Disable Submissions' : 'Enable Submissions'}
         </Button>
       </div>
-      <div>
-        <Button variant={admins.length ? 'secondary' : 'primary'} onClick={() => presenter.toggleAdminList(admins)}>
-          {admins.length ? 'Hide List' : 'List Admins'}
-        </Button>
-        {admins.length > 0 && (
-          <ListGroup>
+      <Button variant={admins.length ? 'secondary' : 'primary'} onClick={() => presenter.toggleAdminList(admins)}>
+        {admins.length ? 'Hide List' : 'List Admins'}
+      </Button>
+      {admins.length > 0 && (
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>NetId</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
             {admins.map((admin) => (
-              <ListGroup.Item key={admin.netId}>{admin.name}</ListGroup.Item>
+              <tr key={admin.netId}>
+                <td>{admin.netId}</td>
+                <td>{admin.name}</td>
+              </tr>
             ))}
-          </ListGroup>
-        )}
-      </div>
+          </tbody>
+        </Table>
+      )}
     </>
   );
 }
