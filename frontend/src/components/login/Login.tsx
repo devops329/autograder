@@ -16,7 +16,6 @@ export function Login(props: Props) {
       setUser: props.setUser,
       setSubmissions: props.setSubmissions,
       setErrorMessage: props.setErrorMessage,
-      setSemesterOver: () => {},
     });
 
     const checkUser = async () => {
