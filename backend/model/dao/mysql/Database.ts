@@ -322,4 +322,26 @@ export class DB {
   async removeAdmin(netId: string) {
     return await this.executeQuery('remove_admin', 'UPDATE user SET isAdmin = false WHERE netid = ?', [netId]);
   }
+
+  async moveNonAdminUserDataToBackupTable() {
+    await this.executeQuery('move_user_data_to_backup', 'DROP TABLE IF EXISTS user_backup', []);
+    await this.executeQuery('move_user_data_to_backup', 'CREATE TABLE user_backup AS SELECT * FROM user', []);
+    await this.executeQuery('move_user_data_to_backup', 'DELETE FROM user where isAdmin = false', []);
+  }
+
+  async moveSubmissionDataToBackupTable() {
+    await this.executeQuery('move_submission_data_to_backup', 'DROP TABLE IF EXISTS submission_backup', []);
+    await this.executeQuery('move_submission_data_to_backup', 'CREATE TABLE submission_backup AS SELECT * FROM submission', []);
+    await this.executeQuery('move_submission_data_to_backup', 'DELETE FROM submission', []);
+  }
+
+  async restoreUserDataFromBackupTable() {
+    await this.executeQuery('restore_user_data_from_backup', 'DROP TABLE IF EXISTS user', []);
+    await this.executeQuery('restore_user_data_from_backup', 'CREATE TABLE user AS SELECT * FROM user_backup', []);
+  }
+
+  async restoreSubmissionDataFromBackupTable() {
+    await this.executeQuery('restore_submission_data_from_backup', 'DROP TABLE IF EXISTS submission', []);
+    await this.executeQuery('restore_submission_data_from_backup', 'CREATE TABLE submission AS SELECT * FROM submission_backup', []);
+  }
 }

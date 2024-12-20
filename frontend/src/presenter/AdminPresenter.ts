@@ -52,4 +52,9 @@ export class AdminPresenter {
     }
     this.view.setAdmins(admins);
   }
+
+  async dropStudentData() {
+    console.log('Dropping student data');
+    await this.adminService.dropStudentData();
+  }
 }

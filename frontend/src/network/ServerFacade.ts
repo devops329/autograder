@@ -144,4 +144,10 @@ export class ServerFacade {
       return null;
     }
   }
+
+  async dropStudentData(): Promise<boolean> {
+    const endpoint = 'drop-data';
+    const response: boolean = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as boolean;
+    return response;
+  }
 }

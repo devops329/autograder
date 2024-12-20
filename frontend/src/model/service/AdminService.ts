@@ -30,4 +30,8 @@ export class AdminService {
   async addAdmin(netId: string) {
     return await this.serverFacade.addAdmin(netId);
   }
+
+  async dropStudentData() {
+    return await this.serverFacade.dropStudentData();
+  }
 }

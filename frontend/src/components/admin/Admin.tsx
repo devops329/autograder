@@ -78,7 +78,7 @@ export function Admin() {
           </Button>
         </InputGroup>
       )}
-      <ConfirmPopoverButton label="Clear Student Data" onConfirm={() => console.log('Deleting Student Data')} />
+      <ConfirmPopoverButton label="Drop Student Data" onConfirm={presenter.dropStudentData.bind(presenter)} />
     </>
   );
 }

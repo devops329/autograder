@@ -283,6 +283,12 @@ adminApiRouter.post('/admin/remove', async function (req, res) {
   res.send(JSON.stringify(admins));
 });
 
+// Drop data for all non-admin users
+adminApiRouter.post('/drop-data', async function (req, res) {
+  await adminService.dropStudentData();
+  res.send(true);
+});
+
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
   res.sendFile('index.html', { root: 'public' });
