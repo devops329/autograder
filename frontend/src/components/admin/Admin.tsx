@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { AdminPresenter, AdminView } from '../../presenter/AdminPresenter';
 import { User } from '../../model/domain/User';
+import { ConfirmPopoverButton } from './ConfirmPopoverButton';
 
 export function Admin() {
   const [submissionsEnabled, setSubmissionsEnabled] = useState<boolean>(
@@ -45,6 +46,7 @@ export function Admin() {
           </tbody>
         </Table>
       )}
+      <ConfirmPopoverButton label="Remove Student Data" onConfirm={() => console.log('Deleting Student Data')} />
     </>
   );
 }

@@ -18,4 +18,12 @@ export class AdminService {
   async listAdmins(): Promise<User[]> {
     return await this.db.listAdmins();
   }
+
+  async addAdmin(netId: string) {
+    return !!(await this.db.addAdmin(netId));
+  }
+
+  async removeAdmin(netId: string) {
+    return !!(await this.db.removeAdmin(netId));
+  }
 }

@@ -267,6 +267,20 @@ adminApiRouter.post('/admin/list', async function (_req, res) {
   res.send(JSON.stringify(admins));
 });
 
+// Add an admin
+adminApiRouter.post('/admin/add', async function (req, res) {
+  const netId = req.body.netId;
+  const success = await adminService.addAdmin(netId);
+  res.send(success);
+});
+
+// Remove an admin
+adminApiRouter.post('/admin/remove', async function (req, res) {
+  const netId = req.body.netId;
+  const success = await adminService.removeAdmin(netId);
+  res.send(success);
+});
+
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
   res.sendFile('index.html', { root: 'public' });

@@ -26,6 +26,7 @@ export class DB {
       return result as any;
     } catch (err: any) {
       logger.log('warn', { type: operation, service: 'database' }, { exception: err.message });
+      return false;
     } finally {
       connection.end();
     }
@@ -312,5 +313,13 @@ export class DB {
     return rows.map((row: any) => {
       return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.lateDays, row.isAdmin);
     });
+  }
+
+  async addAdmin(netId: string) {
+    return await this.executeQuery('add_admin', 'UPDATE user SET isAdmin = true WHERE netid = ?', [netId]);
+  }
+
+  async removeAdmin(netId: string) {
+    return await this.executeQuery('remove_admin', 'UPDATE user SET isAdmin = false WHERE netid = ?', [netId]);
   }
 }
