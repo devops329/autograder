@@ -10,11 +10,11 @@ import { Submission } from './model/domain/Submission';
 import { Login } from './components/login/Login';
 import Cookies from 'js-cookie';
 import { ErrorModal } from './components/errorModal/ErrorModal';
-import { Admin } from './components/admin/Admin';
+import { AdminLogin } from './components/admin/AdminLogin';
 import { Stats } from './components/stats/Stats';
+import { Admin } from './components/admin/Admin';
 
 function App() {
-  const [semesterOver, setSemesterOver] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(!!localStorage.getItem('isAdmin'));
   const [impersonating, setImpersonating] = useState<boolean>(!!localStorage.getItem('impersonatedUser'));
@@ -65,11 +65,9 @@ function App() {
           setSubmissions={setSubmissions}
           isAdmin={isAdmin}
           setIsAdmin={setIsAdmin}
-          semesterOver={semesterOver}
-          setSemesterOver={setSemesterOver}
         />
         <Routes>
-          <Route path="/admin" element={<Admin setErrorMessage={setErrorMessage} />} />
+          <Route path="/admin-login" element={<AdminLogin setErrorMessage={setErrorMessage} />} />
           <Route
             path="/login"
             element={<Login setErrorMessage={setErrorMessage} setUser={setUser} setSubmissions={setSubmissions} setIsAdmin={setIsAdmin} />}
@@ -81,6 +79,7 @@ function App() {
             <Route path="/profile" element={<UserInfo impersonating={impersonating} user={user} setUser={setUser} isAdmin={isAdmin} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
             {user.isAdmin && <Route path="/stats" element={<Stats setErrorMessage={setErrorMessage} />} />}
+            {user.isAdmin && <Route path="/admin" element={<Admin />} />}
             <Route path="*" element={<Grader user={user} setSubmissions={setSubmissions} impersonating={impersonating} />} />
           </Routes>
         ) : (

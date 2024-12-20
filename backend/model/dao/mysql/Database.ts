@@ -26,6 +26,7 @@ export class DB {
       return result as any;
     } catch (err: any) {
       logger.log('warn', { type: operation, service: 'database' }, { exception: err.message });
+      return false;
     } finally {
       connection.end();
     }
@@ -302,5 +303,62 @@ export class DB {
 
   async deleteChaos(netId: string) {
     await this.executeQuery('delete_chaos', 'DELETE FROM chaos WHERE netid = ?', [netId]);
+  }
+
+  async listAdmins() {
+    const [rows] = await this.executeQuery('list_admins', `SELECT * FROM user where isAdmin = true`, []);
+    if (!rows.length) {
+      return [];
+    }
+    return rows.map((row: any) => {
+      return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.lateDays, row.isAdmin);
+    });
+  }
+
+  async addAdmin(netId: string) {
+    return await this.executeQuery('add_admin', 'UPDATE user SET isAdmin = true WHERE netid = ?', [netId]);
+  }
+
+  async removeAdmin(netId: string) {
+    return await this.executeQuery('remove_admin', 'UPDATE user SET isAdmin = false WHERE netid = ?', [netId]);
+  }
+
+  async moveNonAdminUserDataToBackupTable() {
+    await this.executeQuery('move_user_data_to_backup', 'DROP TABLE IF EXISTS user_backup', []);
+    await this.executeQuery('move_user_data_to_backup', 'CREATE TABLE user_backup AS SELECT * FROM user', []);
+    await this.executeQuery('move_user_data_to_backup', 'DELETE FROM user where isAdmin = false', []);
+  }
+
+  async moveSubmissionDataToBackupTable() {
+    await this.executeQuery('move_submission_data_to_backup', 'DROP TABLE IF EXISTS submission_backup', []);
+    await this.executeQuery('move_submission_data_to_backup', 'CREATE TABLE submission_backup AS SELECT * FROM submission', []);
+    await this.executeQuery('move_submission_data_to_backup', 'DELETE FROM submission', []);
+  }
+
+  async restoreUserDataFromBackupTable() {
+    const [rows] = await this.executeQuery('check_user_backup_exists', 'SHOW TABLES LIKE "user_backup"', []);
+    console.log(rows);
+    if (rows.length) {
+      await this.executeQuery('restore_user_data_from_backup', 'DROP TABLE IF EXISTS user', []);
+      await this.executeQuery('restore_user_data_from_backup', 'CREATE TABLE user AS SELECT * FROM user_backup', []);
+      await this.executeQuery('restore_user_data_from_backup', 'ALTER TABLE user ADD PRIMARY KEY (id)', []);
+    }
+  }
+
+  async restoreSubmissionDataFromBackupTable() {
+    const [rows] = await this.executeQuery('check_submission_backup_exists', 'SHOW TABLES LIKE "submission_backup"', []);
+    console.log(rows);
+    if (rows.length) {
+      await this.executeQuery('restore_submission_data_from_backup', 'DROP TABLE IF EXISTS submission', []);
+      await this.executeQuery('restore_submission_data_from_backup', 'CREATE TABLE submission AS SELECT * FROM submission_backup', []);
+      // Add the primary key back on 'id'
+      await this.executeQuery('restore_submission_data_from_backup', 'ALTER TABLE submission ADD PRIMARY KEY (id)', []);
+      // Add the foreign key constraint back on 'userId'
+      await this.executeQuery(
+        'restore_submission_data_from_backup',
+        'ALTER TABLE submission ADD CONSTRAINT submission_ibfk_1 FOREIGN KEY (userId) REFERENCES user(id)',
+        []
+      );
+    }
   }
 }

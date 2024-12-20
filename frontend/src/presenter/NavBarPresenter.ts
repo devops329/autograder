@@ -1,6 +1,5 @@
 import { Submission } from '../model/domain/Submission';
 import { User } from '../model/domain/User';
-import { GradeService } from '../model/service/GradeService';
 import { UserService } from '../model/service/UserService';
 
 export interface NavBarView {
@@ -8,16 +7,13 @@ export interface NavBarView {
   setSubmissions(submissions: Submission[]): void;
   setErrorMessage(errorMessage: string | null): void;
   setImpersonateSearchString?(netId: string): void;
-  setSemesterOver(semesterOver: boolean): void;
 }
 export class NavBarPresenter {
   private userService: UserService;
-  private gradeService: GradeService;
   private view: NavBarView;
   constructor(view: NavBarView) {
     this.view = view;
     this.userService = new UserService();
-    this.gradeService = new GradeService();
   }
 
   async logIn() {
@@ -86,10 +82,5 @@ export class NavBarPresenter {
     localStorage.removeItem('impersonatedUser');
     localStorage.removeItem('impersonatedSubmissions');
     window.location.reload();
-  }
-
-  async toggleSemesterOver() {
-    const semesterOver = await this.gradeService.toggleSemesterOver();
-    this.view.setSemesterOver(semesterOver);
   }
 }

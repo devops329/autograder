@@ -13,8 +13,6 @@ interface Props {
   isAdmin: boolean;
   setIsAdmin: (isAdmin: boolean) => void;
   setErrorMessage: (errorMessage: string | null) => void;
-  semesterOver: boolean;
-  setSemesterOver: (semesterOver: boolean) => void;
 }
 
 export function NavBar(props: Props) {
@@ -24,7 +22,6 @@ export function NavBar(props: Props) {
     setSubmissions: props.setSubmissions,
     setErrorMessage: props.setErrorMessage,
     setImpersonateSearchString: setImpersonateSearchString,
-    setSemesterOver: props.setSemesterOver,
   };
   const [navBarPresenter] = useState(new NavBarPresenter(listener));
 
@@ -39,16 +36,12 @@ export function NavBar(props: Props) {
             <Nav.Link href="/profile">My Info</Nav.Link>
             <Nav.Link href="/submissions">Submission History</Nav.Link>
             {props.isAdmin && <Nav.Link href="/stats">Stats</Nav.Link>}
+            {props.isAdmin && <Nav.Link href="/admin">Admin</Nav.Link>}
           </Nav>
           {props.user ? (
             <>
               {props.isAdmin && (
                 <>
-                  <div style={{ marginRight: '1rem' }}>
-                    <Button variant={props.semesterOver ? 'outline-success' : 'outline-danger'} onClick={() => navBarPresenter.toggleSemesterOver()}>
-                      {props.semesterOver ? 'Start Semester' : 'End Semester'}
-                    </Button>
-                  </div>
                   <InputGroup data-bs-theme="light" style={{ width: '12rem', margin: '1rem 1rem 1rem 0' }}>
                     <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                     <Form.Control

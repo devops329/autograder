@@ -204,7 +204,7 @@ secureApiRouter.post('/update', async function (req, res) {
 // Grade a deliverable assignment
 secureApiRouter.post('/grade', async function (req, res) {
   const netId = req.body.netId;
-  if (gradeService.semesterOver) {
+  if (!gradeService.submissionsEnabled) {
     const message = 'Merry Christmas! The semester is over.';
     res.send(JSON.stringify({ message, submissions: [], rubric: {} }));
   } else {
@@ -251,9 +251,48 @@ adminApiRouter.post('/stats/netids', async function (req, res) {
 });
 
 // End/Start the semester
-adminApiRouter.post('/semester-over', async function (req, res) {
-  const semesterOver = gradeService.toggleSemesterOver();
-  res.send(semesterOver);
+adminApiRouter.post('/toggle-submissions', async function (req, res) {
+  const submissionsEnabled = gradeService.toggleSubmissions();
+  res.send(submissionsEnabled);
+});
+
+// Get the current status of submissions
+adminApiRouter.post('/submissions-enabled', async function (req, res) {
+  res.send(gradeService.submissionsEnabled);
+});
+
+// List all admins
+adminApiRouter.post('/admin/list', async function (_req, res) {
+  const admins = await adminService.listAdmins();
+  res.send(JSON.stringify(admins));
+});
+
+// Add an admin
+adminApiRouter.post('/admin/add', async function (req, res) {
+  const netId = req.body.netId;
+  await adminService.addAdmin(netId);
+  const admins = await adminService.listAdmins();
+  res.send(JSON.stringify(admins));
+});
+
+// Remove an admin
+adminApiRouter.post('/admin/remove', async function (req, res) {
+  const netId = req.body.netId;
+  await adminService.removeAdmin(netId);
+  const admins = await adminService.listAdmins();
+  res.send(JSON.stringify(admins));
+});
+
+// Drop data for all non-admin users
+adminApiRouter.post('/drop-data', async function (req, res) {
+  await adminService.moveStudentDataToBackup();
+  res.send(true);
+});
+
+// Restore data from backup
+adminApiRouter.post('/restore-data', async function (req, res) {
+  await adminService.restoreStudentDataFromBackup();
+  res.send(true);
 });
 
 // Return the application's default page if the path is unknown
