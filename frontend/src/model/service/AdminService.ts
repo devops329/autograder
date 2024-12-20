@@ -18,4 +18,8 @@ export class AdminService {
   async getNetIdsForDeliverablePhase(phase: number) {
     return await this.serverFacade.getNetIdsForDeliverablePhase(phase);
   }
+
+  async listAdmins() {
+    return await this.serverFacade.listAdmins();
+  }
 }

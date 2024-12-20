@@ -261,6 +261,12 @@ adminApiRouter.post('/submissions-enabled', async function (req, res) {
   res.send(gradeService.submissionsEnabled);
 });
 
+// List all admins
+adminApiRouter.post('/admin/list', async function (_req, res) {
+  const admins = await adminService.listAdmins();
+  res.send(JSON.stringify(admins));
+});
+
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
   res.sendFile('index.html', { root: 'public' });

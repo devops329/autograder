@@ -303,4 +303,14 @@ export class DB {
   async deleteChaos(netId: string) {
     await this.executeQuery('delete_chaos', 'DELETE FROM chaos WHERE netid = ?', [netId]);
   }
+
+  async listAdmins() {
+    const [rows] = await this.executeQuery('list_admins', `SELECT * FROM user where isAdmin = true`, []);
+    if (!rows.length) {
+      return [];
+    }
+    return rows.map((row: any) => {
+      return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.lateDays, row.isAdmin);
+    });
+  }
 }

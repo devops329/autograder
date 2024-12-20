@@ -81,7 +81,7 @@ export class ServerFacade {
 
   async updateUserInfo(netId: string, website: string, github: string, email: string, lateDays: number): Promise<User> {
     const endpoint = 'update';
-    const response: JSON = (await this.clientCommunicator.doPost({ website, github, email, netId, lateDays }, endpoint)) as unknown as JSON;
+    const response: JSON = await this.clientCommunicator.doPost({ website, github, email, netId, lateDays }, endpoint);
     return User.fromJson(response);
   }
 
@@ -95,5 +95,21 @@ export class ServerFacade {
     const endpoint = 'stats/netids';
     const response: JSON = await this.clientCommunicator.doPost({ phase }, endpoint);
     return response as unknown as string[];
+  }
+
+  async listAdmins(): Promise<User[] | null> {
+    const endpoint = 'admin/list';
+    let response: JSON[];
+    try {
+      response = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as JSON[];
+      const admins: User[] = [];
+      for (const admin of response) {
+        admins.push(User.fromJson(admin));
+      }
+      return admins;
+    } catch (error) {
+      console.error('Error getting admin list:', error);
+      return null;
+    }
   }
 }
