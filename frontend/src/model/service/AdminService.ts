@@ -34,4 +34,8 @@ export class AdminService {
   async dropStudentData() {
     return await this.serverFacade.dropStudentData();
   }
+
+  async restoreStudentData() {
+    return await this.serverFacade.restoreStudentData();
+  }
 }

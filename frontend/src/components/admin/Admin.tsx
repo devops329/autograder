@@ -79,6 +79,7 @@ export function Admin() {
         </InputGroup>
       )}
       <ConfirmPopoverButton label="Drop Student Data" onConfirm={presenter.dropStudentData.bind(presenter)} />
+      <ConfirmPopoverButton label="Restore Data From Backup" variant="primary" onConfirm={presenter.restoreStudentData.bind(presenter)} />
     </>
   );
 }

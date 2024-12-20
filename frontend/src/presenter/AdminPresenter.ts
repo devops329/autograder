@@ -57,4 +57,9 @@ export class AdminPresenter {
     console.log('Dropping student data');
     await this.adminService.dropStudentData();
   }
+
+  async restoreStudentData() {
+    console.log('Restoring student data');
+    await this.adminService.restoreStudentData();
+  }
 }

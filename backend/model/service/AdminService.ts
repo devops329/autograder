@@ -27,8 +27,13 @@ export class AdminService {
     return !!(await this.db.removeAdmin(netId));
   }
 
-  async dropStudentData() {
-    await this.db.moveNonAdminUserDataToBackupTable();
+  async moveStudentDataToBackup() {
     await this.db.moveSubmissionDataToBackupTable();
+    await this.db.moveNonAdminUserDataToBackupTable();
+  }
+
+  async restoreStudentDataFromBackup() {
+    await this.db.restoreUserDataFromBackupTable();
+    await this.db.restoreSubmissionDataFromBackupTable();
   }
 }

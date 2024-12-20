@@ -4,6 +4,7 @@ import { Button, OverlayTrigger, Popover } from 'react-bootstrap';
 interface Props {
   onConfirm: () => Promise<void> | void;
   label: string;
+  variant?: string;
 }
 
 export function ConfirmPopoverButton(props: Props) {
@@ -41,7 +42,7 @@ export function ConfirmPopoverButton(props: Props) {
 
   return (
     <OverlayTrigger trigger="click" placement="right" show={showPopover} onToggle={() => setShowPopover((prev) => !prev)} overlay={popover} rootClose>
-      <Button variant="danger" onClick={() => !actionPerformed && setShowPopover(true)} disabled={actionPerformed}>
+      <Button variant={props.variant ?? 'danger'} onClick={() => !actionPerformed && setShowPopover(true)} disabled={actionPerformed}>
         {actionPerformed ? 'Done!' : props.label}
       </Button>
     </OverlayTrigger>

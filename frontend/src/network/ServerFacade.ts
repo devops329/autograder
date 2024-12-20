@@ -150,4 +150,10 @@ export class ServerFacade {
     const response: boolean = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as boolean;
     return response;
   }
+
+  async restoreStudentData(): Promise<boolean> {
+    const endpoint = 'restore-data';
+    const response: boolean = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as boolean;
+    return response;
+  }
 }

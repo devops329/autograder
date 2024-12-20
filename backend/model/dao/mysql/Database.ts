@@ -336,12 +336,29 @@ export class DB {
   }
 
   async restoreUserDataFromBackupTable() {
-    await this.executeQuery('restore_user_data_from_backup', 'DROP TABLE IF EXISTS user', []);
-    await this.executeQuery('restore_user_data_from_backup', 'CREATE TABLE user AS SELECT * FROM user_backup', []);
+    const [rows] = await this.executeQuery('check_user_backup_exists', 'SHOW TABLES LIKE "user_backup"', []);
+    console.log(rows);
+    if (rows.length) {
+      await this.executeQuery('restore_user_data_from_backup', 'DROP TABLE IF EXISTS user', []);
+      await this.executeQuery('restore_user_data_from_backup', 'CREATE TABLE user AS SELECT * FROM user_backup', []);
+      await this.executeQuery('restore_user_data_from_backup', 'ALTER TABLE user ADD PRIMARY KEY (id)', []);
+    }
   }
 
   async restoreSubmissionDataFromBackupTable() {
-    await this.executeQuery('restore_submission_data_from_backup', 'DROP TABLE IF EXISTS submission', []);
-    await this.executeQuery('restore_submission_data_from_backup', 'CREATE TABLE submission AS SELECT * FROM submission_backup', []);
+    const [rows] = await this.executeQuery('check_submission_backup_exists', 'SHOW TABLES LIKE "submission_backup"', []);
+    console.log(rows);
+    if (rows.length) {
+      await this.executeQuery('restore_submission_data_from_backup', 'DROP TABLE IF EXISTS submission', []);
+      await this.executeQuery('restore_submission_data_from_backup', 'CREATE TABLE submission AS SELECT * FROM submission_backup', []);
+      // Add the primary key back on 'id'
+      await this.executeQuery('restore_submission_data_from_backup', 'ALTER TABLE submission ADD PRIMARY KEY (id)', []);
+      // Add the foreign key constraint back on 'userId'
+      await this.executeQuery(
+        'restore_submission_data_from_backup',
+        'ALTER TABLE submission ADD CONSTRAINT submission_ibfk_1 FOREIGN KEY (userId) REFERENCES user(id)',
+        []
+      );
+    }
   }
 }
