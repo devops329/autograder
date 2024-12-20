@@ -34,6 +34,7 @@ export function Admin() {
             <tr>
               <th>NetId</th>
               <th>Name</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -41,6 +42,11 @@ export function Admin() {
               <tr key={admin.netId}>
                 <td>{admin.netId}</td>
                 <td>{admin.name}</td>
+                <td>
+                  <Button variant="danger" size="sm" onClick={() => console.log('Deleting Admin', admin.netId)}>
+                    Remove
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>

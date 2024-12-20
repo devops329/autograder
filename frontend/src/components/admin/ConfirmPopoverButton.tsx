@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, OverlayTrigger, Popover } from 'react-bootstrap';
 
 interface Props {
-  onConfirm: () => void;
+  onConfirm: () => Promise<void> | void;
   label: string;
 }
 
