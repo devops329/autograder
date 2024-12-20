@@ -1,4 +1,4 @@
-import { GradeService } from '../model/service/GradeService';
+import { AdminService } from '../model/service/AdminService';
 
 export interface StatsView {
   setStats(stats: object): void;
@@ -7,16 +7,16 @@ export interface StatsView {
 
 export class StatsPresenter {
   private view: StatsView;
-  private gradeService: GradeService;
+  private adminService: AdminService;
   constructor(view: StatsView) {
     this.view = view;
-    this.gradeService = new GradeService();
+    this.adminService = new AdminService();
   }
 
   async getStats() {
     let stats: object = {};
     try {
-      stats = await this.gradeService.getStats();
+      stats = await this.adminService.getStats();
     } catch (e) {
       this.view.setError((e as Error).message);
     }
@@ -26,7 +26,7 @@ export class StatsPresenter {
   async getNetIdsForDeliverablePhase(phase: number) {
     let netIds: string[] = [];
     try {
-      netIds = await this.gradeService.getNetIdsForDeliverablePhase(phase);
+      netIds = await this.adminService.getNetIdsForDeliverablePhase(phase);
       return netIds;
     } catch (e) {
       this.view.setError((e as Error).message);

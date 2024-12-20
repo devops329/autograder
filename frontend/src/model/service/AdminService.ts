@@ -10,4 +10,12 @@ export class AdminService {
   async getSubmissionsEnabled() {
     return await this.serverFacade.getSubmissionsEnabled();
   }
+
+  async getStats() {
+    return await this.serverFacade.getStats();
+  }
+
+  async getNetIdsForDeliverablePhase(phase: number) {
+    return await this.serverFacade.getNetIdsForDeliverablePhase(phase);
+  }
 }
