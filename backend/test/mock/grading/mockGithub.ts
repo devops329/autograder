@@ -95,4 +95,8 @@ export class MockGithub implements Github {
     }
     return release;
   }
+
+  async isCollaborator(user: User, repo: string, collaborator: string, gradeAttemptId: string): Promise<boolean> {
+    return true;
+  }
 }
