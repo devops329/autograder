@@ -35,9 +35,10 @@ export class DeliverableOne implements Grader {
     rubric.repoExists += 25;
     score += 25;
 
-    const emptyCellsInNotesTable = await this.tools.countEmptyCellsInNotesTable(notesFile);
-    console.info('Empty cells in notes table:', emptyCellsInNotesTable);
-    if (emptyCellsInNotesTable < 4) {
+    const [rows, emptyCells] = await this.tools.countRowsAndEmptyCellsInNotesTable(notesFile);
+    // Make sure they haven't just removed rows, and allow for some empty cells
+    // in case of formatting issues
+    if (rows >= 18 && emptyCells <= 2) {
       rubric.tableCompleted += 50;
       score += 50;
     } else {

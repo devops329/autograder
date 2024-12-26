@@ -168,18 +168,20 @@ export class GradingTools {
     return hostname;
   }
 
-  async countEmptyCellsInNotesTable(notesFile: string): Promise<number> {
+  async countRowsAndEmptyCellsInNotesTable(notesFile: string): Promise<number[]> {
     const startIndexOfTable = notesFile.indexOf('|');
     const table = notesFile.slice(startIndexOfTable);
     const tableObject: MarkdownCellTable = await createMarkdownArrayTable(table);
     let emptyCells = 0;
+    let rows = 0;
     for await (const row of tableObject.rows) {
+      rows++;
       for (const cell of row) {
         if (cell === '') {
           emptyCells++;
         }
       }
     }
-    return emptyCells;
+    return [rows, emptyCells];
   }
 }

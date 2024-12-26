@@ -70,7 +70,7 @@ export class MockGradingTools implements GradingTools {
   getHostnameFromWebsite(website: string): string {
     return 'hostname.mock';
   }
-  async countEmptyCellsInNotesTable(notesFile: string): Promise<number> {
-    return 0;
+  async countRowsAndEmptyCellsInNotesTable(notesFile: string): Promise<number[]> {
+    return [18, 0];
   }
 }
