@@ -32,15 +32,15 @@ export class DeliverableOne implements Grader {
       rubric.comments += 'Could not find notes.md file.\n';
       return [0, rubric];
     }
-    rubric.repoExists += 25;
-    score += 25;
+    rubric.repoExists += 15;
+    score += 15;
 
     const [rows, emptyCells] = await this.tools.countRowsAndEmptyCellsInNotesTable(notesFile);
     // Make sure they haven't just removed rows, and allow for some empty cells
     // in case of formatting issues
     if (rows >= 18 && emptyCells <= 2) {
-      rubric.tableCompleted += 50;
-      score += 50;
+      rubric.tableCompleted += 70;
+      score += 70;
     } else {
       rubric.comments += 'Table in notes.md is not filled out.\n';
     }
@@ -51,8 +51,8 @@ export class DeliverableOne implements Grader {
       rubric.comments += 'TA has not been added as a collaborator.\n';
       return [score, rubric];
     }
-    rubric.taAddedAsCollaborator += 25;
-    score += 25;
+    rubric.taAddedAsCollaborator += 15;
+    score += 15;
 
     return [score, rubric];
   }
