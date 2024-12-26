@@ -1,5 +1,6 @@
 import dns from 'dns';
 import logger from '../../logger';
+import { createMarkdownArrayTable, MarkdownCellTable } from 'parse-markdown-table';
 
 export class GradingTools {
   async checkDNS(hostname: string, regex: RegExp, gradeAttemptId: string): Promise<boolean> {
@@ -165,5 +166,20 @@ export class GradingTools {
     const siteParts = website.split('.');
     const hostname = siteParts.slice(-2).join('.');
     return hostname;
+  }
+
+  async countEmptyCellsInNotesTable(notesFile: string): Promise<number> {
+    const startIndexOfTable = notesFile.indexOf('|');
+    const table = notesFile.slice(startIndexOfTable);
+    const tableObject: MarkdownCellTable = await createMarkdownArrayTable(table);
+    let emptyCells = 0;
+    for await (const row of tableObject.rows) {
+      for (const cell of row) {
+        if (cell === '') {
+          emptyCells++;
+        }
+      }
+    }
+    return emptyCells;
   }
 }

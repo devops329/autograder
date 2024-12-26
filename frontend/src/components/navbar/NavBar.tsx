@@ -28,11 +28,11 @@ export function NavBar(props: Props) {
   return (
     <Navbar data-bs-theme="dark" expand="lg" className="align-items-center" style={{ backgroundColor: '#002e5d' }} fixed="top">
       <Container>
-        <Navbar.Brand href="/grader">CS329 Grader</Navbar.Brand>
+        <Navbar.Brand href="/grade">CS329 Grader</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="/grader">Grade</Nav.Link>
+            <Nav.Link href="/grade">Grade</Nav.Link>
             <Nav.Link href="/profile">Profile</Nav.Link>
             <Nav.Link href="/submissions">Submissions</Nav.Link>
             {props.isAdmin && <Nav.Link href="/stats">Stats</Nav.Link>}
