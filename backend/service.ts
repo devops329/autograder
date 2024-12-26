@@ -205,7 +205,7 @@ secureApiRouter.post('/update', async function (req, res) {
 secureApiRouter.post('/grade', async function (req, res) {
   const netId = req.body.netId;
   if (!gradeService.submissionsEnabled) {
-    const message = 'Merry Christmas! The semester is over.';
+    const message = 'Submissions are disabled.';
     res.send(JSON.stringify({ message, submissions: [], rubric: {} }));
   } else {
     const [message, submissions, rubric] = await gradeService.grade(req.body.assignmentPhase, netId);
