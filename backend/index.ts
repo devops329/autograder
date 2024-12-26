@@ -11,6 +11,6 @@ process.on('uncaughtException', (err) => {
   logger.log('error', { type: 'uncaught_exception', service: 'index' }, err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  logger.log('error', { type: 'unhandled_rejection', service: 'index' }, { reason });
+process.on('unhandledRejection', (error: any, promise) => {
+  logger.log('error', { type: 'unhandled_rejection', service: 'index' }, { error: error.message });
 });
