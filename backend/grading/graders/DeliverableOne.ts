@@ -1,57 +1,59 @@
 import { User } from '../../model/domain/User';
+import { Github } from '../tools/Github';
 import { GradingTools } from '../tools/GradingTools';
 import { Grader } from './Grader';
 
 interface DeliverableOneRubric {
-  customDomainName: number;
-  githubPages: number;
+  repoExists: number;
+  tableCompleted: number;
+  taAddedAsCollaborator: number;
   comments: string;
 }
 
 export class DeliverableOne implements Grader {
   private tools: GradingTools;
+  private github: Github = new Github();
 
   constructor(tools: GradingTools) {
     this.tools = tools;
   }
   async grade(user: User, gradeAttemptId: string): Promise<[number, DeliverableOneRubric]> {
+    let score = 0;
     const rubric: DeliverableOneRubric = {
-      customDomainName: 0,
-      githubPages: 0,
+      repoExists: 0,
+      tableCompleted: 0,
+      taAddedAsCollaborator: 0,
       comments: '',
     };
-    const hostname = user.website;
 
-    let score = 0;
-
-    if (!hostname) {
-      rubric.comments += 'No website provided.\n';
+    // Read notes.md file from student's fork of jwt-pizza repo
+    const notesFile = await this.github.readGithubFile(user, 'jwt-pizza', 'notes.md', gradeAttemptId);
+    if (!notesFile) {
+      rubric.comments += 'Could not find notes.md file.\n';
       return [0, rubric];
     }
+    rubric.repoExists += 15;
+    score += 15;
 
-    let customDomainNameSuccess = false;
-    let githubPagesSuccess = false;
-
-    customDomainNameSuccess = await this.tools.checkPageBodyForText(hostname, /JWT Pizza/g);
-    githubPagesSuccess = await this.tools.checkDNS(hostname, /github\.io/, gradeAttemptId);
-
-    if (customDomainNameSuccess) {
-      score += 30;
-      rubric.customDomainName += 30;
+    const [rows, emptyCells] = await this.tools.countRowsAndEmptyCellsInNotesTable(notesFile);
+    // Make sure they haven't just removed rows, and allow for some empty cells
+    // in case of formatting issues
+    if (rows >= 18 && emptyCells <= 2) {
+      rubric.tableCompleted += 70;
+      score += 70;
     } else {
-      rubric.comments += 'JWT Pizza is not functional at the provided website.\n';
+      rubric.comments += 'Table in notes.md is not filled out.\n';
     }
 
-    if (githubPagesSuccess) {
-      if (customDomainNameSuccess) {
-        score += 40;
-        rubric.githubPages += 40;
-      }
-      score += 30;
-      rubric.githubPages += 30;
-    } else {
-      rubric.comments += 'Your website is not hosted by GitHub Pages.\n';
+    // Check that the TA has been added as a collaborator
+    const isCollaborator = await this.github.isCollaborator(user, 'jwt-pizza', 'byucs329ta', gradeAttemptId);
+    if (!isCollaborator) {
+      rubric.comments += 'TA has not been added as a collaborator.\n';
+      return [score, rubric];
     }
+    rubric.taAddedAsCollaborator += 15;
+    score += 15;
+
     return [score, rubric];
   }
 }

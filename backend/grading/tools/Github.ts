@@ -128,4 +128,32 @@ export class Github {
       return null;
     }
   }
+
+  async isCollaborator(user: User, repo: string, collaborator: string, gradeAttemptId: string): Promise<boolean> {
+    const url = `https://api.github.com/repos/${user.github}/${repo}/collaborators/${collaborator}`;
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `token ${config.github.personal_access_token}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      });
+
+      if (response.status === 204) {
+        return true;
+      } else if (response.status === 403 || response.status === 404) {
+        return false;
+      } else {
+        throw new Error(`Unexpected response status: ${response.status}`);
+      }
+    } catch (error: any) {
+      logger.log(
+        'error',
+        { type: 'github_collaborator_check', service: 'github', gradeAttemptId },
+        { collaborator, user: user.netId, error: error.message }
+      );
+      return false;
+    }
+  }
 }
