@@ -89,7 +89,7 @@ export class GradeService {
     let rubric = result[1] as object;
     const lateCalculation = await this.calculateScoreAfterLateDays(netid, assignments[assignmentPhase], score, rubric);
     const scoreAfterLateCalculation = lateCalculation.score;
-    const lateDaysUsed = lateCalculation.lateDaysUsed;
+    const graceDaysUsed = lateCalculation.graceDaysUsed;
     rubric = lateCalculation.rubric;
     // Attempt to submit score to Canvas
     const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentId, netid, scoreAfterLateCalculation, gradeAttemptId);
@@ -99,7 +99,7 @@ export class GradeService {
       return [submitScoreErrorMessage, submissions, rubric];
     }
     // If submission is successful, put submission into DB and return score, rubric, and submissions
-    submissions = await this.putSubmissionIntoDB(assignmentPhase, netid, scoreAfterLateCalculation, rubric, lateDaysUsed);
+    submissions = await this.putSubmissionIntoDB(assignmentPhase, netid, scoreAfterLateCalculation, rubric, graceDaysUsed);
     return [`Score: ${scoreAfterLateCalculation}`, submissions, rubric];
   }
 
@@ -132,12 +132,12 @@ export class GradeService {
         // Calculate score after late days
         const lateCalculation = await this.calculateScoreAfterLateDays(user.netId, assignments[11], score, rubric);
         const scoreAfterLateCalculation = lateCalculation.score;
-        const lateDaysUsed = lateCalculation.lateDaysUsed;
+        const graceDaysUsed = lateCalculation.graceDaysUsed;
         rubric = lateCalculation.rubric;
         logger.log('info', { type: 'grade', service: 'grade_service', deliverable: '11' }, { netid: user.netId, scoreAfterLateCalculation });
         const submitScoreErrorMessage = await this.submitScoreToCanvas(assignments['11'].id, user.netId, scoreAfterLateCalculation, gradeAttemptId);
         if (!submitScoreErrorMessage) {
-          await this.putSubmissionIntoDB(11, user.netId, scoreAfterLateCalculation, rubric, lateDaysUsed);
+          await this.putSubmissionIntoDB(11, user.netId, scoreAfterLateCalculation, rubric, graceDaysUsed);
         }
         // remove chaos from db
         this.chaosService.removeScheduledChaos(user.netId);
@@ -173,46 +173,78 @@ export class GradeService {
     assignment: Assignment,
     score: number,
     rubric: object
-  ): Promise<{ score: number; lateDaysUsed: number; rubric: object }> {
+  ): Promise<{ score: number; graceDaysUsed: number; rubric: object }> {
     if (!this.submissionsEnabled) {
-      return { score: 0, lateDaysUsed: 0, rubric: { comments: 'Submissions are disabled' } };
+      return { score: 0, graceDaysUsed: 0, rubric: { comments: 'Submissions are disabled' } };
     }
+
     // Get today's date and due date, calculate days past due date
     const today = new Date();
     const dueDate = new Date(assignment.due_at);
-    const timeDiff = today.getTime() - dueDate.getTime();
-    const daysPastDueDate = Math.floor(timeDiff / (1000 * 3600 * 24));
+    let daysPastDueDate = 0;
+
+    // If submission and due date are the same day, no need to calculate
+    if (today.toDateString() === dueDate.toDateString()) {
+      daysPastDueDate = 0;
+    } else {
+      let currentDate = new Date(dueDate);
+
+      if (today > dueDate) {
+        // Calculate late days
+        while (currentDate < today) {
+          currentDate.setDate(currentDate.getDate() + 1);
+          if (currentDate.getDay() !== 0) {
+            // Exclude Sundays
+            daysPastDueDate++;
+          }
+        }
+      } else {
+        // Calculate early days
+        while (currentDate > today) {
+          currentDate.setDate(currentDate.getDate() - 1);
+          if (currentDate.getDay() !== 0) {
+            // Exclude Sundays
+            daysPastDueDate--;
+          }
+        }
+      }
+    }
 
     // Get late days remaining
-    const lateDaysRemaining = await this.db.getLateDays(netId);
-    // If the student has already used some late days for this assignment, and are resubmitting,
-    // we need to account for those late days in the calculation
+    const graceDaysRemaining = await this.db.getGraceDays(netId);
+
+    // Handle prior late days for resubmissions
     const mostRecentSubmission = await this.db.getMostRecentSubmissionForDeliverable(netId, assignment.id);
-    const lateDaysUsedForDeliverable = mostRecentSubmission ? mostRecentSubmission.lateDaysUsed : 0;
-    const lateDaysAvailable = lateDaysRemaining + lateDaysUsedForDeliverable;
+    const graceDaysUsedForDeliverable = mostRecentSubmission ? mostRecentSubmission.graceDaysUsed : 0;
+    const graceDaysAvailable = graceDaysRemaining + graceDaysUsedForDeliverable;
 
-    // If days late exceeds remaining late days, return 0
-    if (daysPastDueDate > lateDaysAvailable) {
-      rubric = { ...rubric, comments: 'Late submission, insufficient late days remaining' };
-      return { score: 0, lateDaysUsed: 0, rubric };
+    // If days late exceeds remaining late days, return 0 score
+    if (daysPastDueDate > graceDaysAvailable) {
+      rubric = { ...rubric, comments: 'Late submission, insufficient grace days remaining' };
+      return { score: 0, graceDaysUsed: 0, rubric };
     }
-    // If days late is positive, subtract from late days
-    let updatedLateDays = lateDaysAvailable;
-    let lateDaysUsed = 0;
 
+    let graceDaysUsed = 0;
+
+    // Handle late submissions
     if (daysPastDueDate > 0) {
-      updatedLateDays -= daysPastDueDate;
-      lateDaysUsed = daysPastDueDate;
-      await this.db.updateLateDays(netId, updatedLateDays);
+      graceDaysUsed = daysPastDueDate;
+      const updatedGraceDays = graceDaysAvailable - daysPastDueDate;
+      await this.db.updateGraceDays(netId, updatedGraceDays);
+      rubric = { ...rubric, comments: `Late submission, ${graceDaysUsed} grace days used` };
     }
-    // Must be 100% to get extra credit for early submission
-    // Deliverable 11 max score for autograded portion is 80
-    if (daysPastDueDate < 0 && (score == 100 || (assignment.phase == 11 && score == 80))) {
-      const daysEarly = Math.min(3, Math.abs(daysPastDueDate));
-      await this.db.updateLateDays(netId, lateDaysAvailable + daysEarly);
-      rubric = { ...rubric, comments: `Early submission, ${daysEarly} late days added` };
+
+    // Handle early submissions (extra credit)
+    if (daysPastDueDate < 0 && (score === 100 || (assignment.phase === 11 && score === 80))) {
+      const daysEarly = Math.min(2, Math.abs(daysPastDueDate)); // Cap early bonus to 2 days
+      const updatedGraceDays = graceDaysAvailable + daysEarly;
+      await this.db.updateGraceDays(netId, updatedGraceDays);
+      rubric = { ...rubric, comments: `Early submission, ${daysEarly} grace days added` };
     }
-    rubric = { ...rubric, lateDaysUsed };
-    return { score, lateDaysUsed, rubric };
+
+    // Attach late days used to rubric
+    rubric = { ...rubric, graceDaysUsed };
+
+    return { score, graceDaysUsed, rubric };
   }
 }

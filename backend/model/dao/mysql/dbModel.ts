@@ -7,7 +7,7 @@ export const tableCreateStatements = [
   website VARCHAR(255) NOT NULL,
   github VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
-  lateDays INT NOT NULL DEFAULT 0,
+  graceDays INT NOT NULL DEFAULT 0,
   isAdmin BOOLEAN NOT NULL DEFAULT false
   )`,
 
@@ -19,7 +19,7 @@ export const tableCreateStatements = [
   phase INT NOT NULL,
   score INT NOT NULL,
   rubric JSON,
-  lateDaysUsed INT NOT NULL DEFAULT 0,
+  graceDaysUsed INT NOT NULL DEFAULT 0,
   FOREIGN KEY (userId) REFERENCES user(id)
   )
   `,

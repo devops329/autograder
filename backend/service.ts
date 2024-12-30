@@ -196,7 +196,7 @@ secureApiRouter.post('/update', async function (req, res) {
   const user = await userService.updateUserInfo(netId, req.body.website, req.body.github, req.body.email);
   if (req.isAdmin) {
     const updatedLateDays = req.body.lateDays;
-    await db.updateLateDays(netId, updatedLateDays);
+    await db.updateGraceDays(netId, updatedLateDays);
   }
   res.send(JSON.stringify(user));
 });
