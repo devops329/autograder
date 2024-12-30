@@ -6,7 +6,7 @@ export class User {
   private _github: string;
   private _isAdmin: boolean;
   private _email: string;
-  private _lateDays: number;
+  private _graceDays: number;
 
   constructor(
     name: string,
@@ -15,7 +15,7 @@ export class User {
     website: string,
     github: string,
     email: string,
-    lateDays: number = 0,
+    graceDays: number = 0,
     isAdmin: boolean = false
   ) {
     this._netId = netId;
@@ -24,7 +24,7 @@ export class User {
     this._website = website;
     this._github = github;
     this._email = email;
-    this._lateDays = lateDays;
+    this._graceDays = graceDays;
     this._isAdmin = isAdmin;
   }
 
@@ -56,8 +56,8 @@ export class User {
     return this._email;
   }
 
-  get lateDays(): number {
-    return this._lateDays;
+  get graceDays(): number {
+    return this._graceDays;
   }
 
   static fromJson(json: JSON): User {
@@ -68,7 +68,7 @@ export class User {
       _website: string;
       _github: string;
       _email: string;
-      _lateDays: number;
+      _graceDays: number;
       _isAdmin: boolean;
     }
     const jsonObject: UserJson = json as unknown as UserJson;
@@ -79,7 +79,7 @@ export class User {
       jsonObject._website,
       jsonObject._github,
       jsonObject._email,
-      jsonObject._lateDays,
+      jsonObject._graceDays,
       jsonObject._isAdmin
     );
   }

@@ -3,14 +3,14 @@ export class Submission {
   private _phase: number;
   private _score: number;
   private _rubric: string;
-  private _lateDaysUsed: number;
+  private _graceDaysUsed: number;
 
-  constructor(date: string, phase: number, score: number, rubric: string, lateDaysUsed: number) {
+  constructor(date: string, phase: number, score: number, rubric: string, graceDaysUsed: number) {
     this._date = date;
     this._phase = phase;
     this._score = score;
     this._rubric = rubric;
-    this._lateDaysUsed = lateDaysUsed;
+    this._graceDaysUsed = graceDaysUsed;
   }
 
   get date(): string {
@@ -29,8 +29,8 @@ export class Submission {
     return this._rubric;
   }
 
-  get lateDaysUsed(): number {
-    return this._lateDaysUsed;
+  get graceDaysUsed(): number {
+    return this._graceDaysUsed;
   }
 
   static fromJson(json: JSON): Submission {
@@ -39,10 +39,10 @@ export class Submission {
       _phase: number;
       _score: number;
       _rubric: string;
-      _lateDaysUsed: number;
+      _graceDaysUsed: number;
     }
     const jsonObject: SubmissionJson = json as unknown as SubmissionJson;
 
-    return new Submission(jsonObject._date, jsonObject._phase, jsonObject._score, jsonObject._rubric, jsonObject._lateDaysUsed);
+    return new Submission(jsonObject._date, jsonObject._phase, jsonObject._score, jsonObject._rubric, jsonObject._graceDaysUsed);
   }
 }
