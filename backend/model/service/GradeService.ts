@@ -210,15 +210,15 @@ export class GradeService {
       }
     }
 
-    // Get late days remaining
+    // Get grace days remaining
     const graceDaysRemaining = await this.db.getGraceDays(netId);
 
-    // Handle prior late days for resubmissions
+    // Handle prior grace days for resubmissions
     const mostRecentSubmission = await this.db.getMostRecentSubmissionForDeliverable(netId, assignment.id);
     const graceDaysUsedForDeliverable = mostRecentSubmission ? mostRecentSubmission.graceDaysUsed : 0;
     const graceDaysAvailable = graceDaysRemaining + graceDaysUsedForDeliverable;
 
-    // If days late exceeds remaining late days, return 0 score
+    // If days late exceeds remaining grace days, return 0 score
     if (daysPastDueDate > graceDaysAvailable) {
       rubric = { ...rubric, comments: 'Late submission, insufficient grace days remaining' };
       return { score: 0, graceDaysUsed: 0, rubric };
@@ -242,7 +242,7 @@ export class GradeService {
       rubric = { ...rubric, comments: `Early submission, ${daysEarly} grace days added` };
     }
 
-    // Attach late days used to rubric
+    // Attach grace days used to rubric
     rubric = { ...rubric, graceDaysUsed };
 
     return { score, graceDaysUsed, rubric };
