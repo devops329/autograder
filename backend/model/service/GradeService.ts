@@ -87,7 +87,7 @@ export class GradeService {
     const result = await grader.grade(user!, gradeAttemptId);
     score = result[0] as number;
     let rubric = result[1] as object;
-    const lateCalculation = await this.calculateScoreAfterLateDays(netid, assignments[assignmentPhase], score, rubric);
+    const lateCalculation = await this.calculateScoreAfterGraceDays(netid, assignments[assignmentPhase], score, rubric);
     const scoreAfterLateCalculation = lateCalculation.score;
     const graceDaysUsed = lateCalculation.graceDaysUsed;
     rubric = lateCalculation.rubric;
@@ -130,7 +130,7 @@ export class GradeService {
         const score = result[0] as number;
         let rubric = result[1] as object;
         // Calculate score after late days
-        const lateCalculation = await this.calculateScoreAfterLateDays(user.netId, assignments[11], score, rubric);
+        const lateCalculation = await this.calculateScoreAfterGraceDays(user.netId, assignments[11], score, rubric);
         const scoreAfterLateCalculation = lateCalculation.score;
         const graceDaysUsed = lateCalculation.graceDaysUsed;
         rubric = lateCalculation.rubric;
@@ -153,9 +153,9 @@ export class GradeService {
     }
   }
 
-  private async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number, rubric: object, lateDaysUsed: number) {
+  private async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number, rubric: object, graceDaysUsed: number) {
     const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const submission = new Submission(date, assignmentPhase, score, JSON.stringify(rubric), lateDaysUsed);
+    const submission = new Submission(date, assignmentPhase, score, JSON.stringify(rubric), graceDaysUsed);
     await this.db.putSubmission(submission, netId);
     return this.db.getSubmissions(netId);
   }
@@ -168,7 +168,7 @@ export class GradeService {
     return await this.canvas.getAssignmentIdsAndDueDates();
   }
 
-  async calculateScoreAfterLateDays(
+  async calculateScoreAfterGraceDays(
     netId: string,
     assignment: Assignment,
     score: number,

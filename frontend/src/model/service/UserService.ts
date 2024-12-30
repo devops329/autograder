@@ -13,8 +13,8 @@ export class UserService {
     return this.serverFacade.impersonateUser(searchString);
   }
 
-  async updateUserInfo(netId: string, website: string, github: string, email: string, lateDays: number): Promise<User> {
-    return this.serverFacade.updateUserInfo(netId, website, github, email, lateDays);
+  async updateUserInfo(netId: string, website: string, github: string, email: string, graceDays: number): Promise<User> {
+    return this.serverFacade.updateUserInfo(netId, website, github, email, graceDays);
   }
 
   async logOut(): Promise<void> {

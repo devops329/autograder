@@ -88,7 +88,7 @@ export class MockDB extends DB {
   }
 
   async getGraceDays(netId: string) {
-    await this.executeQuery('get_late_days', `SELECT lateDays FROM user WHERE netid = ?`, [netId]);
+    await this.executeQuery('get_late_days', `SELECT graceDays FROM user WHERE netid = ?`, [netId]);
     return 0;
   }
 

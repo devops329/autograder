@@ -15,13 +15,13 @@ export class UserInfoPresenter {
     this.view = view;
   }
 
-  async updateUserInfo(netId: string, website: string, github: string, email: string, lateDays: number, impersonated?: boolean) {
+  async updateUserInfo(netId: string, website: string, github: string, email: string, graceDays: number, impersonated?: boolean) {
     // Remove "https://" or "http://" from the beginning of the website
     website = website.replace(/^(https?:\/\/)/, '');
     // Remove trailing slashes from the website
     website = website.replace(/\/+$/, '');
 
-    const user = await this.userService.updateUserInfo(netId, website, github, email, lateDays);
+    const user = await this.userService.updateUserInfo(netId, website, github, email, graceDays);
     if (user) {
       const key = impersonated ? 'impersonatedUser' : 'user';
       localStorage.setItem(key, JSON.stringify(user));
