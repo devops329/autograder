@@ -22,16 +22,16 @@ afterAll(() => {
   global.Date = OriginalDate;
 });
 
-test('Resolved chaos within 6 hours past deadline should get 80 points', async () => {
-  mockChaosService.chaosTime = '2024-04-19T12:00:00.000Z';
+test('Resolved chaos within 4 hours of chaos time should get 80 points', async () => {
+  mockChaosService.chaosTime = '2024-04-19T14:00:00.000Z';
   const [score, rubric] = await d11Part2.grade(mockStudent);
   expect(score).toBe(80);
   expect(rubric.issueResolvedInTime).toBe(80);
   expect(rubric.comments).toBe('');
 });
-
-test('Resolved chaos 1 hour past deadline should get 70 points', async () => {
-  mockChaosService.chaosTime = '2024-04-19T11:00:00.000Z';
+// Deadline is 4 hours after chaos time
+test('Resolved chaos late up to 1 hour past deadline should get 70 points', async () => {
+  mockChaosService.chaosTime = '2024-04-19T13:59:00.000Z';
   const [score, rubric] = await d11Part2.grade(mockStudent);
   expect(score).toBe(70);
   expect(rubric.issueResolvedInTime).toBe(70);
@@ -39,7 +39,7 @@ test('Resolved chaos 1 hour past deadline should get 70 points', async () => {
 });
 
 test('Resolved chaos 4 hours past deadline should get 40 points', async () => {
-  mockChaosService.chaosTime = '2024-04-19T08:00:00.000Z';
+  mockChaosService.chaosTime = '2024-04-19T10:59:00.000Z';
   const [score, rubric] = await d11Part2.grade(mockStudent);
   expect(score).toBe(40);
   expect(rubric.issueResolvedInTime).toBe(40);
@@ -47,7 +47,7 @@ test('Resolved chaos 4 hours past deadline should get 40 points', async () => {
 });
 
 test('Resolved chaos 8 hours past deadline should get 0 points', async () => {
-  mockChaosService.chaosTime = '2024-04-19T04:00:00.000Z';
+  mockChaosService.chaosTime = '2024-04-19T06:59:00.000Z';
   const [score, rubric] = await d11Part2.grade(mockStudent);
   expect(score).toBe(0);
   expect(rubric.issueResolvedInTime).toBe(0);
@@ -55,7 +55,7 @@ test('Resolved chaos 8 hours past deadline should get 0 points', async () => {
 });
 
 test('Should not allow negative scores', async () => {
-  mockChaosService.chaosTime = '2024-04-19T00:00:00.000Z';
+  mockChaosService.chaosTime = '2024-04-19T02:59:00.000Z';
   const [score, rubric] = await d11Part2.grade(mockStudent);
   expect(score).toBe(0);
   expect(rubric.issueResolvedInTime).toBe(0);
