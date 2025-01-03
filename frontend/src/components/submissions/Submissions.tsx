@@ -21,9 +21,9 @@ export function Submissions(props: Props) {
             </tr>
           </thead>
           <tbody>
-            {props.submissions.map((submission) => {
-              return SubmissionRow(submission);
-            })}
+            {props.submissions.map((submission) => (
+              <SubmissionRow key={submission.date} submission={submission} />
+            ))}
           </tbody>
         </Table>
       </div>

@@ -3,7 +3,11 @@ import { Submission } from '../../model/domain/Submission';
 import './SubmissionRow.css';
 import { Button, Modal, Table } from 'react-bootstrap';
 
-export function SubmissionRow(submission: Submission) {
+interface Props {
+  submission: Submission;
+}
+
+export function SubmissionRow(props: Props) {
   const [showRubric, setShowRubric] = useState(false);
   const [dateFormat, setDateFormat] = useState<'short' | 'long'>('short');
   function formatDate(date: string) {
@@ -18,13 +22,13 @@ export function SubmissionRow(submission: Submission) {
   }
   return (
     <>
-      <tr key={submission.date}>
-        <td onClick={toggleDateFormat}>{formatDate(submission.date)}</td>
-        <td>{submission.phase}</td>
-        <td>{submission.score}</td>
-        <td>{submission.rubric ? <Button onClick={toggleRubricVisibility}>Click to view</Button> : 'N/A'}</td>
+      <tr key={props.submission.date}>
+        <td onClick={toggleDateFormat}>{formatDate(props.submission.date)}</td>
+        <td>{props.submission.phase}</td>
+        <td>{props.submission.score}</td>
+        <td>{props.submission.rubric ? <Button onClick={toggleRubricVisibility}>Click to view</Button> : 'N/A'}</td>
       </tr>
-      {submission.rubric && (
+      {props.submission.rubric && (
         <Modal show={showRubric} onHide={toggleRubricVisibility}>
           <Modal.Header closeButton>
             <Modal.Title>Rubric Points</Modal.Title>
@@ -38,7 +42,7 @@ export function SubmissionRow(submission: Submission) {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(submission.rubric).map(([category, points]) => (
+                {Object.entries(props.submission.rubric).map(([category, points]) => (
                   <tr key={category}>
                     <td>{category}</td>
                     <td>{points}</td>
