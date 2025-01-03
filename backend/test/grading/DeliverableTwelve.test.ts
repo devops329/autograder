@@ -22,5 +22,5 @@ test('If no eligible partners exist, should return a message informing the user'
   mockDb.alreadyHasPartner = false;
   mockDb.eligiblePartnersExist = false;
   const [result] = await d12.grade(mockStudent);
-  expect(result).toBe('No partners available. Try again later or contact the instructor.');
+  expect(result).toBe('No partners available right now. Try again later or contact the instructor.');
 });
