@@ -141,8 +141,6 @@ export class GradeService {
         }
         // remove chaos from db
         this.chaosService.removeScheduledChaos(user.netId);
-        // Make user eligible for pentest
-        this.db.putPentest(user.netId);
       } catch (e) {
         logger.log('error', { type: 'grade', service: 'grade_service' }, { netid: user.netId, error: e });
         return false;
