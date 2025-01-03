@@ -285,13 +285,13 @@ adminApiRouter.post('/admin/remove', async function (req, res) {
 
 // Drop data for all non-admin users
 adminApiRouter.post('/drop-data', async function (req, res) {
-  await adminService.moveStudentDataToBackup();
+  await adminService.clearDatabase();
   res.send(true);
 });
 
 // Restore data from backup
 adminApiRouter.post('/restore-data', async function (req, res) {
-  await adminService.restoreStudentDataFromBackup();
+  await adminService.restoreDatabase();
   res.send(true);
 });
 

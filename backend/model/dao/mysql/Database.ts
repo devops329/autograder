@@ -323,42 +323,56 @@ export class DB {
     return await this.executeQuery('remove_admin', 'UPDATE user SET isAdmin = false WHERE netid = ?', [netId]);
   }
 
-  async moveNonAdminUserDataToBackupTable() {
-    await this.executeQuery('move_user_data_to_backup', 'DROP TABLE IF EXISTS user_backup', []);
-    await this.executeQuery('move_user_data_to_backup', 'CREATE TABLE user_backup AS SELECT * FROM user', []);
-    await this.executeQuery('move_user_data_to_backup', 'DELETE FROM user where isAdmin = false', []);
-  }
+  async copyDatabase(originalDbName: string, backupDbName: string) {
+    // Delete the backup database if it already exists
+    await this.executeQuery('delete_backup_db', `DROP DATABASE IF EXISTS ${backupDbName}`, []);
+    // Create the backup database
+    await this.executeQuery('create_backup_db', `CREATE DATABASE IF NOT EXISTS ${backupDbName}`, []);
 
-  async moveSubmissionDataToBackupTable() {
-    await this.executeQuery('move_submission_data_to_backup', 'DROP TABLE IF EXISTS submission_backup', []);
-    await this.executeQuery('move_submission_data_to_backup', 'CREATE TABLE submission_backup AS SELECT * FROM submission', []);
-    await this.executeQuery('move_submission_data_to_backup', 'DELETE FROM submission', []);
-  }
+    // Get the list of all tables in the original database
+    const [tables] = await this.executeQuery('show_tables', `SHOW TABLES FROM ${originalDbName}`, []);
+    const tableNames = tables.map((row: any) => Object.values(row)[0]);
 
-  async restoreUserDataFromBackupTable() {
-    const [rows] = await this.executeQuery('check_user_backup_exists', 'SHOW TABLES LIKE "user_backup"', []);
-    console.log(rows);
-    if (rows.length) {
-      await this.executeQuery('restore_user_data_from_backup', 'DROP TABLE IF EXISTS user', []);
-      await this.executeQuery('restore_user_data_from_backup', 'CREATE TABLE user AS SELECT * FROM user_backup', []);
-      await this.executeQuery('restore_user_data_from_backup', 'ALTER TABLE user ADD PRIMARY KEY (id)', []);
+    // Copy each table to the backup database
+    for (const tableName of tableNames) {
+      await this.executeQuery('copy_table', `CREATE TABLE ${backupDbName}.${tableName} AS SELECT * FROM ${originalDbName}.${tableName}`, []);
     }
+
+    logger.log('info', { type: 'database_backup', service: 'database' }, { message: `Database ${originalDbName} copied to ${backupDbName}` });
   }
 
-  async restoreSubmissionDataFromBackupTable() {
-    const [rows] = await this.executeQuery('check_submission_backup_exists', 'SHOW TABLES LIKE "submission_backup"', []);
-    console.log(rows);
-    if (rows.length) {
-      await this.executeQuery('restore_submission_data_from_backup', 'DROP TABLE IF EXISTS submission', []);
-      await this.executeQuery('restore_submission_data_from_backup', 'CREATE TABLE submission AS SELECT * FROM submission_backup', []);
-      // Add the primary key back on 'id'
-      await this.executeQuery('restore_submission_data_from_backup', 'ALTER TABLE submission ADD PRIMARY KEY (id)', []);
-      // Add the foreign key constraint back on 'userId'
+  async clearDatabase() {
+    await this.copyDatabase(config.db.connection.database, `${config.db.connection.database}_backup`);
+    await this.executeQuery(
+      'remove_none_admin_submissions',
+      `DELETE FROM submission WHERE userId NOT IN (SELECT id FROM user WHERE isAdmin = true)`,
+      []
+    );
+    await this.executeQuery('remove_none_admin_users', 'DELETE FROM user WHERE isAdmin = false', []);
+    await this.executeQuery('remove_none_admin_tokens', `DELETE FROM token WHERE netid NOT IN (SELECT netid FROM user WHERE isAdmin = true)`, []);
+    await this.executeQuery('remove_chaos', `DELETE FROM chaos`, []);
+    await this.executeQuery('remove_pentest', `DELETE FROM pentest`, []);
+  }
+
+  async restoreDatabaseFromBackup() {
+    // Get the list of all tables in the backup database
+    const [tables] = await this.executeQuery('show_tables', `SHOW TABLES FROM ${config.db.connection.database}_backup`, []);
+    const tableNames = tables.map((row: any) => Object.values(row)[0]);
+
+    // Copy each table to the backup database
+    for (const tableName of tableNames) {
+      await this.executeQuery('drop_table', `DROP TABLE IF EXISTS ${config.db.connection.database}.${tableName}`, []);
       await this.executeQuery(
-        'restore_submission_data_from_backup',
-        'ALTER TABLE submission ADD CONSTRAINT submission_ibfk_1 FOREIGN KEY (userId) REFERENCES user(id)',
+        'copy_table',
+        `CREATE TABLE ${config.db.connection.database}.${tableName} AS SELECT * FROM ${config.db.connection.database}_backup.${tableName}`,
         []
       );
     }
+
+    logger.log(
+      'info',
+      { type: 'database_restore', service: 'database' },
+      { message: `Database ${config.db.connection.database} restored from backup` }
+    );
   }
 }
