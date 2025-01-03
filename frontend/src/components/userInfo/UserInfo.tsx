@@ -16,7 +16,7 @@ export function UserInfo(props: Props) {
   const [email, setEmail] = useState(props.user.email);
   const [website, setWebsite] = useState(props.user.website);
   const [github, setGithub] = useState(props.user.github);
-  const [lateDays, setLateDays] = useState(props.user.lateDays);
+  const [graceDays, setGraceDays] = useState(props.user.graceDays);
   const [updated, setUpdated] = useState(false);
 
   const presenter = new UserInfoPresenter({ setUpdated, setUser: props.setUser, setWebsite });
@@ -97,16 +97,16 @@ export function UserInfo(props: Props) {
         )}
       </h3>
       <div className="d-flex align-items-center">
-        <h3 className="me-3">Late Days: {lateDays}</h3>
+        <h3 className="me-3">Grace Days: {graceDays}</h3>
         {props.isAdmin && (
           <>
-            <Button variant="primary" className="me-2" onClick={() => setLateDays(lateDays + 1)}>
+            <Button variant="primary" className="me-2" onClick={() => setGraceDays(graceDays + 1)}>
               +
             </Button>
             <Button
               variant="secondary"
               onClick={() => {
-                setLateDays(Math.max(0, lateDays - 1));
+                setGraceDays(Math.max(0, graceDays - 1));
               }}>
               -
             </Button>
@@ -116,7 +116,7 @@ export function UserInfo(props: Props) {
       <Button
         variant={updated ? 'success' : 'primary'}
         onClick={() => {
-          presenter.updateUserInfo(props.user.netId, website, github, email, lateDays, props.impersonating);
+          presenter.updateUserInfo(props.user.netId, website, github, email, graceDays, props.impersonating);
         }}>
         {updated ? 'Updated!' : 'Update'}
       </Button>

@@ -77,8 +77,8 @@ export class DB {
   async putUser(user: User) {
     await this.executeQuery(
       'put_user',
-      'INSERT INTO user (name, netid, apiKey, website, github, email, lateDays, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [user.name, user.netId, user.apiKey, user.website, user.github, user.email, user.lateDays, user.isAdmin]
+      'INSERT INTO user (name, netid, apiKey, website, github, email, graceDays, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [user.name, user.netId, user.apiKey, user.website, user.github, user.email, user.graceDays, user.isAdmin]
     );
   }
 
@@ -101,7 +101,7 @@ export class DB {
       return null;
     }
     const row = rows[0];
-    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.lateDays, row.isAdmin);
+    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.graceDays, row.isAdmin);
   }
 
   async getUserFuzzySearch(search: string) {
@@ -149,7 +149,7 @@ export class DB {
       return [];
     }
     return rows.map((row: any) => {
-      return new Submission(row.time, row.phase, row.score, row.rubric, row.lateDaysUsed);
+      return new Submission(row.time, row.phase, row.score, row.rubric, row.graceDaysUsed);
     });
   }
 
@@ -163,7 +163,7 @@ export class DB {
       return null;
     }
     const row = rows[0];
-    return new Submission(row.time, row.phase, row.score, row.rubric, row.lateDaysUsed);
+    return new Submission(row.time, row.phase, row.score, row.rubric, row.graceDaysUsed);
   }
 
   async getSubmissionCountAllPhases() {
@@ -231,16 +231,16 @@ export class DB {
     await this.executeQuery('delete_token', 'DELETE FROM token WHERE authtoken = ?', [token]);
   }
 
-  async getLateDays(netId: string) {
-    const [rows] = await this.executeQuery('get_late_days', `SELECT lateDays FROM user WHERE netid = ?`, [netId]);
+  async getGraceDays(netId: string) {
+    const [rows] = await this.executeQuery('get_grace_days', `SELECT graceDays FROM user WHERE netid = ?`, [netId]);
     if (!rows.length) {
       return 0;
     }
-    return ((rows as any)[0] as any).lateDays || 0;
+    return ((rows as any)[0] as any).graceDays || 0;
   }
 
-  async updateLateDays(netId: string, days: number) {
-    await this.executeQuery('add_late_days', 'UPDATE user SET lateDays = ? WHERE netid = ?', [days, netId]);
+  async updateGraceDays(netId: string, days: number) {
+    await this.executeQuery('add_grace_days', 'UPDATE user SET graceDays = ? WHERE netid = ?', [days, netId]);
   }
 
   async putPentest(netId: string) {
@@ -311,7 +311,7 @@ export class DB {
       return [];
     }
     return rows.map((row: any) => {
-      return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.lateDays, row.isAdmin);
+      return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.graceDays, row.isAdmin);
     });
   }
 
