@@ -216,7 +216,7 @@ export class GradeService {
     const graceDaysRemaining = await this.db.getGraceDays(netId);
 
     // Handle prior grace days for resubmissions
-    const mostRecentSubmission = await this.db.getMostRecentSubmissionForDeliverable(netId, assignment.id);
+    const mostRecentSubmission = await this.db.getMostRecentSubmissionForDeliverable(netId, assignment.phase);
     const graceDaysUsedForDeliverable = mostRecentSubmission ? mostRecentSubmission.graceDaysUsed : 0;
     const graceDaysAvailable = graceDaysRemaining + graceDaysUsedForDeliverable;
 
@@ -239,7 +239,7 @@ export class GradeService {
     // Handle early submissions (extra credit)
     if (daysPastDueDate < 0 && (score === 100 || (assignment.phase === 11 && score === 80))) {
       if (mostRecentSubmission && (mostRecentSubmission.score === 100 || (assignment.phase === 11 && mostRecentSubmission.score === 80))) {
-        rubric = { ...rubric, comments: 'Early submission, no extra credit' };
+        rubric = { ...rubric, comments: 'Early submission, no grace days added.' };
         return { score, graceDaysUsed, rubric };
       }
       const daysEarly = Math.min(2, Math.abs(daysPastDueDate)); // Cap early bonus to 2 days
