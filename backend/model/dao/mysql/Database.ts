@@ -243,13 +243,11 @@ export class DB {
     await this.executeQuery('add_grace_days', 'UPDATE user SET graceDays = ? WHERE netid = ?', [days, netId]);
   }
 
-  async putPentest(netId: string) {
-    await this.executeQuery('put_pentest', 'INSERT INTO pentest (netid) VALUES (?)', [netId]);
-  }
-
-  async checkPentestEligibility(netId: string) {
-    const [rows] = await this.executeQuery('check_pentest_eligibility', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
-    return !!rows.length;
+  async putPentestIfNotExists(netId: string) {
+    const [rows] = await this.executeQuery('check_pentest', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
+    if (!rows.length) {
+      await this.executeQuery('put_pentest', 'INSERT INTO pentest (netid) VALUES (?)', [netId]);
+    }
   }
 
   async getCurrentPentestPartner(netId: string) {
@@ -262,7 +260,7 @@ export class DB {
   }
 
   async getEligiblePentestPartners(netId: string) {
-    const [rows] = await this.executeQuery('get_pentest_partners', `SELECT * FROM pentest WHERE partnerid = ? AND netid != ?`, ['', netId]);
+    const [rows] = await this.executeQuery('get_pentest_partners', `SELECT * FROM pentest WHERE partnerid = '' AND netid != ?`, [netId]);
     if (!rows.length) {
       return [];
     }

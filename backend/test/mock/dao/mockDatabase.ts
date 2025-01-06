@@ -102,6 +102,10 @@ export class MockDB extends DB {
     return this.tokenExists ? mockToken : null;
   }
 
+  async putPentestIfNotExists(netId: string): Promise<void> {
+    return;
+  }
+
   async getCurrentPentestPartner(netId: string) {
     await this.executeQuery('get_pentest', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
     return this._alreadyHasPartner ? { partnerId: 'anotherStudent' } : '';
@@ -110,11 +114,6 @@ export class MockDB extends DB {
   async getEligiblePentestPartners(netId: string) {
     await this.executeQuery('get_pentest_partners', `SELECT * FROM pentest WHERE partnerid = ? AND netid != ?`, ['', netId]);
     return this._eligiblePartnersExist ? [mockStudent] : [];
-  }
-
-  async checkPentestEligibility(netId: string) {
-    await this.executeQuery('check_pentest_eligibility', `SELECT * FROM pentest WHERE netid = ?`, [netId]);
-    return true;
   }
 
   async getUntriggeredChaos() {
