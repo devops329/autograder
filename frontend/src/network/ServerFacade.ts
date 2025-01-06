@@ -16,21 +16,26 @@ export class ServerFacade {
     await this.clientCommunicator.doPost({}, endpoint);
   }
 
-  async grade(netId: string, assignmentPhase: number): Promise<[string, Submission[], JSON]> {
+  async grade(netId: string, assignmentPhase: number): Promise<[string, Submission[], JSON, User | null]> {
     const endpoint = 'grade';
-    const response: { message: string; submissions: JSON[]; rubric: JSON } = (await this.clientCommunicator.doPost(
+    const response: { message: string; submissions: JSON[]; rubric: JSON; user: JSON } = (await this.clientCommunicator.doPost(
       { assignmentPhase, netId },
       endpoint
     )) as unknown as {
       message: string;
       submissions: JSON[];
       rubric: JSON;
+      user: JSON;
     };
+    let user: User | null = null;
+    if (response.user) {
+      user = User.fromJson(response.user);
+    }
     const submissions: Submission[] = [];
     for (const submission of response.submissions) {
       submissions.push(Submission.fromJson(submission));
     }
-    return [response.message, submissions, response.rubric];
+    return [response.message, submissions, response.rubric, user];
   }
 
   async toggleSubmissionsEnabled(): Promise<boolean> {
