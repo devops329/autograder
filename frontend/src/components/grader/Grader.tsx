@@ -8,6 +8,7 @@ import { User } from '../../model/domain/User';
 interface Props {
   user: User;
   setSubmissions: (submissions: Submission[]) => void;
+  setUser: (user: User) => void;
   impersonating: boolean;
 }
 
@@ -25,6 +26,7 @@ export function Grader(props: Props) {
     impersonating: props.impersonating,
     rubric,
     setRubric,
+    setUser: props.setUser,
   };
   const [presenter] = useState(new GradePresenter(listener));
 

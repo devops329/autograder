@@ -1,4 +1,5 @@
 import { Submission } from '../model/domain/Submission';
+import { User } from '../model/domain/User';
 import { GradeService } from '../model/service/GradeService';
 
 export interface GradeView {
@@ -8,6 +9,7 @@ export interface GradeView {
   impersonating: boolean;
   rubric: object | null;
   setRubric(rubric: object): void;
+  setUser(user: User): void;
 }
 
 export class GradePresenter {
@@ -21,8 +23,9 @@ export class GradePresenter {
     let message = '';
     let submissions: Submission[] = [];
     let rubric: object = {};
+    let user: User | null = null;
     try {
-      [message, submissions, rubric] = await this.gradeService.grade(netId, assignmentPhase);
+      [message, submissions, rubric, user] = await this.gradeService.grade(netId, assignmentPhase);
     } catch (e) {
       this.view.setError((e as Error).message);
     }
@@ -30,6 +33,9 @@ export class GradePresenter {
     localStorage.setItem(this.view.impersonating ? 'impersonatedSubmissions' : 'submissions', JSON.stringify(submissions));
     this.view.setGradeMessage(message);
     this.view.setRubric(rubric);
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
   }
 
   get assignmentPhases(): number[] {

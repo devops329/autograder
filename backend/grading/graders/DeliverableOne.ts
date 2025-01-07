@@ -39,8 +39,17 @@ export class DeliverableOne implements Grader {
     // Make sure they haven't just removed rows, and allow for some empty cells
     // in case of formatting issues
     if (rows >= 18 && emptyCells <= 2) {
-      rubric.tableCompleted += 70;
-      score += 70;
+      // Basic check for logout database SQL and create store SQL
+      const logoutSQL = 'DELETE FROM auth WHERE token=?';
+      const createStoreSQL = 'INSERT INTO store (franchiseId, name) VALUES (?, ?)';
+      if (notesFile.includes(logoutSQL) && notesFile.includes(createStoreSQL)) {
+        rubric.tableCompleted += 30;
+        score += 30;
+      } else {
+        rubric.comments += 'Table in notes.md is missing some content.\n';
+      }
+      rubric.tableCompleted += 40;
+      score += 40;
     } else {
       rubric.comments += 'Table in notes.md is not filled out.\n';
     }

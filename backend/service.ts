@@ -209,7 +209,8 @@ secureApiRouter.post('/grade', async function (req, res) {
     res.send(JSON.stringify({ message, submissions: [], rubric: {} }));
   } else {
     const [message, submissions, rubric] = await gradeService.grade(req.body.assignmentPhase, netId);
-    res.send(JSON.stringify({ message, submissions, rubric }));
+    const user = await userService.getUserByNetId(netId);
+    res.send(JSON.stringify({ message, submissions, rubric, user }));
   }
 });
 
