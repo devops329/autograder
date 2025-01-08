@@ -115,7 +115,7 @@ export class DB {
       return null;
     }
     const row = rows[0];
-    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
+    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.graceDays, row.isAdmin);
   }
 
   async getUserByApiKey(apiKey: string) {
@@ -124,7 +124,7 @@ export class DB {
       return null;
     }
     const row = rows[0];
-    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.isAdmin);
+    return new User(row.name, row.netid, row.apiKey, row.website, row.github, row.email, row.graceDays, row.isAdmin);
   }
 
   async updateApiKey(netId: string, apiKey: string) {

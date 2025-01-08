@@ -8,16 +8,7 @@ export class User {
   private _email: string;
   private _graceDays: number;
 
-  constructor(
-    name: string,
-    netId: string,
-    apiKey: string,
-    website: string,
-    github: string,
-    email: string,
-    graceDays: number = 0,
-    isAdmin: boolean = false
-  ) {
+  constructor(name: string, netId: string, apiKey: string, website: string, github: string, email: string, graceDays: number, isAdmin: boolean) {
     this._netId = netId;
     this._name = name;
     this._apiKey = apiKey;
