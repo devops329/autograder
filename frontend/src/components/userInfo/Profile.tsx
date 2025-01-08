@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { User } from '../../model/domain/User';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import { UserInfoPresenter } from '../../presenter/UserInfoPresenter';
-import './UserInfo.css';
+import './Profile.css';
 
 interface Props {
   user: User;
@@ -11,7 +11,7 @@ interface Props {
   isAdmin: boolean;
 }
 
-export function UserInfo(props: Props) {
+export function Profile(props: Props) {
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState(props.user.email);
   const [website, setWebsite] = useState(props.user.website);
@@ -35,7 +35,7 @@ export function UserInfo(props: Props) {
       <h3>Name: {props.user.name}</h3>
       <h3>NetID: {props.user.netId}</h3>
       <InputGroup className="mb-3">
-        <h3>Email:</h3>
+        <InputGroup.Text id="email">Email:</InputGroup.Text>
         <Form.Control
           value={email}
           onChange={(event) => {
@@ -44,11 +44,12 @@ export function UserInfo(props: Props) {
           }}
           placeholder={email === '' ? 'student@byu.edu' : email}
           aria-label="Email"
-          aria-describedby="basic-addon1"
+          aria-describedby="email"
         />
       </InputGroup>
       <InputGroup className="mb-3">
-        <h3>Website:</h3> <InputGroup.Text id="basic-addon1">https://</InputGroup.Text>
+        <InputGroup.Text id="website">Website:</InputGroup.Text>
+        <InputGroup.Text>https://</InputGroup.Text>
         <Form.Control
           value={website}
           onChange={(event) => {
@@ -57,11 +58,11 @@ export function UserInfo(props: Props) {
           }}
           placeholder={website === '' ? 'pizza.mysite.click' : website}
           aria-label="Website"
-          aria-describedby="basic-addon1"
+          aria-describedby="website"
         />
       </InputGroup>
       <InputGroup className="mb-3">
-        <h3>Github Username: </h3>
+        <InputGroup.Text id="basic-addon1">Github:</InputGroup.Text>
         <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
         <Form.Control
           value={github}

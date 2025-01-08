@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Grader } from './components/grader/Grader';
 import { NavBar } from './components/navbar/NavBar';
 import { useEffect, useState } from 'react';
-import { UserInfo } from './components/userInfo/UserInfo';
+import { Profile } from './components/userInfo/Profile';
 import { Submissions } from './components/submissions/Submissions';
 import { User } from './model/domain/User';
 import { Submission } from './model/domain/Submission';
@@ -76,7 +76,7 @@ function App() {
         {user ? (
           <Routes>
             <Route path="/grade" element={<Grader user={user} setUser={setUser} setSubmissions={setSubmissions} impersonating={impersonating} />} />
-            <Route path="/profile" element={<UserInfo impersonating={impersonating} user={user} setUser={setUser} isAdmin={isAdmin} />} />
+            <Route path="/profile" element={<Profile impersonating={impersonating} user={user} setUser={setUser} isAdmin={isAdmin} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
             {user.isAdmin && <Route path="/stats" element={<Stats setErrorMessage={setErrorMessage} />} />}
             {user.isAdmin && <Route path="/admin" element={<Admin />} />}
