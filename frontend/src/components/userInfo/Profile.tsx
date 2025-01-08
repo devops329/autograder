@@ -34,7 +34,7 @@ export function Profile(props: Props) {
       <h1>My Info</h1>
       <h3>Name: {props.user.name}</h3>
       <h3>NetID: {props.user.netId}</h3>
-      <InputGroup className="mb-3">
+      <InputGroup className="m-2">
         <InputGroup.Text id="email">Email:</InputGroup.Text>
         <Form.Control
           value={email}
@@ -47,7 +47,7 @@ export function Profile(props: Props) {
           aria-describedby="email"
         />
       </InputGroup>
-      <InputGroup className="mb-3">
+      <InputGroup className="m-2">
         <InputGroup.Text id="website">Website:</InputGroup.Text>
         <InputGroup.Text>https://</InputGroup.Text>
         <Form.Control
@@ -61,7 +61,7 @@ export function Profile(props: Props) {
           aria-describedby="website"
         />
       </InputGroup>
-      <InputGroup className="mb-3">
+      <InputGroup className="m-2">
         <InputGroup.Text id="basic-addon1">Github:</InputGroup.Text>
         <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
         <Form.Control
