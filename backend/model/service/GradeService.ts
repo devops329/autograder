@@ -6,7 +6,7 @@ import logger from '../../logger';
 import { v4 as uuidv4 } from 'uuid';
 import { GradeFactory } from '../../grading/GradeFactory';
 import { ChaosService } from './ChaosService';
-import { User } from '../domain/User';
+import { DateTime } from 'luxon';
 
 export class GradeService {
   private db: DB;
@@ -181,21 +181,22 @@ export class GradeService {
     }
 
     // Get today's date and due date, calculate days past due date
-    const today = new Date();
-    const dueDate = new Date(assignment.due_at);
+    const today = DateTime.now().setZone('America/Denver').startOf('day');
+    const dueDate = DateTime.fromISO(assignment.due_at, { zone: 'America/Denver' }).startOf('day');
+    console.log('dueDate', dueDate);
     let daysPastDueDate = 0;
 
     // If submission and due date are the same day, no need to calculate
-    if (today.toDateString() === dueDate.toDateString()) {
+    if (today.toISODate() === dueDate.toISODate()) {
       daysPastDueDate = 0;
     } else {
-      let currentDate = new Date(dueDate);
+      let currentDate = dueDate;
 
       if (today > dueDate) {
         // Calculate late days
         while (currentDate < today) {
-          currentDate.setDate(currentDate.getDate() + 1);
-          if (currentDate.getDay() !== 0) {
+          currentDate = currentDate.plus({ days: 1 });
+          if (currentDate.weekday !== 7) {
             // Exclude Sundays
             daysPastDueDate++;
           }
@@ -203,15 +204,15 @@ export class GradeService {
       } else {
         // Calculate early days
         while (currentDate > today) {
-          currentDate.setDate(currentDate.getDate() - 1);
-          if (currentDate.getDay() !== 0) {
+          currentDate = currentDate.minus({ days: 1 });
+          if (currentDate.weekday !== 7) {
             // Exclude Sundays
             daysPastDueDate--;
           }
         }
       }
     }
-
+    console.log('daysPastDueDate', daysPastDueDate);
     // Get grace days remaining
     const graceDaysRemaining = await this.db.getGraceDays(netId);
 
@@ -243,7 +244,9 @@ export class GradeService {
         return { score, graceDaysUsed, rubric };
       }
       const daysEarly = Math.min(2, Math.abs(daysPastDueDate)); // Cap early bonus to 2 days
+      console.log('daysEarly', daysEarly);
       const updatedGraceDays = graceDaysAvailable + daysEarly;
+      console.log('updatedGraceDays', updatedGraceDays);
       await this.db.updateGraceDays(netId, updatedGraceDays);
       rubric = { ...rubric, comments: `Early submission, ${daysEarly} grace days added` };
     }
