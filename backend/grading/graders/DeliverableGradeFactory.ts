@@ -25,7 +25,7 @@ export class DeliverableGradeFactory implements GradeFactory {
   private chaosService: ChaosService = new ChaosService(this.db, new PizzaFactory());
   private penTestService: PenTestService = new PenTestService(this.db);
   deliverableOne: Grader = new DeliverableOne(this.tools);
-  deliverableTwo: Grader = new DeliverableTwo(this.deliverableOne as DeliverableOne, this.github);
+  deliverableTwo: Grader = new DeliverableTwo(this.github, this.tools);
   deliverableThree: Grader = new DeliverableThree(this.tools, this.github);
   deliverableFour: Grader = new DeliverableFour(this.tools, this.github);
   deliverableFive: Grader = new DeliverableFive(this.tools, this.github);
