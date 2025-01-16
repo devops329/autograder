@@ -38,7 +38,7 @@ export class DeliverableTwo implements Grader {
     }
 
     // Get current version in github
-    const versionNumber = await this.github.getVersionNumber(user, 'jwt-pizza', 'frontend', gradeAttemptId);
+    const versionNumber = (await this.tools.readPageJson(hostname + '/version.json'))?.version;
     if (!versionNumber) {
       rubric.comments += 'Version number not found. Have you deployed the app yet?\n';
       return [score, rubric];
@@ -95,7 +95,7 @@ export class DeliverableTwo implements Grader {
     }
 
     // Get new version number
-    const newVersionNumber = await this.github.getVersionNumber(user, 'jwt-pizza', 'frontend', gradeAttemptId);
+    const newVersionNumber = (await this.tools.readPageJson(hostname + '/version.json'))?.version;
     if (newVersionNumber && newVersionNumber != versionNumber) {
       score += 10;
       rubric.versionIncrement += 10;
