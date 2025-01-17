@@ -183,7 +183,6 @@ export class GradeService {
     // Get today's date and due date, calculate days past due date
     const today = DateTime.now().setZone('America/Denver').startOf('day');
     const dueDate = DateTime.fromISO(assignment.due_at, { zone: 'America/Denver' }).startOf('day');
-    console.log('dueDate', dueDate);
     let daysPastDueDate = 0;
 
     // If submission and due date are the same day, no need to calculate
@@ -212,7 +211,6 @@ export class GradeService {
         }
       }
     }
-    console.log('daysPastDueDate', daysPastDueDate);
     // Get grace days remaining
     const graceDaysRemaining = await this.db.getGraceDays(netId);
 
@@ -244,9 +242,7 @@ export class GradeService {
         return { score, graceDaysUsed, rubric };
       }
       const daysEarly = Math.min(2, Math.abs(daysPastDueDate)); // Cap early bonus to 2 days
-      console.log('daysEarly', daysEarly);
       const updatedGraceDays = graceDaysAvailable + daysEarly;
-      console.log('updatedGraceDays', updatedGraceDays);
       await this.db.updateGraceDays(netId, updatedGraceDays);
       rubric = { ...rubric, comments: `Early submission, ${daysEarly} grace days added` };
     }
