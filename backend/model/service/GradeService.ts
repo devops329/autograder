@@ -232,7 +232,7 @@ export class GradeService {
       graceDaysUsed = daysPastDueDate;
       const updatedGraceDays = graceDaysAvailable - daysPastDueDate;
       await this.db.updateGraceDays(netId, updatedGraceDays);
-      rubric = { ...rubric, comments: `Late submission, ${graceDaysUsed} grace days used` };
+      rubric = { ...rubric, comments: `${(rubric as { comments: string }).comments} Late submission, ${graceDaysUsed} grace days used` };
     }
 
     // Handle early submissions (extra credit)

@@ -171,17 +171,22 @@ export class GradingTools {
   async countRowsAndEmptyCellsInNotesTable(notesFile: string): Promise<number[]> {
     const startIndexOfTable = notesFile.indexOf('|');
     const table = notesFile.slice(startIndexOfTable);
-    const tableObject: MarkdownCellTable = await createMarkdownArrayTable(table);
-    let emptyCells = 0;
-    let rows = 0;
-    for await (const row of tableObject.rows) {
-      rows++;
-      for (const cell of row) {
-        if (cell === '') {
-          emptyCells++;
+    try {
+      const tableObject: MarkdownCellTable = await createMarkdownArrayTable(table);
+      let emptyCells = 0;
+      let rows = 0;
+      for await (const row of tableObject.rows) {
+        rows++;
+        for (const cell of row) {
+          if (cell === '') {
+            emptyCells++;
+          }
         }
       }
+      return [rows, emptyCells];
+    } catch (e: any) {
+      logger.log('error', { type: 'table_error', service: 'grade_tools', tool: 'count_rows_and_empty_cells_in_notes_table' }, { error: e.message });
+      return [0, 0];
     }
-    return [rows, emptyCells];
   }
 }
