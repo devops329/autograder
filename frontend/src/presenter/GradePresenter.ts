@@ -33,9 +33,8 @@ export class GradePresenter {
     localStorage.setItem(this.view.impersonating ? 'impersonatedSubmissions' : 'submissions', JSON.stringify(submissions));
     this.view.setGradeMessage(message);
     this.view.setRubric(rubric);
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    }
+    localStorage.setItem(this.view.impersonating ? 'impersonatedUser' : 'user', JSON.stringify(user));
+    this.view.setUser(user!);
   }
 
   get assignmentPhases(): number[] {
