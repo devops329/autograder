@@ -91,6 +91,7 @@ export class GradeService {
     const result = await grader.grade(user!, gradeAttemptId);
     score = result[0] as number;
     let rubric = result[1] as object;
+    // Will return any adjustments to grace days
     const lateCalculation = await this.calculateScoreAfterGraceDays(netid, assignments[assignmentPhase], score, rubric);
     const scoreAfterLateCalculation = lateCalculation.score;
     const graceDaysUsed = lateCalculation.graceDaysUsed;
@@ -102,8 +103,22 @@ export class GradeService {
       submissions = await this.getSubmissions(netid);
       return [submitScoreErrorMessage, submissions, rubric];
     }
-    // If submission is successful, put submission into DB and return score, rubric, and submissions
-    submissions = await this.putSubmissionIntoDB(assignmentPhase, netid, scoreAfterLateCalculation, rubric, graceDaysUsed);
+    // If submission is successful, put submission into DB
+    try {
+      submissions = await this.putSubmissionIntoDB(assignmentPhase, netid, scoreAfterLateCalculation, rubric, graceDaysUsed);
+    } catch (e: any) {
+      logger.log('error', { type: 'grade', service: 'grade_service' }, { netid, error: e.message });
+      return ['Failed to save submission', submissions, rubric];
+    }
+    // If submission is successful, update grace days in DB
+    try {
+      // update grace days
+      await this.db.updateGraceDays(netid, lateCalculation.graceDayAdjustment);
+    } catch (e: any) {
+      logger.log('error', { type: 'update_grace_days', service: 'grade_service' }, { netid, error: e.message });
+      return ['Failed to update grace days', submissions, rubric];
+    }
+
     return [`Score: ${scoreAfterLateCalculation}`, submissions, rubric];
   }
 
@@ -142,6 +157,7 @@ export class GradeService {
         const submitScoreErrorMessage = await this.submitScoreToCanvas(assignments['11'].id, user.netId, scoreAfterLateCalculation, gradeAttemptId);
         if (!submitScoreErrorMessage) {
           await this.putSubmissionIntoDB(11, user.netId, scoreAfterLateCalculation, rubric, graceDaysUsed);
+          await this.db.updateGraceDays(user.netId, lateCalculation.graceDayAdjustment);
         }
         // remove chaos from db
         this.chaosService.removeScheduledChaos(user.netId);
@@ -175,9 +191,10 @@ export class GradeService {
     assignment: Assignment,
     score: number,
     rubric: object
-  ): Promise<{ score: number; graceDaysUsed: number; rubric: object }> {
+  ): Promise<{ score: number; graceDaysUsed: number; graceDayAdjustment: number; rubric: object }> {
+    let graceDayAdjustment = 0;
     if (!this.submissionsEnabled) {
-      return { score: 0, graceDaysUsed: 0, rubric: { comments: 'Submissions are disabled' } };
+      return { score: 0, graceDaysUsed: 0, graceDayAdjustment, rubric: { comments: 'Submissions are disabled' } };
     }
 
     // Get today's date and due date, calculate days past due date
@@ -222,7 +239,7 @@ export class GradeService {
     // If days late exceeds remaining grace days, return 0 score
     if (daysPastDueDate > graceDaysAvailable) {
       rubric = { ...rubric, comments: 'Late submission, insufficient grace days remaining' };
-      return { score: 0, graceDaysUsed: 0, rubric };
+      return { score: 0, graceDaysUsed: 0, graceDayAdjustment, rubric };
     }
 
     let graceDaysUsed = 0;
@@ -230,26 +247,24 @@ export class GradeService {
     // Handle late submissions
     if (daysPastDueDate > 0) {
       graceDaysUsed = daysPastDueDate;
-      const updatedGraceDays = graceDaysAvailable - daysPastDueDate;
-      await this.db.updateGraceDays(netId, updatedGraceDays);
+      graceDayAdjustment = graceDaysAvailable - daysPastDueDate;
       rubric = { ...rubric, comments: `${(rubric as { comments: string }).comments} Late submission, ${graceDaysUsed} grace days used` };
     }
 
     // Handle early submissions (extra credit)
-    if (daysPastDueDate < 0 && (score === 100 || (assignment.phase === 11 && score === 80))) {
+    else if (daysPastDueDate < 0 && (score === 100 || (assignment.phase === 11 && score === 80))) {
       if (mostRecentSubmission && (mostRecentSubmission.score === 100 || (assignment.phase === 11 && mostRecentSubmission.score === 80))) {
         rubric = { ...rubric, comments: 'Early submission, no grace days added.' };
-        return { score, graceDaysUsed, rubric };
+        return { score, graceDaysUsed, graceDayAdjustment, rubric };
       }
       const daysEarly = Math.min(2, Math.abs(daysPastDueDate)); // Cap early bonus to 2 days
-      const updatedGraceDays = graceDaysAvailable + daysEarly;
-      await this.db.updateGraceDays(netId, updatedGraceDays);
+      graceDayAdjustment = graceDaysAvailable + daysEarly;
       rubric = { ...rubric, comments: `Early submission, ${daysEarly} grace days added` };
     }
 
     // Attach grace days used to rubric
     rubric = { ...rubric, graceDaysUsed };
 
-    return { score, graceDaysUsed, rubric };
+    return { score, graceDaysUsed, graceDayAdjustment, rubric };
   }
 }
