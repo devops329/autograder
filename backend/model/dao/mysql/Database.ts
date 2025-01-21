@@ -132,13 +132,11 @@ export class DB {
   }
 
   async putSubmission(submission: Submission, netId: string) {
-    await this.executeQuery('put_submission', 'INSERT INTO submission (time, userId, phase, score, rubric) VALUES (?, ?, ?, ?, ?)', [
-      submission.date,
-      await this.getUserId(netId),
-      submission.phase,
-      submission.score,
-      submission.rubric,
-    ]);
+    await this.executeQuery(
+      'put_submission',
+      'INSERT INTO submission (time, userId, phase, score, rubric, graceDaysUsed) VALUES (?, ?, ?, ?, ?, ?)',
+      [submission.date, await this.getUserId(netId), submission.phase, submission.score, submission.rubric, submission.graceDaysUsed]
+    );
   }
 
   async getSubmissions(netId: string) {
