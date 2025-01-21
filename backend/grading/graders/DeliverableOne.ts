@@ -36,6 +36,10 @@ export class DeliverableOne implements Grader {
     score += 15;
 
     const [rows, emptyCells] = await this.tools.countRowsAndEmptyCellsInNotesTable(notesFile);
+    if (rows === 0) {
+      rubric.comments += 'Could not read table in notes.md. Does the table markdown look correct?\n';
+      return [score, rubric];
+    }
     // Make sure they haven't just removed rows, and allow for some empty cells
     // in case of formatting issues
     if (rows >= 18 && emptyCells <= 2) {
