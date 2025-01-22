@@ -113,7 +113,7 @@ export class GradeService {
     }
     // If submission is successful, update grace days in DB
     try {
-      await this.db.updateGraceDays(netid, lateCalculation.graceDayAdjustment);
+      if (lateCalculation.graceDayAdjustment !== null) await this.db.updateGraceDays(netid, lateCalculation.graceDayAdjustment);
     } catch (e: any) {
       logger.log('error', { type: 'update_grace_days', service: 'grade_service' }, { netid, error: e.message });
       return ['Failed to update grace days', submissions, rubric];
@@ -156,7 +156,7 @@ export class GradeService {
         const submitScoreErrorMessage = await this.submitScoreToCanvas(assignments['11'].id, user.netId, scoreAfterLateCalculation, gradeAttemptId);
         if (!submitScoreErrorMessage) {
           await this.putSubmissionIntoDB(11, user.netId, scoreAfterLateCalculation, rubric, graceDaysUsed);
-          await this.db.updateGraceDays(user.netId, lateCalculation.graceDayAdjustment);
+          if (lateCalculation.graceDayAdjustment != null) await this.db.updateGraceDays(user.netId, lateCalculation.graceDayAdjustment);
         }
         // remove chaos from db
         this.chaosService.removeScheduledChaos(user.netId);
@@ -189,8 +189,8 @@ export class GradeService {
     netId: string,
     assignment: Assignment,
     score: number
-  ): Promise<{ score: number; graceDaysUsed: number; graceDayAdjustment: number; comments: string }> {
-    let graceDayAdjustment = 0;
+  ): Promise<{ score: number; graceDaysUsed: number; graceDayAdjustment: number | null; comments: string }> {
+    let graceDayAdjustment = null;
     let comments = '';
     if (!this.submissionsEnabled) {
       comments = 'Submissions are currently disabled.';
