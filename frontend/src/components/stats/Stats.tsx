@@ -58,7 +58,15 @@ export function Stats(props: Props) {
                 <td>{item.studentCount}</td>
               </tr>
               {expandedRow === item.phase && netIds && (
-                <tr onClick={() => setExpandedRow(null)}>
+                <tr
+                  onClick={() => {
+                    const selection = window.getSelection();
+                    if (selection?.toString().length) {
+                      // Don't toggle if the user is highlighting text
+                      return;
+                    }
+                    setExpandedRow(null);
+                  }}>
                   <td colSpan={3}>
                     <strong>Net IDs:</strong>
                     <ul className="netids">
