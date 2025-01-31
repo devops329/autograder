@@ -65,7 +65,12 @@ export class DeliverableFour implements Grader {
         }
 
         // Get coverage badge
-        const coverageBadge = await this.github.readCoverageBadge(user, 'jwt-pizza', gradeAttemptId);
+        const coverageBadge =
+          (await this.github.readCoverageBadge(user, 'jwt-pizza', gradeAttemptId)) ?? (await this.tools.getCoverageBadge(user.github, false));
+        if (!coverageBadge) {
+          rubric.comments += 'Coverage badge not found.\n';
+          return [score, rubric];
+        }
         if (await this.tools.checkCoverage(coverageBadge, 80)) {
           score += 70;
           rubric.coverage += 70;

@@ -50,7 +50,7 @@ export class MockGithub implements Github {
     this._releaseNumber = release;
   }
 
-  async readGithubFile(user: User, repo: string, path: string, gradeAttemptId: string): Promise<string> {
+  async readGithubFile(user: User, repo: string, path: string, gradeAttemptId: string): Promise<string | null> {
     return this._githubFileContents;
   }
   async readWorkflowFile(user: User, repo: string, gradeAttemptId: string): Promise<string> {
@@ -82,8 +82,8 @@ export class MockGithub implements Github {
   async getVersionNumber(user: User, repo: string, app: 'frontend' | 'backend', gradeAttemptId: string): Promise<string> {
     return this._versionNumber;
   }
-  async readCoverageBadge(user: User, repo: string, gradeAttemptId: string): Promise<string> {
-    return '';
+  async readCoverageBadge(user: User, repo: string, gradeAttemptId: string): Promise<string | null> {
+    return null;
   }
   async getMostRecentRelease(user: User, repo: string, gradeAttemptId: string): Promise<any> {
     const release = this._releaseNumber;

@@ -148,6 +148,16 @@ export class GradingTools {
     return true;
   }
 
+  async getCoverageBadge(github: string, isBackend: boolean): Promise<string | null> {
+    const response = await fetch(`https://badge.cs329.click/badge/${github}/jwtpizza${isBackend ? 'service' : ''}coverage`);
+    if (!response.ok) {
+      logger.log('error', { type: 'fetch_error', service: 'grade_tools', tool: 'get_coverage_badge' }, { github, status: response.status });
+      return null;
+    }
+    const svg = await response.text();
+    return svg;
+  }
+
   async checkCoverage(badge: string, percentage: number) {
     const regex = /Coverage: (\d+(\.\d+)?%)/;
     const matches = badge.match(regex);
