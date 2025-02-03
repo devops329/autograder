@@ -5,7 +5,6 @@ import { Grader } from './Grader';
 
 interface DeliverableFourRubric {
   testSuccess: number;
-  versionIncrement: number;
   coverage: number;
   comments: string;
 }
@@ -23,7 +22,6 @@ export class DeliverableFour implements Grader {
     let score = 0;
     const rubric: DeliverableFourRubric = {
       testSuccess: 0,
-      versionIncrement: 0,
       coverage: 0,
       comments: '',
     };
@@ -36,11 +34,8 @@ export class DeliverableFour implements Grader {
     }
     const runsTest = workflowFile.includes('npm run test:coverage');
     if (runsTest) {
-      score += 5;
-      rubric.testSuccess = 5;
-
-      // Get current version
-      const versionNumber = await this.github.getVersionNumber(user, 'jwt-pizza', 'frontend', gradeAttemptId);
+      score += 15;
+      rubric.testSuccess = 15;
 
       // Run the workflow
       const success = await this.github.triggerWorkflowAndWaitForCompletion(user, 'jwt-pizza', 'ci.yml', gradeAttemptId);
@@ -54,15 +49,6 @@ export class DeliverableFour implements Grader {
       if (runSuccess) {
         score += 15;
         rubric.testSuccess += 15;
-
-        // Get new version number
-        const newVersionNumber = await this.github.getVersionNumber(user, 'jwt-pizza', 'frontend', gradeAttemptId);
-        if (newVersionNumber && newVersionNumber != versionNumber) {
-          score += 10;
-          rubric.versionIncrement += 10;
-        } else {
-          rubric.comments += 'Version number was not incremented.\n';
-        }
 
         // Get coverage badge
         const coverageBadge =
