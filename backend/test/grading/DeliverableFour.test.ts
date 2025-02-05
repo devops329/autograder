@@ -21,7 +21,6 @@ test('A workflow without testing gets 0 points', async () => {
   const [score, rubric] = await d4.grade(mockStudent, '0');
   expect(score).toBe(0);
   expect(rubric.testSuccess).toBe(0);
-  expect(rubric.versionIncrement).toBe(0);
   expect(rubric.coverage).toBe(0);
   expect(rubric.comments).toBe('Testing is not included in the workflow.\n');
 });
@@ -32,7 +31,6 @@ test('A workflow with testing that does not run gets 5 points', async () => {
   let [score, rubric] = await d4.grade(mockStudent, '0');
   expect(score).toBe(5);
   expect(rubric.testSuccess).toBe(5);
-  expect(rubric.versionIncrement).toBe(0);
   expect(rubric.coverage).toBe(0);
   expect(rubric.comments).toBe('Workflow could not be triggered. Did you add byucs329ta as a collaborator?\n');
 });
@@ -43,28 +41,25 @@ test('A workflow with testing that runs but does not succeed gets 10 points', as
   const [score, rubric] = await d4.grade(mockStudent, '0');
   expect(score).toBe(5);
   expect(rubric.testSuccess).toBe(5);
-  expect(rubric.versionIncrement).toBe(0);
   expect(rubric.coverage).toBe(0);
   expect(rubric.comments).toBe('Workflow did not succeed.\n');
 });
 
-test('A workflow with testing that runs but does not increment version or create coverage gets 20 points', async () => {
+test('A workflow with testing that runs but does not create coverage gets 20 points', async () => {
   mockGithub.workflowFileContents = 'npm run test:coverage';
   const [score, rubric] = await d4.grade(mockStudent, '0');
   expect(score).toBe(20);
   expect(rubric.testSuccess).toBe(20);
-  expect(rubric.versionIncrement).toBe(0);
   expect(rubric.coverage).toBe(0);
   expect(rubric.comments).toBe('Version number was not incremented.\nCoverage did not exceed minimum threshold.\n');
 });
 
-test('Testing workflow that succeeds and increments version but does not have sufficient coverage gets 30 points', async () => {
+test('Testing workflow that succeeds but does not have sufficient coverage gets 30 points', async () => {
   mockGithub.workflowFileContents = 'npm run test:coverage';
   mockGithub.incrementVersion = true;
   const [score, rubric] = await d4.grade(mockStudent, '0');
   expect(score).toBe(30);
   expect(rubric.testSuccess).toBe(20);
-  expect(rubric.versionIncrement).toBe(10);
   expect(rubric.coverage).toBe(0);
   expect(rubric.comments).toBe('Coverage did not exceed minimum threshold.\n');
 });
@@ -76,7 +71,6 @@ test('A complete workflow that succeeds gets 100 points', async () => {
   const [score, rubric] = await d4.grade(mockStudent, '0');
   expect(score).toBe(100);
   expect(rubric.testSuccess).toBe(20);
-  expect(rubric.versionIncrement).toBe(10);
   expect(rubric.coverage).toBe(70);
   expect(rubric.comments).toBe('');
 });

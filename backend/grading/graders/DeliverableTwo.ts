@@ -105,6 +105,10 @@ export class DeliverableTwo implements Grader {
 
     // Check for pipeline badge
     const readme = await this.github.readGithubFile(user, 'jwt-pizza', 'README.md', gradeAttemptId);
+    if (!readme) {
+      rubric.comments += 'README.md not found, so could not read pipeline badge.\n';
+      return [score, rubric];
+    }
     if (readme.includes('badge.svg')) {
       score += 5;
       rubric.pipelineBadge += 5;

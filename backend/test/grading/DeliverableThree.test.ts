@@ -22,7 +22,6 @@ test('A workflow with linting but nothing else gets 5 points', async () => {
   expect(score).toBe(5);
   expect(rubric.lintSuccess).toBe(5);
   expect(rubric.testSuccess).toBe(0);
-  expect(rubric.versionIncrement).toBe(0);
   expect(rubric.coverage).toBe(0);
   expect(rubric.comments).toBe('Testing is not included in the workflow.\n');
 });
@@ -34,7 +33,6 @@ test('A workflow with testing that does not run gets 5 points', async () => {
   expect(score).toBe(5);
   expect(rubric.lintSuccess).toBe(0);
   expect(rubric.testSuccess).toBe(5);
-  expect(rubric.versionIncrement).toBe(0);
   expect(rubric.coverage).toBe(0);
   expect(rubric.comments).toBe(
     'Linting is not included in the workflow.\nWorkflow could not be triggered. Did you add byucs329ta as a collaborator?\n'
@@ -54,30 +52,26 @@ test('A workflow with testing and linting that runs but does not succeed gets 10
   expect(score).toBe(10);
   expect(rubric.lintSuccess).toBe(5);
   expect(rubric.testSuccess).toBe(5);
-  expect(rubric.versionIncrement).toBe(0);
   expect(rubric.coverage).toBe(0);
   expect(rubric.comments).toBe('Workflow did not succeed.\n');
 });
 
-test('A workflow with linting and testing that runs but does not increment version or create coverage gets 30 points', async () => {
+test('A workflow with linting and testing that runs but does not create coverage gets 30 points', async () => {
   mockGithub.workflowFileContents = 'npm run lint\nnpm run test';
   const [score, rubric] = await d3.grade(mockStudent, '0');
   expect(score).toBe(30);
   expect(rubric.lintSuccess).toBe(10);
   expect(rubric.testSuccess).toBe(20);
-  expect(rubric.versionIncrement).toBe(0);
   expect(rubric.coverage).toBe(0);
   expect(rubric.comments).toBe('Version number was not incremented.\nCoverage did not exceed minimum threshold.\n');
 });
 
-test('Testing, linting workflow that succeeds and increments version but does not have sufficient coverage gets 35 points', async () => {
+test('Testing, linting workflow that succeeds but does not have sufficient coverage gets 35 points', async () => {
   mockGithub.workflowFileContents = 'npm run lint\nnpm run test';
-  mockGithub.incrementVersion = true;
   const [score, rubric] = await d3.grade(mockStudent, '0');
   expect(score).toBe(35);
   expect(rubric.lintSuccess).toBe(10);
   expect(rubric.testSuccess).toBe(20);
-  expect(rubric.versionIncrement).toBe(5);
   expect(rubric.coverage).toBe(0);
   expect(rubric.comments).toBe('Coverage did not exceed minimum threshold.\n');
 });
@@ -90,7 +84,6 @@ test('A complete workflow that succeeds gets 100 points', async () => {
   expect(score).toBe(100);
   expect(rubric.lintSuccess).toBe(10);
   expect(rubric.testSuccess).toBe(20);
-  expect(rubric.versionIncrement).toBe(5);
   expect(rubric.coverage).toBe(65);
   expect(rubric.comments).toBe('');
 });

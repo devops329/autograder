@@ -6,7 +6,6 @@ import { Grader } from './Grader';
 interface DeliverableThreeRubric {
   lintSuccess: number;
   testSuccess: number;
-  versionIncrement: number;
   coverage: number;
   comments: string;
 }
@@ -25,7 +24,6 @@ export class DeliverableThree implements Grader {
     const rubric: DeliverableThreeRubric = {
       testSuccess: 0,
       lintSuccess: 0,
-      versionIncrement: 0,
       coverage: 0,
       comments: '',
     };
@@ -48,8 +46,6 @@ export class DeliverableThree implements Grader {
       score += 5;
       rubric.testSuccess += 5;
 
-      // Get current version
-      const versionNumber = await this.github.getVersionNumber(user, 'jwt-pizza-service', 'backend', gradeAttemptId);
       // Run the workflow
       const success = await this.github.triggerWorkflowAndWaitForCompletion(user, 'jwt-pizza-service', 'ci.yml', gradeAttemptId);
       if (!success) {
@@ -66,21 +62,19 @@ export class DeliverableThree implements Grader {
           score += 5;
           rubric.lintSuccess += 5;
         }
-        // Get new version number
-        const newVersionNumber = await this.github.getVersionNumber(user, 'jwt-pizza-service', 'backend', gradeAttemptId);
-        if (newVersionNumber && newVersionNumber != versionNumber) {
-          score += 5;
-          rubric.versionIncrement += 5;
-        } else {
-          rubric.comments += 'Version number was not incremented.\n';
-        }
 
         // Get coverage badge
-        const coverageBadge = await this.github.readCoverageBadge(user, 'jwt-pizza-service', gradeAttemptId);
+        let coverageBadge =
+          (await this.tools.getCoverageBadge(user.github, true)) ?? (await this.github.readCoverageBadge(user, 'jwt-pizza-service', gradeAttemptId));
+        if (!coverageBadge) {
+          rubric.comments += 'Coverage badge not found.\n';
+          return [score, rubric];
+        }
+
         const sufficientCoverage = await this.tools.checkCoverage(coverageBadge, 80);
         if (sufficientCoverage) {
-          score += 65;
-          rubric.coverage += 65;
+          score += 70;
+          rubric.coverage += 70;
         } else {
           rubric.comments += 'Coverage did not exceed minimum threshold.\n';
         }

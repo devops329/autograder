@@ -3,18 +3,18 @@ import logger from '../../logger';
 import { User } from '../../model/domain/User';
 
 export class Github {
-  async readGithubFile(user: User, repo: string, path: string, gradeAttemptId: string): Promise<string> {
+  async readGithubFile(user: User, repo: string, path: string, gradeAttemptId: string): Promise<string | null> {
     const apiUrl = `https://api.github.com/repos/${user.github}/${repo}/contents/${path}`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
       logger.log('error', { type: 'github_file_fetch', service: 'github', gradeAttemptId }, { path, user: user.netId, status: response.status });
-      return '';
+      return null;
     }
     // get the content and base 64 decode it
     const content = (await response.json()).content;
     return atob(content);
   }
-  async readWorkflowFile(user: User, repo: string, gradeAttemptId: string): Promise<string> {
+  async readWorkflowFile(user: User, repo: string, gradeAttemptId: string): Promise<string | null> {
     return this.readGithubFile(user, repo, '.github/workflows/ci.yml', gradeAttemptId);
   }
 
@@ -110,7 +110,7 @@ export class Github {
     const version = JSON.parse(atob(content)).version;
     return version;
   }
-  async readCoverageBadge(user: User, repo: string, gradeAttemptId: string): Promise<string> {
+  async readCoverageBadge(user: User, repo: string, gradeAttemptId: string): Promise<string | null> {
     return this.readGithubFile(user, repo, 'coverageBadge.svg', gradeAttemptId);
   }
 

@@ -76,6 +76,10 @@ export class DeliverableSix implements Grader {
 
       // Get service url from frontend
       const envFile = await this.github.readGithubFile(user, 'jwt-pizza', '.env.production', gradeAttemptId);
+      if (!envFile) {
+        rubric.comments += 'Could not find .env.production in jwt-pizza.\n';
+        return [score, rubric];
+      }
       serviceUrl = await this.tools.getEnvVariable(envFile, 'VITE_PIZZA_SERVICE_URL');
       if (!serviceUrl) {
         rubric.comments += 'Could not find VITE_PIZZA_SERVICE_URL in jwt-pizza .env.production.\n';
