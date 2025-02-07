@@ -145,6 +145,31 @@ Run the frontend similarly:
 cd frontend && npm run dev
 ```
 
+### Data
+
+In order to have sample data to play with:
+
+1. Create a SQL dump of the class database on the EC2 server
+
+   1. SSH into the server
+   1. Run the following:
+
+   ```sh
+   mysqldump -u <admin_user> -p autograder > dump.sql
+   ```
+
+1. Copy the SQL dump to your local environment
+
+```sh
+scp -i <path/to/private_key> ubuntu@cs329.click:/home/ubuntu/dump.sql <path/to/local/destination>
+```
+
+1. Populate your local database with the dumped data
+
+```sh
+mysql -u admin -p autograder < <path/to/dump.sql>
+```
+
 ### Authenticating Locally
 
 Because `localhost` is not authorized to use CAS with SAML, you cannot log in this way when running the application locally. Instead, there is a page at the `/admin-login` path through which you can log in. The service maintains a separate admin table in which it keeps the netId and [bcrypt](https://www.npmjs.com/package/bcrypt) encrypted password of admin users. You will need to add yourself to the local db to log in this way. To get the bcrypt version of your password to add to the db, you can run the following commands in the backend folder:
