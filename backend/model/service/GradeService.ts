@@ -36,7 +36,7 @@ export class GradeService {
     let score = 0;
     let grader: Grader;
     let assignmentId = 0;
-    const assignments = await this.getAssignmentIdsAndDueDates();
+    const assignments: Map<number, Assignment> = await this.getAssignmentIdsAndDueDates();
     const user = await this.db.getUser(netid);
     if (!user) {
       return ['User not found', []];
@@ -49,31 +49,31 @@ export class GradeService {
     switch (assignmentPhase) {
       case 1:
         grader = this.gradeFactory.deliverableOne;
-        assignmentId = assignments['1'].id;
+        assignmentId = assignments.get(1)!.id;
         break;
       case 2:
         grader = this.gradeFactory.deliverableTwo;
-        assignmentId = assignments['2'].id;
+        assignmentId = assignments.get(2)!.id;
         break;
       case 3:
         grader = this.gradeFactory.deliverableThree;
-        assignmentId = assignments['3'].id;
+        assignmentId = assignments.get(3)!.id;
         break;
       case 4:
         grader = this.gradeFactory.deliverableFour;
-        assignmentId = assignments['4'].id;
+        assignmentId = assignments.get(4)!.id;
         break;
       case 5:
         grader = this.gradeFactory.deliverableFive;
-        assignmentId = assignments['5'].id;
+        assignmentId = assignments.get(5)!.id;
         break;
       case 6:
         grader = this.gradeFactory.deliverableSix;
-        assignmentId = assignments['6'].id;
+        assignmentId = assignments.get(6)!.id;
         break;
       case 7:
         grader = this.gradeFactory.deliverableSeven;
-        assignmentId = assignments['7'].id;
+        assignmentId = assignments.get(7)!.id;
         break;
       case 11:
         grader = this.gradeFactory.deliverableElevenPartOne;
@@ -92,7 +92,7 @@ export class GradeService {
     score = result[0] as number;
     let rubric = result[1] as object;
     // Will return any adjustments to grace days
-    const lateCalculation = await this.calculateScoreAfterGraceDays(netid, assignments[assignmentPhase], score);
+    const lateCalculation = await this.calculateScoreAfterGraceDays(netid, assignments.get(assignmentPhase)!, score);
     const scoreAfterLateCalculation = lateCalculation.score;
     const graceDaysUsed = lateCalculation.graceDaysUsed;
     // Attempt to submit score to Canvas
@@ -149,11 +149,16 @@ export class GradeService {
         const score = result[0] as number;
         let rubric = result[1] as object;
         // Calculate score after late days
-        const lateCalculation = await this.calculateScoreAfterGraceDays(user.netId, assignments[11], score);
+        const lateCalculation = await this.calculateScoreAfterGraceDays(user.netId, assignments.get(11)!, score);
         const scoreAfterLateCalculation = lateCalculation.score;
         const graceDaysUsed = lateCalculation.graceDaysUsed;
         logger.log('info', { type: 'grade', service: 'grade_service', deliverable: '11' }, { netid: user.netId, scoreAfterLateCalculation });
-        const submitScoreErrorMessage = await this.submitScoreToCanvas(assignments['11'].id, user.netId, scoreAfterLateCalculation, gradeAttemptId);
+        const submitScoreErrorMessage = await this.submitScoreToCanvas(
+          assignments.get(11)!.id,
+          user.netId,
+          scoreAfterLateCalculation,
+          gradeAttemptId
+        );
         if (!submitScoreErrorMessage) {
           await this.putSubmissionIntoDB(11, user.netId, scoreAfterLateCalculation, rubric, graceDaysUsed);
           if (lateCalculation.graceDayAdjustment != null) await this.db.updateGraceDays(user.netId, lateCalculation.graceDayAdjustment);
