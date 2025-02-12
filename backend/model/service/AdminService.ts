@@ -14,22 +14,12 @@ export class AdminService {
   async getStats(): Promise<Map<number, DeliverableStat>> {
     // Get due dates for deliverables
     const assignmentsAndDueDates: Map<number, Assignment> = await this.canvas.getAssignmentIdsAndDueDates();
-    const deliverableStats = new Map<
-      number,
-      {
-        studentsSubmitted: string[];
-        studentsOnTime: string[];
-        studentsLate: string[];
-        studentsNotSubmitted: string[];
-      }
-    >();
+    const deliverableStats = new Map<number, DeliverableStat>();
     for (let [key, assignment] of assignmentsAndDueDates) {
-      const studentsSubmitted = await this.db.getNetIdsForDeliverable(key);
       const studentsOnTime = await this.db.getNetIdsWithLastSubmissionOnTimeForDeliverable(key, assignment.due_at);
       const studentsLate = await this.db.getNetIdsWithLastSubmissionLateForDeliverable(key, assignment.due_at);
       const studentsNotSubmitted = await this.db.getNetIdsNotSubmittedForDeliverable(key);
       deliverableStats.set(key, {
-        studentsSubmitted,
         studentsOnTime,
         studentsLate,
         studentsNotSubmitted,

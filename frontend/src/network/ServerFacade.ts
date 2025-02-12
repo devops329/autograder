@@ -91,16 +91,10 @@ export class ServerFacade {
     return User.fromJson(response);
   }
 
-  async getStats(): Promise<Map<
-    number,
-    { studentsSubmitted: string[]; studentsOnTime: string[]; studentsLate: string[]; studentsNotSubmitted: string[] }
-  > | null> {
+  async getStats(): Promise<Map<number, { studentsOnTime: string[]; studentsLate: string[]; studentsNotSubmitted: string[] }> | null> {
     const endpoint = 'stats';
     const response: [[number, DeliverableStat]] = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as [[number, DeliverableStat]];
-    const statsMap = new Map<
-      number,
-      { studentsSubmitted: string[]; studentsOnTime: string[]; studentsLate: string[]; studentsNotSubmitted: string[] }
-    >();
+    const statsMap = new Map<number, { studentsOnTime: string[]; studentsLate: string[]; studentsNotSubmitted: string[] }>();
     for (const [key, value] of response) {
       statsMap.set(key, value);
     }

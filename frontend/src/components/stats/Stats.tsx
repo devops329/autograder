@@ -48,7 +48,7 @@ export function Stats(props: Props) {
                       style={{ width: '3rem' }}
                       onClick={() => {
                         props.setModalTitle(`Phase ${phase}`);
-                        props.setModalMessage(data[key].join(', '));
+                        props.setModalMessage(data[key].sort().join(', '));
                       }}>
                       {data[key].length}
                     </Button>
