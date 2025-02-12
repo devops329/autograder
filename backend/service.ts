@@ -12,6 +12,7 @@ import fs from 'fs';
 import path from 'path';
 import { DeliverableGradeFactory } from './grading/graders/DeliverableGradeFactory';
 import { AdminService } from './model/service/AdminService';
+import { DeliverableStat } from './model/domain/DeliverableStat';
 
 // Extend the Express Request interface
 declare global {
@@ -241,8 +242,8 @@ adminApiRouter.post('/impersonate', async function (req, res) {
 
 // Get stats for all deliverables
 adminApiRouter.post('/stats', async function (req, res) {
-  const stats = await adminService.getStats();
-  res.send(JSON.stringify(stats));
+  const stats: Map<number, DeliverableStat> = await adminService.getStats();
+  res.send(JSON.stringify(Array.from(stats.entries())));
 });
 
 // End/Start the semester

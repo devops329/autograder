@@ -1,5 +1,6 @@
 import { Assignment, Canvas } from '../dao/canvas/Canvas';
 import { DB } from '../dao/mysql/Database';
+import { DeliverableStat } from '../domain/DeliverableStat';
 import { User } from '../domain/User';
 
 export class AdminService {
@@ -10,28 +11,28 @@ export class AdminService {
     this.db = db;
     this.canvas = canvas;
   }
-  async getStats() {
+  async getStats(): Promise<Map<number, DeliverableStat>> {
     // Get due dates for deliverables
     const assignmentsAndDueDates: Map<number, Assignment> = await this.canvas.getAssignmentIdsAndDueDates();
     const deliverableStats = new Map<
       number,
       {
-        studentsSubmitted: number;
-        studentsOnTime: number;
-        studentsLate: number;
-        studentsNotSubmitted: number;
+        studentsSubmitted: string[];
+        studentsOnTime: string[];
+        studentsLate: string[];
+        studentsNotSubmitted: string[];
       }
     >();
     for (let [key, assignment] of assignmentsAndDueDates) {
       const studentsSubmitted = await this.db.getNetIdsForDeliverable(key);
       const studentsOnTime = await this.db.getNetIdsWithLastSubmissionOnTimeForDeliverable(key, assignment.due_at);
       const studentsLate = await this.db.getNetIdsWithLastSubmissionLateForDeliverable(key, assignment.due_at);
-      const studentsNotSubmitted = await this.db.getStudentsNotSubmittedForDeliverable(key);
+      const studentsNotSubmitted = await this.db.getNetIdsNotSubmittedForDeliverable(key);
       deliverableStats.set(key, {
-        studentsSubmitted: studentsSubmitted.length,
-        studentsOnTime: studentsOnTime.length,
-        studentsLate: studentsLate.length,
-        studentsNotSubmitted: studentsNotSubmitted.length,
+        studentsSubmitted,
+        studentsOnTime,
+        studentsLate,
+        studentsNotSubmitted,
       });
     }
     return deliverableStats;

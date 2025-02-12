@@ -222,7 +222,7 @@ export class DB {
     });
   }
 
-  async getStudentsNotSubmittedForDeliverable(phase: number) {
+  async getNetIdsNotSubmittedForDeliverable(phase: number) {
     const [rows] = await this.executeQuery(
       'get_students_not_submitted_for_deliverable',
       `
