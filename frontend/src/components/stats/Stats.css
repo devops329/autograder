@@ -3,3 +3,9 @@
   overflow-y: scroll;
   margin-bottom: 0;
 }
+
+.table {
+  height: 30rem !important;
+  display: block;
+  overflow-y: scroll;
+}

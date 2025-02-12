@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { StatsPresenter, StatsView } from '../../presenter/StatsPresenter';
-import { Table } from 'react-bootstrap';
+import { Button, Table } from 'react-bootstrap';
 import './Stats.css';
 import { DeliverableStat } from '../../model/domain/DeliverableStat';
 interface Props {
-  setErrorMessage: (errorMessage: string | null) => void;
+  setModalMessage: (message: string | null) => void;
+  setModalTitle: (title: string | null) => void;
 }
 
 export function Stats(props: Props) {
@@ -12,7 +13,7 @@ export function Stats(props: Props) {
 
   const listener: StatsView = {
     setStats: setStats,
-    setError: props.setErrorMessage,
+    setError: props.setModalMessage,
   };
   const presenter = new StatsPresenter(listener);
   useEffect(() => {
@@ -41,22 +42,42 @@ export function Stats(props: Props) {
               <tr key={phase}>
                 <td>{phase}</td>
                 <td>
-                  <button onClick={() => props.setErrorMessage(`On Time: ${data.studentsOnTime.length}, Late: ${data.studentsLate.length}`)}>
+                  <Button
+                    onClick={() => {
+                      props.setModalTitle(`Phase ${phase}`);
+                      props.setModalMessage(`On Time: ${data.studentsOnTime.length}, Late: ${data.studentsLate.length}`);
+                    }}>
                     {data.studentsSubmitted.length}
-                  </button>
+                  </Button>
                   <div>
                     {data.studentsOnTime.length > 0 && (
-                      <button onClick={() => props.setErrorMessage(`On Time: ${data.studentsOnTime.join(', ')}`)}>Show On Time</button>
+                      <Button
+                        onClick={() => {
+                          props.setModalTitle(`Phase ${phase}`);
+                          props.setModalMessage(`On Time: ${data.studentsOnTime.join(', ')}`);
+                        }}>
+                        Show On Time
+                      </Button>
                     )}
                     {data.studentsLate.length > 0 && (
-                      <button onClick={() => props.setErrorMessage(`Late: ${data.studentsLate.join(', ')}`)}>Show Late</button>
+                      <Button
+                        onClick={() => {
+                          props.setModalTitle(`Phase ${phase}`);
+                          props.setModalMessage(`Late: ${data.studentsLate.join(', ')}`);
+                        }}>
+                        Show Late
+                      </Button>
                     )}
                   </div>
                 </td>
                 <td>
-                  <button onClick={() => props.setErrorMessage(`Not Submitted: ${data.studentsNotSubmitted.join(', ')}`)}>
+                  <Button
+                    onClick={() => {
+                      props.setModalTitle(`Phase ${phase}`);
+                      props.setModalMessage(`Not Submitted: ${data.studentsNotSubmitted.join(', ')}`);
+                    }}>
                     {data.studentsNotSubmitted.length}
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}
