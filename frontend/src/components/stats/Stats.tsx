@@ -42,33 +42,18 @@ export function Stats(props: Props) {
             {Array.from(stats.entries()).map(([phase, data]) => (
               <tr key={phase}>
                 <td>{phase}</td>
-                <td>
-                  <Button
-                    onClick={() => {
-                      props.setModalTitle(`Phase ${phase}`);
-                      props.setModalMessage(data.studentsOnTime.join(', '));
-                    }}>
-                    {data.studentsOnTime.length}
-                  </Button>
-                </td>
-                <td>
-                  <Button
-                    onClick={() => {
-                      props.setModalTitle(`Phase ${phase}`);
-                      props.setModalMessage(data.studentsLate.join(', '));
-                    }}>
-                    {data.studentsLate.length}
-                  </Button>
-                </td>
-                <td>
-                  <Button
-                    onClick={() => {
-                      props.setModalTitle(`Phase ${phase}`);
-                      props.setModalMessage(data.studentsNotSubmitted.join(', '));
-                    }}>
-                    {data.studentsNotSubmitted.length}
-                  </Button>
-                </td>
+                {(['studentsOnTime', 'studentsLate', 'studentsNotSubmitted'] as (keyof DeliverableStat)[]).map((key, index) => (
+                  <td key={index}>
+                    <Button
+                      style={{ width: '3rem' }}
+                      onClick={() => {
+                        props.setModalTitle(`Phase ${phase}`);
+                        props.setModalMessage(data[key].join(', '));
+                      }}>
+                      {data[key].length}
+                    </Button>
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>
