@@ -33,8 +33,9 @@ export function Stats(props: Props) {
           <thead>
             <tr>
               <th>Phase</th>
-              <th>Students Submitted</th>
-              <th>Students Not Submitted</th>
+              <th>Submitted On Time</th>
+              <th>Submitted Late</th>
+              <th>No Submission</th>
             </tr>
           </thead>
           <tbody>
@@ -45,36 +46,25 @@ export function Stats(props: Props) {
                   <Button
                     onClick={() => {
                       props.setModalTitle(`Phase ${phase}`);
-                      props.setModalMessage(`On Time: ${data.studentsOnTime.length}, Late: ${data.studentsLate.length}`);
+                      props.setModalMessage(data.studentsOnTime.join(', '));
                     }}>
-                    {data.studentsSubmitted.length}
+                    {data.studentsOnTime.length}
                   </Button>
-                  <div>
-                    {data.studentsOnTime.length > 0 && (
-                      <Button
-                        onClick={() => {
-                          props.setModalTitle(`Phase ${phase}`);
-                          props.setModalMessage(`On Time: ${data.studentsOnTime.join(', ')}`);
-                        }}>
-                        Show On Time
-                      </Button>
-                    )}
-                    {data.studentsLate.length > 0 && (
-                      <Button
-                        onClick={() => {
-                          props.setModalTitle(`Phase ${phase}`);
-                          props.setModalMessage(`Late: ${data.studentsLate.join(', ')}`);
-                        }}>
-                        Show Late
-                      </Button>
-                    )}
-                  </div>
                 </td>
                 <td>
                   <Button
                     onClick={() => {
                       props.setModalTitle(`Phase ${phase}`);
-                      props.setModalMessage(`Not Submitted: ${data.studentsNotSubmitted.join(', ')}`);
+                      props.setModalMessage(data.studentsLate.join(', '));
+                    }}>
+                    {data.studentsLate.length}
+                  </Button>
+                </td>
+                <td>
+                  <Button
+                    onClick={() => {
+                      props.setModalTitle(`Phase ${phase}`);
+                      props.setModalMessage(data.studentsNotSubmitted.join(', '));
                     }}>
                     {data.studentsNotSubmitted.length}
                   </Button>
