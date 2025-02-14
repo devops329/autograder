@@ -26,15 +26,17 @@ export class GradePresenter {
     let user: User | null = null;
     try {
       [message, submissions, rubric, user] = await this.gradeService.grade(netId, assignmentPhase);
+      if (user) {
+        this.view.setSubmissions(submissions);
+        localStorage.setItem(this.view.impersonating ? 'impersonatedSubmissions' : 'submissions', JSON.stringify(submissions));
+        this.view.setGradeMessage(message);
+        this.view.setRubric(rubric);
+        localStorage.setItem(this.view.impersonating ? 'impersonatedUser' : 'user', JSON.stringify(user));
+        this.view.setUser(user);
+      }
     } catch (e) {
       this.view.setError((e as Error).message);
     }
-    this.view.setSubmissions(submissions);
-    localStorage.setItem(this.view.impersonating ? 'impersonatedSubmissions' : 'submissions', JSON.stringify(submissions));
-    this.view.setGradeMessage(message);
-    this.view.setRubric(rubric);
-    localStorage.setItem(this.view.impersonating ? 'impersonatedUser' : 'user', JSON.stringify(user));
-    this.view.setUser(user!);
   }
 
   get assignmentPhases(): number[] {
