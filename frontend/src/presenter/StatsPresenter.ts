@@ -1,9 +1,8 @@
+import { DeliverableStat } from '../model/domain/DeliverableStat';
 import { AdminService } from '../model/service/AdminService';
 
 export interface StatsView {
-  setStats(
-    stats: Map<number, { studentsSubmitted: string[]; studentsOnTime: string[]; studentsLate: string[]; studentsNotSubmitted: string[] }> | null
-  ): void;
+  setStats(stats: Map<number, DeliverableStat> | null): void;
   setError(error: string): void;
 }
 

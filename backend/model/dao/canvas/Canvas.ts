@@ -130,7 +130,7 @@ export class Canvas {
         }
       }
     }
-    if (Object.keys(assignments).length < 12) {
+    if (assignments.size < 12) {
       logger.log('error', { type: 'missing_assignments', service: 'canvas' }, { assignments });
     }
     return assignments;
