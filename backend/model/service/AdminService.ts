@@ -16,9 +16,9 @@ export class AdminService {
     const assignmentsAndDueDates: Map<number, Assignment> = await this.canvas.getAssignmentIdsAndDueDates();
     const deliverableStats = new Map<number, DeliverableStat>();
     for (let [key, assignment] of assignmentsAndDueDates) {
-      const studentsOnTime = await this.db.getNetIdsWithLastSubmissionOnTimeForDeliverable(key, assignment.due_at);
-      const studentsLate = await this.db.getNetIdsWithLastSubmissionLateForDeliverable(key, assignment.due_at);
-      const studentsNotSubmitted = await this.db.getNetIdsNotSubmittedForDeliverable(key);
+      const studentsOnTime = await this.db.getStudentNetIdsWithLastSubmissionOnTimeForDeliverable(key, assignment.due_at);
+      const studentsLate = await this.db.getStudentNetIdsWithLastSubmissionLateForDeliverable(key, assignment.due_at);
+      const studentsNotSubmitted = await this.db.getStudentNetIdsNotSubmittedForDeliverable(key);
       deliverableStats.set(key, {
         studentsOnTime,
         studentsLate,
