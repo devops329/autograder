@@ -38,7 +38,7 @@ export class DeliverableSix implements Grader {
       rubric.comments += 'Workflow file not found.\n';
       return [score, rubric];
     }
-    const pushesToECS = workflowFile.includes('aws-actions/amazon-ecs-deploy-task-definition');
+    const pushesToECS = workflowFile.includes('aws ecs update-service');
     const buildsAndPushesToECR = workflowFile.includes('docker build') && workflowFile.includes('$ECR_REGISTRY/$ECR_REPOSITORY --push');
 
     if (pushesToECS && buildsAndPushesToECR) {

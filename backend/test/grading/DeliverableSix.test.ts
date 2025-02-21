@@ -11,6 +11,7 @@ const d6 = new DeliverableSix(mockTools, mockGithub);
 beforeEach(() => {
   mockGithub.workflowFileContents = '';
   mockTools.dnsSuccess = true;
+  mockGithub.githubFileContents = 'VITE_PIZZA_SERVICE_URL=http://pizza-service.hostname.mock';
   mockTools.envVariable = 'http://pizza-service.hostname.mock';
   mockTools.serviceWorks = true;
   mockGithub.workflowRuns = true;
@@ -18,7 +19,7 @@ beforeEach(() => {
 });
 
 test('A workflow that cannot be triggered or does not succeed gets 0 points', async () => {
-  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\naws-actions/amazon-ecs-deploy-task-definition';
+  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\n aws ecs update-service';
   mockGithub.workflowRuns = false;
   const [score, rubric] = await d6.grade(mockStudent, '1');
   expect(score).toBe(0);
@@ -54,7 +55,7 @@ test('A workflow that pushes to ECR but not ECS gets 0 points', async () => {
 });
 
 test('A workflow that pushes to ECR and ECS, runs successfully but does not deploy with load balancer or function gets 50 points', async () => {
-  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\naws-actions/amazon-ecs-deploy-task-definition';
+  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\n aws ecs update-service';
   mockTools.dnsSuccess = false;
   const [score, rubric] = await d6.grade(mockStudent, '1');
   expect(score).toBe(50);
@@ -64,7 +65,7 @@ test('A workflow that pushes to ECR and ECS, runs successfully but does not depl
 });
 
 test('A service deployed with load balancer but missing environment variable gets 70 points', async () => {
-  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\naws-actions/amazon-ecs-deploy-task-definition';
+  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\n aws ecs update-service';
   mockTools.envVariable = '';
   const [score, rubric] = await d6.grade(mockStudent, '1');
   expect(score).toBe(70);
@@ -75,7 +76,7 @@ test('A service deployed with load balancer but missing environment variable get
 });
 
 test('A functional service deployed with load balancer gets 100 points', async () => {
-  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\naws-actions/amazon-ecs-deploy-task-definition';
+  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\n aws ecs update-service';
   const [score, rubric] = await d6.grade(mockStudent, '1');
   expect(score).toBe(100);
   expect(rubric.ecrEcsFargateDeployment).toBe(20);
@@ -87,7 +88,7 @@ test('A functional service deployed with load balancer gets 100 points', async (
 });
 
 test('A successful deployment but front end uses the class service gets 70 points', async () => {
-  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\naws-actions/amazon-ecs-deploy-task-definition';
+  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\n aws ecs update-service';
   mockTools.envVariable = 'http://cs329.click';
   const [score, rubric] = await d6.grade(mockStudent, '1');
   expect(score).toBe(70);
@@ -98,7 +99,7 @@ test('A successful deployment but front end uses the class service gets 70 point
 });
 
 test('A successful deployment but service does not work gets 70 points', async () => {
-  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\naws-actions/amazon-ecs-deploy-task-definition';
+  mockGithub.workflowFileContents = 'docker build\n$ECR_REGISTRY/$ECR_REPOSITORY --push\n aws ecs update-service';
   mockTools.serviceWorks = false;
   const [score, rubric] = await d6.grade(mockStudent, '1');
   expect(score).toBe(70);
