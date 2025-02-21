@@ -1,7 +1,8 @@
+import { DeliverableStat } from '../model/domain/DeliverableStat';
 import { AdminService } from '../model/service/AdminService';
 
 export interface StatsView {
-  setStats(stats: object): void;
+  setStats(stats: Map<number, DeliverableStat> | null): void;
   setError(error: string): void;
 }
 
@@ -14,20 +15,8 @@ export class StatsPresenter {
   }
 
   async getStats() {
-    let stats: object = {};
     try {
-      stats = await this.adminService.getStats();
-    } catch (e) {
-      this.view.setError((e as Error).message);
-    }
-    this.view.setStats(stats);
-  }
-
-  async getNetIdsForDeliverablePhase(phase: number) {
-    let netIds: string[] = [];
-    try {
-      netIds = await this.adminService.getNetIdsForDeliverablePhase(phase);
-      return netIds;
+      this.view.setStats(await this.adminService.getStats());
     } catch (e) {
       this.view.setError((e as Error).message);
     }

@@ -1,3 +1,4 @@
+import { DeliverableStat } from '../model/domain/DeliverableStat';
 import { Submission } from '../model/domain/Submission';
 import { User } from '../model/domain/User';
 import { ClientCommunicator } from './ClientCommunicator';
@@ -90,16 +91,14 @@ export class ServerFacade {
     return User.fromJson(response);
   }
 
-  async getStats(): Promise<object> {
+  async getStats(): Promise<Map<number, { studentsOnTime: string[]; studentsLate: string[]; studentsNotSubmitted: string[] }> | null> {
     const endpoint = 'stats';
-    const response: JSON = await this.clientCommunicator.doPost({}, endpoint);
-    return response;
-  }
-
-  async getNetIdsForDeliverablePhase(phase: number): Promise<string[]> {
-    const endpoint = 'stats/netids';
-    const response: JSON = await this.clientCommunicator.doPost({ phase }, endpoint);
-    return response as unknown as string[];
+    const response: [[number, DeliverableStat]] = (await this.clientCommunicator.doPost({}, endpoint)) as unknown as [[number, DeliverableStat]];
+    const statsMap = new Map<number, { studentsOnTime: string[]; studentsLate: string[]; studentsNotSubmitted: string[] }>();
+    for (const [key, value] of response) {
+      statsMap.set(key, value);
+    }
+    return statsMap;
   }
 
   async listAdmins(): Promise<User[] | null> {

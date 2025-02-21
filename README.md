@@ -20,7 +20,7 @@ The AutoGrader uses a React frontend with a Typescript / node backend, using `ex
 
 1. Stats
 
-   There is a `stats` component that allows viewing how many submissions and how many unique students have submitted for each deliverable, along with viewing the net ids of those students by clicking on a deliverable.
+   There is a `stats` component that gives a breakdown of submissions for each deliverable.
 
 1. Admin Page
 
@@ -53,7 +53,6 @@ The AutoGrader uses a React frontend with a Typescript / node backend, using `ex
 | -------------------- | -------- |
 | /impersonate         |          |
 | /stats               |          |
-| /stats/netids        |          |
 | /toggle-submissions  |          |
 | /submissions-enabled |          |
 | /admin/list          |          |

@@ -87,9 +87,9 @@ export class Canvas {
     }
   }
 
-  async getAssignmentIdsAndDueDates(): Promise<{ [key: number]: Assignment }> {
+  async getAssignmentIdsAndDueDates(): Promise<Map<number, Assignment>> {
     let nextPageUrl: string | null = config.canvas.base_url + '/assignments';
-    const assignments: { [key: number]: Assignment } = {};
+    const assignments = new Map<number, Assignment>();
 
     while (nextPageUrl) {
       const response: Response = await fetch(nextPageUrl, {
@@ -108,11 +108,11 @@ export class Canvas {
         const match = name.match(regex);
         if (match) {
           const deliverableNumber = parseInt(match[1]);
-          assignments[deliverableNumber] = {
+          assignments.set(deliverableNumber, {
             id: assignment.id,
             due_at: assignment.due_at,
             phase: deliverableNumber,
-          };
+          });
         }
       });
 
@@ -130,7 +130,7 @@ export class Canvas {
         }
       }
     }
-    if (Object.keys(assignments).length < 12) {
+    if (assignments.size < 12) {
       logger.log('error', { type: 'missing_assignments', service: 'canvas' }, { assignments });
     }
     return assignments;

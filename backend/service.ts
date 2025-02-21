@@ -12,6 +12,7 @@ import fs from 'fs';
 import path from 'path';
 import { DeliverableGradeFactory } from './grading/graders/DeliverableGradeFactory';
 import { AdminService } from './model/service/AdminService';
+import { DeliverableStat } from './model/domain/DeliverableStat';
 
 // Extend the Express Request interface
 declare global {
@@ -32,7 +33,7 @@ const gradeFactory = new DeliverableGradeFactory();
 const chaosService = new ChaosService(db, pizzaFactory);
 const gradeService = new GradeService(db, canvas, gradeFactory, chaosService);
 const userService = new UserService(db, pizzaFactory, canvas);
-const adminService = new AdminService(db);
+const adminService = new AdminService(db, canvas);
 
 // SAML setup
 // Service provider
@@ -241,14 +242,8 @@ adminApiRouter.post('/impersonate', async function (req, res) {
 
 // Get stats for all deliverables
 adminApiRouter.post('/stats', async function (req, res) {
-  const stats = await adminService.getStats();
-  res.send(JSON.stringify(stats));
-});
-
-// Get all netids for a specific deliverable
-adminApiRouter.post('/stats/netids', async function (req, res) {
-  const netIds = await adminService.getNetIdsForDeliverablePhase(req.body.phase);
-  res.send(JSON.stringify(netIds));
+  const stats: Map<number, DeliverableStat> = await adminService.getStats();
+  res.send(JSON.stringify(Array.from(stats.entries())));
 });
 
 // End/Start the semester

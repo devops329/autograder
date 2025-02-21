@@ -164,28 +164,45 @@ export class DB {
     return new Submission(row.time, row.phase, row.score, row.rubric, row.graceDaysUsed);
   }
 
-  async getSubmissionCountAllPhases() {
+  async getStudentNetIdsWithLastSubmissionLateForDeliverable(phase: number, dueDate: string) {
     const [rows] = await this.executeQuery(
-      'get_submission_count_all_phases',
+      'get_netids_with_last_submission_late_for_deliverable',
       `
-      SELECT 
-        phase, 
-        COUNT(*) as submissionCount, 
-        COUNT(DISTINCT userId) as studentCount 
-      FROM submission 
-      GROUP BY phase
-    `,
-      []
+      SELECT DISTINCT u.netid
+      FROM submission s
+      JOIN user u ON s.userId = u.id
+      WHERE s.phase = ? AND s.time > ? AND s.time = (SELECT MAX(time) FROM submission WHERE userId = u.id AND phase = ?) AND u.isAdmin = false;
+      `,
+      [phase, dueDate, phase]
     );
     if (!rows.length) {
       return [];
     }
     return rows.map((row: any) => {
-      return { phase: row.phase, submissionCount: row.submissionCount, studentCount: row.studentCount };
+      return row.netid;
     });
   }
 
-  async getNetIdsForDeliverablePhase(phase: number) {
+  async getStudentNetIdsWithLastSubmissionOnTimeForDeliverable(phase: number, dueDate: string) {
+    const [rows] = await this.executeQuery(
+      'get_netids_with_last_submission_on_time_for_deliverable',
+      `
+      SELECT DISTINCT u.netid
+      FROM submission s
+      JOIN user u ON s.userId = u.id
+      WHERE s.phase = ? AND s.time <= ? AND s.time = (SELECT MAX(time) FROM submission WHERE userId = u.id AND phase = ?) AND u.isAdmin = false;
+      `,
+      [phase, dueDate, phase]
+    );
+    if (!rows.length) {
+      return [];
+    }
+    return rows.map((row: any) => {
+      return row.netid;
+    });
+  }
+
+  async getNetIdsForDeliverable(phase: number) {
     const [rows] = await this.executeQuery(
       'get_netids_for_deliverable_phase',
       `
@@ -194,6 +211,25 @@ export class DB {
       JOIN user u ON s.userId = u.id
       WHERE s.phase = ?;
 
+      `,
+      [phase]
+    );
+    if (!rows.length) {
+      return [];
+    }
+    return rows.map((row: any) => {
+      return row.netid;
+    });
+  }
+
+  async getStudentNetIdsNotSubmittedForDeliverable(phase: number) {
+    const [rows] = await this.executeQuery(
+      'get_students_not_submitted_for_deliverable',
+      `
+      SELECT DISTINCT u.netid
+      FROM user u
+      LEFT JOIN submission s ON u.id = s.userId AND s.phase = ?
+      WHERE s.id IS NULL AND u.isAdmin = false;
       `,
       [phase]
     );

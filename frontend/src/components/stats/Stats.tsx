@@ -1,25 +1,19 @@
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StatsPresenter, StatsView } from '../../presenter/StatsPresenter';
-import { Table } from 'react-bootstrap';
+import { Button, Table } from 'react-bootstrap';
 import './Stats.css';
+import { DeliverableStat } from '../../model/domain/DeliverableStat';
 interface Props {
-  setErrorMessage: (errorMessage: string | null) => void;
-}
-
-interface Stat {
-  phase: number;
-  submissionCount: number;
-  studentCount: number;
+  setModalMessage: (message: string | null) => void;
+  setModalTitle: (title: string | null) => void;
 }
 
 export function Stats(props: Props) {
-  const [stats, setStats] = useState<Stat[]>([]);
-  const [expandedRow, setExpandedRow] = useState<number | null>(null);
-  const [netIds, setNetIds] = useState<string[] | undefined>([]);
+  const [stats, setStats] = useState<Map<number, DeliverableStat> | null>(null);
 
   const listener: StatsView = {
     setStats: setStats,
-    setError: props.setErrorMessage,
+    setError: props.setModalMessage,
   };
   const presenter = new StatsPresenter(listener);
   useEffect(() => {
@@ -29,58 +23,42 @@ export function Stats(props: Props) {
     getStats();
   }, []);
 
-  const getNetIdsForDeliverablePhase = async (phase: number) => {
-    const netIds = await presenter.getNetIdsForDeliverablePhase(phase);
-    setNetIds(netIds); // Assume `data` is an array of netids
-    setExpandedRow(phase);
-  };
-
   return (
     <>
       <h1>Deliverable Stats</h1>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Phase</th>
-            <th>Submission Count</th>
-            <th>Student Count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stats.map((item, index) => (
-            <Fragment key={index}>
-              <tr
-                onClick={() => {
-                  expandedRow ? setExpandedRow(null) : getNetIdsForDeliverablePhase(item.phase);
-                }}>
-                <td>{item.phase}</td>
-                <td>{item.submissionCount}</td>
-                <td>{item.studentCount}</td>
-              </tr>
-              {expandedRow === item.phase && netIds && (
-                <tr
-                  onClick={() => {
-                    const selection = window.getSelection();
-                    if (selection?.toString().length) {
-                      // Don't toggle if the user is highlighting text
-                      return;
-                    }
-                    setExpandedRow(null);
-                  }}>
-                  <td colSpan={3}>
-                    <strong>Net IDs:</strong>
-                    <ul className="netids">
-                      {netIds.map((netid, i) => (
-                        <li key={i}>{netid}</li>
-                      ))}
-                    </ul>
+      {stats === null ? (
+        <h3>No Stats Available</h3>
+      ) : (
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Submitted On Time</th>
+              <th>Submitted Late</th>
+              <th>No Submission</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from(stats.entries()).map(([phase, data]) => (
+              <tr key={phase}>
+                <td>{phase}</td>
+                {(['studentsOnTime', 'studentsLate', 'studentsNotSubmitted'] as (keyof DeliverableStat)[]).map((key, index) => (
+                  <td key={index}>
+                    <Button
+                      style={{ width: '3rem' }}
+                      onClick={() => {
+                        props.setModalTitle(`Phase ${phase}`);
+                        props.setModalMessage(data[key].sort().join(', '));
+                      }}>
+                      {data[key].length}
+                    </Button>
                   </td>
-                </tr>
-              )}
-            </Fragment>
-          ))}
-        </tbody>
-      </Table>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
     </>
   );
 }

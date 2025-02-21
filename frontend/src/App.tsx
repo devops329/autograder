@@ -9,13 +9,14 @@ import { User } from './model/domain/User';
 import { Submission } from './model/domain/Submission';
 import { Login } from './components/login/Login';
 import Cookies from 'js-cookie';
-import { ErrorModal } from './components/errorModal/ErrorModal';
+import { MessageModal } from './components/messageModal/MessageModal';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { Stats } from './components/stats/Stats';
 import { Admin } from './components/admin/Admin';
 
 function App() {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [modalTitle, setModalTitle] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(!!localStorage.getItem('isAdmin'));
   const [impersonating, setImpersonating] = useState<boolean>(!!localStorage.getItem('impersonatedUser'));
   const [user, setUser] = useState<User | null>(
@@ -36,8 +37,11 @@ function App() {
       ? JSON.parse(localStorage.getItem('submissions')!).map((item: JSON) => Submission.fromJson(item))
       : []
   );
-  // const [stats, setStats] = useState<object>({});
-  const handleClose = () => setErrorMessage(null);
+
+  const handleClose = () => {
+    setModalMessage(null);
+    setModalTitle(null);
+  };
 
   useEffect(() => {
     // If front end thinks logged in but has no token
@@ -54,10 +58,10 @@ function App() {
 
   return (
     <>
-      {errorMessage && <ErrorModal errorMessage={errorMessage} handleClose={handleClose} />}
+      {modalMessage && <MessageModal message={modalMessage} title={modalTitle} handleClose={handleClose} />}
       <BrowserRouter>
         <NavBar
-          setErrorMessage={setErrorMessage}
+          setErrorMessage={setModalMessage}
           impersonating={impersonating}
           setImpersonating={setImpersonating}
           user={user}
@@ -67,10 +71,10 @@ function App() {
           setIsAdmin={setIsAdmin}
         />
         <Routes>
-          <Route path="/admin-login" element={<AdminLogin setErrorMessage={setErrorMessage} />} />
+          <Route path="/admin-login" element={<AdminLogin setErrorMessage={setModalMessage} />} />
           <Route
             path="/login"
-            element={<Login setErrorMessage={setErrorMessage} setUser={setUser} setSubmissions={setSubmissions} setIsAdmin={setIsAdmin} />}
+            element={<Login setErrorMessage={setModalMessage} setUser={setUser} setSubmissions={setSubmissions} setIsAdmin={setIsAdmin} />}
           />
         </Routes>
         {user ? (
@@ -78,7 +82,7 @@ function App() {
             <Route path="/grade" element={<Grader user={user} setUser={setUser} setSubmissions={setSubmissions} impersonating={impersonating} />} />
             <Route path="/profile" element={<Profile impersonating={impersonating} user={user} setUser={setUser} isAdmin={isAdmin} />} />
             <Route path="/submissions" element={<Submissions submissions={submissions} />} />
-            {user.isAdmin && <Route path="/stats" element={<Stats setErrorMessage={setErrorMessage} />} />}
+            {user.isAdmin && <Route path="/stats" element={<Stats setModalMessage={setModalMessage} setModalTitle={setModalTitle} />} />}
             {user.isAdmin && <Route path="/admin" element={<Admin />} />}
             <Route path="*" element={<Grader user={user} setUser={setUser} setSubmissions={setSubmissions} impersonating={impersonating} />} />
           </Routes>
