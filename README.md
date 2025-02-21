@@ -82,7 +82,7 @@ The running service is managed on the server using [pm2](https://www.npmjs.com/p
 
 ### Example Configuration
 
-This is an example `config.ts` file. It should never be committed.
+The service configuration file must exist in the root of the `backend` directory. This is an example `backend/config.ts` file. Since the file contains credentials, it should never be committed.
 
 ```javascript
 export const config = {
