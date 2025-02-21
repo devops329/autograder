@@ -68,7 +68,6 @@ export class MockGradingTools implements GradingTools {
     return 'coverage.mock';
   }
   async checkCoverage(badge: string, percentage: number): Promise<boolean> {
-    console.log('mock check coverage');
     return this._coverage;
   }
   getHostnameFromWebsite(website: string): string {

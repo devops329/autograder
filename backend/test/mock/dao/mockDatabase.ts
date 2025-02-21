@@ -87,6 +87,14 @@ export class MockDB extends DB {
     return this.submissions;
   }
 
+  async getMostRecentSubmissionForDeliverable(netId: string, phase: number): Promise<Submission | null> {
+    await this.executeQuery('get_most_recent_submission', `SELECT * FROM submission WHERE userId = ? AND phase = ? ORDER BY time DESC LIMIT 1`, [
+      await this.getUserId(netId),
+      phase,
+    ]);
+    return this.submissions.length > 0 ? this.submissions[0] : null;
+  }
+
   async getGraceDays(netId: string) {
     await this.executeQuery('get_late_days', `SELECT graceDays FROM user WHERE netid = ?`, [netId]);
     return 0;

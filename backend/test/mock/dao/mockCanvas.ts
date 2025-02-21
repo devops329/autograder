@@ -20,7 +20,13 @@ export class MockCanvas implements Canvas {
   }
   async getAssignmentIdsAndDueDates(): Promise<Map<number, Assignment>> {
     return new Promise((resolve, reject) => {
-      resolve(new Map<number, Assignment>());
+      const mockAssignments = new Map<number, Assignment>();
+      mockAssignments.set(1, {
+        id: 1,
+        due_at: new Date().toDateString(),
+        phase: 1,
+      });
+      resolve(mockAssignments);
     });
   }
 }
