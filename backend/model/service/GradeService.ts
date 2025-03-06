@@ -1,12 +1,12 @@
-import { Grader } from '../../grading/graders/Grader';
-import { Assignment, Canvas } from '../dao/canvas/Canvas';
-import { DB } from '../dao/mysql/Database';
-import { Submission } from '../domain/Submission';
-import logger from '../../logger';
-import { v4 as uuidv4 } from 'uuid';
-import { GradeFactory } from '../../grading/GradeFactory';
-import { ChaosService } from './ChaosService';
-import { DateTime } from 'luxon';
+import { Grader } from "../../grading/graders/Grader";
+import { Assignment, Canvas } from "../dao/canvas/Canvas";
+import { DB } from "../dao/mysql/Database";
+import { Submission } from "../domain/Submission";
+import logger from "../../logger";
+import { v4 as uuidv4 } from "uuid";
+import { GradeFactory } from "../../grading/GradeFactory";
+import { ChaosService } from "./ChaosService";
+import { DateTime } from "luxon";
 
 export class GradeService {
   private db: DB;
@@ -16,7 +16,12 @@ export class GradeService {
 
   private _submissionsEnabled = true;
 
-  constructor(db: DB, canvas: Canvas, gradeFactory: GradeFactory, chaosService: ChaosService) {
+  constructor(
+    db: DB,
+    canvas: Canvas,
+    gradeFactory: GradeFactory,
+    chaosService: ChaosService
+  ) {
     this.db = db;
     this.canvas = canvas;
     this.gradeFactory = gradeFactory;
@@ -32,14 +37,18 @@ export class GradeService {
     return this._submissionsEnabled;
   }
 
-  async grade(assignmentPhase: number, netid: string): Promise<[number | string, Submission[], object?]> {
+  async grade(
+    assignmentPhase: number,
+    netid: string
+  ): Promise<[number | string, Submission[], object?]> {
     let score = 0;
     let grader: Grader;
     let assignmentId = 0;
-    const assignments: Map<number, Assignment> = await this.getAssignmentIdsAndDueDates();
+    const assignments: Map<number, Assignment> =
+      await this.getAssignmentIdsAndDueDates();
     const user = await this.db.getUser(netid);
     if (!user) {
-      return ['User not found', []];
+      return ["User not found", []];
     }
 
     const gradeAttemptId = uuidv4();
@@ -86,55 +95,122 @@ export class GradeService {
         submissions = await this.getSubmissions(netid);
         return [partner, submissions];
       default:
-        return ['Invalid assignment phase', submissions];
+        return ["Invalid assignment phase", submissions];
     }
     const result = await grader.grade(user!, gradeAttemptId);
     score = result[0] as number;
     let rubric = result[1] as object;
     // Will return any adjustments to grace days
-    const lateCalculation = await this.calculateScoreAfterGraceDays(netid, assignments.get(assignmentPhase)!, score);
+    const lateCalculation = await this.calculateScoreAfterGraceDays(
+      netid,
+      assignments.get(assignmentPhase)!,
+      score
+    );
     const scoreAfterLateCalculation = lateCalculation.score;
     const graceDaysUsed = lateCalculation.graceDaysUsed;
     // Attempt to submit score to Canvas
-    const submitScoreErrorMessage = await this.submitScoreToCanvas(assignmentId, netid, scoreAfterLateCalculation, gradeAttemptId);
+    const submitScoreErrorMessage = await this.submitScoreToCanvas(
+      assignmentId,
+      netid,
+      scoreAfterLateCalculation,
+      gradeAttemptId
+    );
     // If submission fails, return error message
     if (submitScoreErrorMessage) {
+      // If fails due to late submission, attach explanation to rubric
+      if (
+        lateCalculation.comments ===
+        "Late submission, insufficient grace days remaining"
+      ) {
+        rubric = {
+          ...rubric,
+          graceDaysUsed,
+          comments:
+            (rubric as { comments: string }).comments +
+            " " +
+            lateCalculation.comments,
+        };
+      }
       submissions = await this.getSubmissions(netid);
       return [submitScoreErrorMessage, submissions, rubric];
     }
     // If submission is successful, put submission into DB
     // First attach grace days to rubric
-    rubric = { ...rubric, graceDaysUsed, comments: (rubric as { comments: string }).comments + ' ' + lateCalculation.comments };
+    rubric = {
+      ...rubric,
+      graceDaysUsed,
+      comments:
+        (rubric as { comments: string }).comments +
+        " " +
+        lateCalculation.comments,
+    };
     try {
-      submissions = await this.putSubmissionIntoDB(assignmentPhase, netid, scoreAfterLateCalculation, rubric, graceDaysUsed);
+      submissions = await this.putSubmissionIntoDB(
+        assignmentPhase,
+        netid,
+        scoreAfterLateCalculation,
+        rubric,
+        graceDaysUsed
+      );
     } catch (e: any) {
-      logger.log('error', { type: 'grade', service: 'grade_service' }, { netid, error: e.message });
-      return ['Failed to save submission', submissions, rubric];
+      logger.log(
+        "error",
+        { type: "grade", service: "grade_service" },
+        { netid, error: e.message }
+      );
+      return ["Failed to save submission", submissions, rubric];
     }
     // If submission is successful, update grace days in DB
     try {
-      if (lateCalculation.graceDayAdjustment !== null) await this.db.updateGraceDays(netid, lateCalculation.graceDayAdjustment);
+      if (lateCalculation.graceDayAdjustment !== null)
+        await this.db.updateGraceDays(
+          netid,
+          lateCalculation.graceDayAdjustment
+        );
     } catch (e: any) {
-      logger.log('error', { type: 'update_grace_days', service: 'grade_service' }, { netid, error: e.message });
-      return ['Failed to update grace days', submissions, rubric];
+      logger.log(
+        "error",
+        { type: "update_grace_days", service: "grade_service" },
+        { netid, error: e.message }
+      );
+      return ["Failed to update grace days", submissions, rubric];
     }
 
     return [`Score: ${scoreAfterLateCalculation}`, submissions, rubric];
   }
 
-  private async submitScoreToCanvas(assignmentId: number, netid: string, score: number, gradeAttemptId: string): Promise<string | void> {
+  private async submitScoreToCanvas(
+    assignmentId: number,
+    netid: string,
+    score: number,
+    gradeAttemptId: string
+  ): Promise<string | void> {
     try {
       const studentId = await this.canvas.getStudentId(netid);
       if (!studentId) {
-        logger.log('error', { type: 'get_student_id_failed', service: 'grade_service' }, { netid, message: 'Student not found' });
-        return 'Failed to update grade';
+        logger.log(
+          "error",
+          { type: "get_student_id_failed", service: "grade_service" },
+          { netid, message: "Student not found" }
+        );
+        return "Failed to update grade";
       }
       // Canvas only returns an error message if the submission fails, else void
-      const submitScoreErrorMessage = await this.canvas.updateGrade(netid, assignmentId, studentId, score, gradeAttemptId);
+      const submitScoreErrorMessage = await this.canvas.updateGrade(
+        netid,
+        assignmentId,
+        studentId,
+        score,
+        gradeAttemptId
+      );
       return submitScoreErrorMessage;
     } catch (e) {
-      logger.log('error', { type: 'grade', service: 'grade_service' }, { netid, error: e });
-      return 'Failed to update grade';
+      logger.log(
+        "error",
+        { type: "grade", service: "grade_service" },
+        { netid, error: e }
+      );
+      return "Failed to update grade";
     }
   }
 
@@ -149,10 +225,18 @@ export class GradeService {
         const score = result[0] as number;
         let rubric = result[1] as object;
         // Calculate score after late days
-        const lateCalculation = await this.calculateScoreAfterGraceDays(user.netId, assignments.get(11)!, score);
+        const lateCalculation = await this.calculateScoreAfterGraceDays(
+          user.netId,
+          assignments.get(11)!,
+          score
+        );
         const scoreAfterLateCalculation = lateCalculation.score;
         const graceDaysUsed = lateCalculation.graceDaysUsed;
-        logger.log('info', { type: 'grade', service: 'grade_service', deliverable: '11' }, { netid: user.netId, scoreAfterLateCalculation });
+        logger.log(
+          "info",
+          { type: "grade", service: "grade_service", deliverable: "11" },
+          { netid: user.netId, scoreAfterLateCalculation }
+        );
         const submitScoreErrorMessage = await this.submitScoreToCanvas(
           assignments.get(11)!.id,
           user.netId,
@@ -160,13 +244,27 @@ export class GradeService {
           gradeAttemptId
         );
         if (!submitScoreErrorMessage) {
-          await this.putSubmissionIntoDB(11, user.netId, scoreAfterLateCalculation, rubric, graceDaysUsed);
-          if (lateCalculation.graceDayAdjustment != null) await this.db.updateGraceDays(user.netId, lateCalculation.graceDayAdjustment);
+          await this.putSubmissionIntoDB(
+            11,
+            user.netId,
+            scoreAfterLateCalculation,
+            rubric,
+            graceDaysUsed
+          );
+          if (lateCalculation.graceDayAdjustment != null)
+            await this.db.updateGraceDays(
+              user.netId,
+              lateCalculation.graceDayAdjustment
+            );
         }
         // remove chaos from db
         this.chaosService.removeScheduledChaos(user.netId);
       } catch (e) {
-        logger.log('error', { type: 'grade', service: 'grade_service' }, { netid: user.netId, error: e });
+        logger.log(
+          "error",
+          { type: "grade", service: "grade_service" },
+          { netid: user.netId, error: e }
+        );
         return false;
       }
       return true;
@@ -175,9 +273,21 @@ export class GradeService {
     }
   }
 
-  private async putSubmissionIntoDB(assignmentPhase: number, netId: string, score: number, rubric: object, graceDaysUsed: number) {
-    const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const submission = new Submission(date, assignmentPhase, score, JSON.stringify(rubric), graceDaysUsed);
+  private async putSubmissionIntoDB(
+    assignmentPhase: number,
+    netId: string,
+    score: number,
+    rubric: object,
+    graceDaysUsed: number
+  ) {
+    const date = new Date().toISOString().slice(0, 19).replace("T", " ");
+    const submission = new Submission(
+      date,
+      assignmentPhase,
+      score,
+      JSON.stringify(rubric),
+      graceDaysUsed
+    );
     await this.db.putSubmission(submission, netId);
     return this.db.getSubmissions(netId);
   }
@@ -194,17 +304,24 @@ export class GradeService {
     netId: string,
     assignment: Assignment,
     score: number
-  ): Promise<{ score: number; graceDaysUsed: number; graceDayAdjustment: number | null; comments: string }> {
+  ): Promise<{
+    score: number;
+    graceDaysUsed: number;
+    graceDayAdjustment: number | null;
+    comments: string;
+  }> {
     let graceDayAdjustment = null;
-    let comments = '';
+    let comments = "";
     if (!this.submissionsEnabled) {
-      comments = 'Submissions are currently disabled.';
+      comments = "Submissions are currently disabled.";
       return { score: 0, graceDaysUsed: 0, graceDayAdjustment, comments };
     }
 
     // Get today's date and due date, calculate days past due date
-    const today = DateTime.now().setZone('America/Denver').startOf('day');
-    const dueDate = DateTime.fromISO(assignment.due_at, { zone: 'America/Denver' }).startOf('day');
+    const today = DateTime.now().setZone("America/Denver").startOf("day");
+    const dueDate = DateTime.fromISO(assignment.due_at, {
+      zone: "America/Denver",
+    }).startOf("day");
     let daysPastDueDate = 0;
 
     // If submission and due date are the same day, no need to calculate
@@ -237,13 +354,19 @@ export class GradeService {
     const graceDaysRemaining = await this.db.getGraceDays(netId);
 
     // Handle prior grace days for resubmissions
-    const mostRecentSubmission = await this.db.getMostRecentSubmissionForDeliverable(netId, assignment.phase);
-    const graceDaysUsedForDeliverable = mostRecentSubmission ? mostRecentSubmission.graceDaysUsed : 0;
+    const mostRecentSubmission =
+      await this.db.getMostRecentSubmissionForDeliverable(
+        netId,
+        assignment.phase
+      );
+    const graceDaysUsedForDeliverable = mostRecentSubmission
+      ? mostRecentSubmission.graceDaysUsed
+      : 0;
     const graceDaysAvailable = graceDaysRemaining + graceDaysUsedForDeliverable;
 
     // If days late exceeds remaining grace days, return 0 score
     if (daysPastDueDate > graceDaysAvailable) {
-      comments = 'Late submission, insufficient grace days remaining';
+      comments = "Late submission, insufficient grace days remaining";
       return { score: 0, graceDaysUsed: 0, graceDayAdjustment, comments };
     }
 
@@ -257,9 +380,16 @@ export class GradeService {
     }
 
     // Handle early submissions (extra credit)
-    else if (daysPastDueDate < 0 && (score === 100 || (assignment.phase === 11 && score === 80))) {
-      if (mostRecentSubmission && (mostRecentSubmission.score === 100 || (assignment.phase === 11 && mostRecentSubmission.score === 80))) {
-        comments = 'Early submission, no grace days added.';
+    else if (
+      daysPastDueDate < 0 &&
+      (score === 100 || (assignment.phase === 11 && score === 80))
+    ) {
+      if (
+        mostRecentSubmission &&
+        (mostRecentSubmission.score === 100 ||
+          (assignment.phase === 11 && mostRecentSubmission.score === 80))
+      ) {
+        comments = "Early submission, no grace days added.";
         return { score, graceDaysUsed, graceDayAdjustment, comments };
       }
       const daysEarly = Math.min(2, Math.abs(daysPastDueDate)); // Cap early bonus to 2 days
