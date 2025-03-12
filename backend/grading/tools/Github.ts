@@ -1,48 +1,90 @@
-import { config } from '../../config';
-import logger from '../../logger';
-import { User } from '../../model/domain/User';
+import { config } from "../../config";
+import logger from "../../logger";
+import { User } from "../../model/domain/User";
 
 export class Github {
-  async readGithubFile(user: User, repo: string, path: string, gradeAttemptId: string): Promise<string | null> {
+  async readGithubFile(
+    user: User,
+    repo: string,
+    path: string,
+    gradeAttemptId: string
+  ): Promise<string | null> {
     const apiUrl = `https://api.github.com/repos/${user.github}/${repo}/contents/${path}`;
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      logger.log('error', { type: 'github_file_fetch', service: 'github', gradeAttemptId }, { path, user: user.netId, status: response.status });
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        logger.log(
+          "error",
+          { type: "github_file_fetch", service: "github", gradeAttemptId },
+          { path, user: user.netId, status: response.status }
+        );
+        return null;
+      }
+      // get the content and base 64 decode it
+      const content = (await response.json()).content;
+      return atob(content);
+    } catch (error) {
+      logger.log(
+        "error",
+        { type: "github_file_fetch", service: "github", gradeAttemptId },
+        { path, user: user.netId, error }
+      );
       return null;
     }
-    // get the content and base 64 decode it
-    const content = (await response.json()).content;
-    return atob(content);
   }
-  async readWorkflowFile(user: User, repo: string, gradeAttemptId: string): Promise<string | null> {
-    return this.readGithubFile(user, repo, '.github/workflows/ci.yml', gradeAttemptId);
+  async readWorkflowFile(
+    user: User,
+    repo: string,
+    gradeAttemptId: string
+  ): Promise<string | null> {
+    return this.readGithubFile(
+      user,
+      repo,
+      ".github/workflows/ci.yml",
+      gradeAttemptId
+    );
   }
 
-  async triggerWorkflowAndWaitForCompletion(user: User, repo: string, file: string, gradeAttemptId: string, inputs?: object): Promise<boolean> {
+  async triggerWorkflowAndWaitForCompletion(
+    user: User,
+    repo: string,
+    file: string,
+    gradeAttemptId: string,
+    inputs?: object
+  ): Promise<boolean> {
     const url = `https://api.github.com/repos/${user.github}/${repo}/actions/workflows/${file}/dispatches`;
     try {
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `token ${config.github.personal_access_token}`,
-          Accept: 'application/vnd.github.v3+json',
-          'X-GitHub-Api-Version': '2022-11-28',
+          Accept: "application/vnd.github.v3+json",
+          "X-GitHub-Api-Version": "2022-11-28",
         },
         body: JSON.stringify({
-          ref: 'main',
+          ref: "main",
           inputs,
         }),
       });
       if (response.status !== 204) {
         logger.log(
-          'error',
-          { type: 'github_action_trigger', service: 'github', gradeAttemptId },
-          { file, user: user.netId, status: response.status, body: await response.text() }
+          "error",
+          { type: "github_action_trigger", service: "github", gradeAttemptId },
+          {
+            file,
+            user: user.netId,
+            status: response.status,
+            body: await response.text(),
+          }
         );
         return false;
       }
     } catch (error) {
-      logger.log('error', { type: 'github_action_trigger', service: 'github', gradeAttemptId }, { file, user: user.netId, error });
+      logger.log(
+        "error",
+        { type: "github_action_trigger", service: "github", gradeAttemptId },
+        { file, user: user.netId, error }
+      );
     }
     // Wait a few seconds for the run to start
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -51,67 +93,118 @@ export class Github {
     return true;
   }
 
-  async checkRecentRunSuccess(user: User, repo: string, file: string, gradeAttemptId: string): Promise<boolean> {
+  async checkRecentRunSuccess(
+    user: User,
+    repo: string,
+    file: string,
+    gradeAttemptId: string
+  ): Promise<boolean> {
     const run = await this.getMostRecentRun(user, repo, file, gradeAttemptId);
-    return run && run.conclusion === 'success';
+    return run && run.conclusion === "success";
   }
 
-  async getMostRecentRun(user: User, repo: string, file: string, gradeAttemptId: string): Promise<any> {
+  async getMostRecentRun(
+    user: User,
+    repo: string,
+    file: string,
+    gradeAttemptId: string
+  ): Promise<any> {
     const url = `https://api.github.com/repos/${user.github}/${repo}/actions/workflows/${file}/runs`;
     try {
       const response = await fetch(url, {
         headers: {
           Authorization: `token ${config.github.personal_access_token}`,
-          Accept: 'application/vnd.github.v3+json',
-          'X-GitHub-Api-Version': '2022-11-28',
+          Accept: "application/vnd.github.v3+json",
+          "X-GitHub-Api-Version": "2022-11-28",
         },
       });
       if (!response.ok) {
-        logger.log('error', { type: 'github_run_fetch', service: 'github', gradeAttemptId }, { file, user: user.netId, status: response.status });
+        logger.log(
+          "error",
+          { type: "github_run_fetch", service: "github", gradeAttemptId },
+          { file, user: user.netId, status: response.status }
+        );
         return null;
       }
       const data = await response.json();
       return data.workflow_runs[0];
     } catch (error) {
-      logger.log('error', { type: 'github_run_fetch', service: 'github', gradeAttemptId }, { file, user: user.netId, error });
+      logger.log(
+        "error",
+        { type: "github_run_fetch", service: "github", gradeAttemptId },
+        { file, user: user.netId, error }
+      );
       return null;
     }
   }
 
-  async waitForCompletion(user: User, repo: string, file: string, gradeAttemptId: string): Promise<void> {
+  async waitForCompletion(
+    user: User,
+    repo: string,
+    file: string,
+    gradeAttemptId: string
+  ): Promise<void> {
     let run = await this.getMostRecentRun(user, repo, file, gradeAttemptId);
     if (!run) {
-      logger.log('error', { type: 'github_run_fetch', service: 'github', gradeAttemptId }, { file, user: user.netId });
+      logger.log(
+        "error",
+        { type: "github_run_fetch", service: "github", gradeAttemptId },
+        { file, user: user.netId }
+      );
       return;
     }
 
-    while (run.status !== 'completed') {
+    while (run.status !== "completed") {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       run = await this.getMostRecentRun(user, repo, file, gradeAttemptId);
       if (!run) {
-        logger.log('error', { type: 'github_run_fetch', service: 'github', gradeAttemptId }, { file, user: user.netId });
+        logger.log(
+          "error",
+          { type: "github_run_fetch", service: "github", gradeAttemptId },
+          { file, user: user.netId }
+        );
         return;
       }
     }
   }
-  async getVersionNumber(user: User, repo: string, app: 'frontend' | 'backend', gradeAttemptId: string): Promise<string> {
-    const apiUrl = `https://api.github.com/repos/${user.github}/${repo}/contents/${app === 'frontend' ? 'public' : 'src'}/version.json`;
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
+  async getVersionNumber(
+    user: User,
+    repo: string,
+    app: "frontend" | "backend",
+    gradeAttemptId: string
+  ): Promise<string> {
+    const apiUrl = `https://api.github.com/repos/${
+      user.github
+    }/${repo}/contents/${app === "frontend" ? "public" : "src"}/version.json`;
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        logger.log(
+          "error",
+          { type: "github_file_fetch", service: "github", gradeAttemptId },
+          { path: "version.json", user: user.netId, status: response.status }
+        );
+        return "";
+      }
+      // get the content and base 64 decode it
+      const content = (await response.json()).content;
+      const version = JSON.parse(atob(content)).version;
+      return version;
+    } catch (error) {
       logger.log(
-        'error',
-        { type: 'github_file_fetch', service: 'github', gradeAttemptId },
-        { path: 'version.json', user: user.netId, status: response.status }
+        "error",
+        { type: "github_file_fetch", service: "github", gradeAttemptId },
+        { path: "version.json", user: user.netId, error }
       );
-      return '';
+      return "";
     }
-    // get the content and base 64 decode it
-    const content = (await response.json()).content;
-    const version = JSON.parse(atob(content)).version;
-    return version;
   }
-  async readCoverageBadge(user: User, repo: string, gradeAttemptId: string): Promise<string | null> {
-    return this.readGithubFile(user, repo, 'coverageBadge.svg', gradeAttemptId);
+  async readCoverageBadge(
+    user: User,
+    repo: string,
+    gradeAttemptId: string
+  ): Promise<string | null> {
+    return this.readGithubFile(user, repo, "coverageBadge.svg", gradeAttemptId);
   }
 
   async getMostRecentRelease(user: User, repo: string, gradeAttemptId: string) {
@@ -119,24 +212,37 @@ export class Github {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        logger.log('error', { type: 'github_release_fetch', service: 'github', gradeAttemptId }, { user: user.netId, status: response.status });
+        logger.log(
+          "error",
+          { type: "github_release_fetch", service: "github", gradeAttemptId },
+          { user: user.netId, status: response.status }
+        );
         return null;
       }
       return await response.json();
     } catch (error) {
-      logger.log('error', { type: 'github_release_fetch', service: 'github', gradeAttemptId }, { user: user.netId, error });
+      logger.log(
+        "error",
+        { type: "github_release_fetch", service: "github", gradeAttemptId },
+        { user: user.netId, error }
+      );
       return null;
     }
   }
 
-  async isCollaborator(user: User, repo: string, collaborator: string, gradeAttemptId: string): Promise<boolean> {
+  async isCollaborator(
+    user: User,
+    repo: string,
+    collaborator: string,
+    gradeAttemptId: string
+  ): Promise<boolean> {
     const url = `https://api.github.com/repos/${user.github}/${repo}/collaborators/${collaborator}`;
     try {
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: `token ${config.github.personal_access_token}`,
-          Accept: 'application/vnd.github.v3+json',
+          Accept: "application/vnd.github.v3+json",
         },
       });
 
@@ -149,8 +255,12 @@ export class Github {
       }
     } catch (error: any) {
       logger.log(
-        'error',
-        { type: 'github_collaborator_check', service: 'github', gradeAttemptId },
+        "error",
+        {
+          type: "github_collaborator_check",
+          service: "github",
+          gradeAttemptId,
+        },
         { collaborator, user: user.netId, error: error.message }
       );
       return false;

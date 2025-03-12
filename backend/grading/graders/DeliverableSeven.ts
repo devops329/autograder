@@ -57,7 +57,7 @@ export class DeliverableSeven implements Grader {
     // Check it has 'push:'
     const onPush = workflowFile.includes("push:");
     // Check that it copies to the version directory in s3
-    const regex = /aws s3 cp dist s3:\/\/[^\/]+\/\$version/;
+    const regex = /aws s3 cp dist\/? s3:\/\/[^\/]+\/\$version/;
     const pushesVersionToS3 = regex.test(workflowFile);
     if (pushesVersionToS3) {
       score += 10;
@@ -108,11 +108,14 @@ export class DeliverableSeven implements Grader {
             stagingReleaseJson.name.match(/\d{8}\.\d{6}/)?.[0];
           // Fetch version number from staging site
           const hostname = this.tools.getHostnameFromWebsite(user.website);
-          const stagingSiteVersion = (
-            await this.tools.readPageJson(
-              `stage-pizza.${hostname}/version.json`
-            )
-          ).version;
+          const stagingSiteVersionJson = await this.tools.readPageJson(
+            `stage-pizza.${hostname}/version.json`
+          );
+          if (!stagingSiteVersionJson) {
+            rubric.comments += "Staging site does not have version.json\n";
+            return [score, rubric];
+          }
+          const stagingSiteVersion = stagingSiteVersionJson.version;
           // Check they match
           if (stagingReleaseVersion === stagingSiteVersion) {
             score += 20;
@@ -175,9 +178,16 @@ export class DeliverableSeven implements Grader {
               const productionReleaseVersion =
                 productionReleaseJson.name.match(/\d{8}\.\d{6}/)?.[0];
               // Check production site for valid version (matches release)
-              const productionSiteVersion = (
-                await this.tools.readPageJson(`${user.website}/version.json`)
-              ).version;
+
+              const productionSiteVersionJson = await this.tools.readPageJson(
+                `${user.website}/version.json`
+              );
+              if (!productionSiteVersionJson) {
+                rubric.comments +=
+                  "Production site does not have version.json\n";
+                return [score, rubric];
+              }
+              const productionSiteVersion = productionSiteVersionJson.version;
               if (productionReleaseVersion === productionSiteVersion) {
                 score += 20;
                 rubric.triggeredProductionDeployment += 20;
